@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MapPin, Phone, ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
@@ -54,6 +54,29 @@ const navigationItems = [
   { name: 'Contact', href: '/contact' }
 ];
 
+const AnimatedSubmenu = ({ isOpen, children }) => {
+  const contentRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const contentHeight = contentRef.current.scrollHeight;
+      setHeight(isOpen ? contentHeight : 0);
+    }
+  }, [isOpen, children]);
+
+  return (
+    <div
+      className="overflow-hidden transition-all duration-300 ease-in-out"
+      style={{ height }}
+    >
+      <div ref={contentRef}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
 const MobileDropdownMenu = ({ items, level = 0 }) => {
   const [expandedItem, setExpandedItem] = useState(null);
   const [expandedSubItem, setExpandedSubItem] = useState(null);
@@ -75,55 +98,55 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
           {/* Main section button */}
           <button 
             onClick={(e) => handleItemClick(item, e)}
-            className="w-full text-left flex items-center justify-between py-2 px-4 hover:bg-sky-50 transition-colors duration-200"
+            className="w-full text-left flex items-center justify-between py-3 px-4 hover:bg-sky-50 transition-all duration-200"
           >
-            <span className="text-gray-700 hover:text-sky-500">{item.name}</span>
+            <span className="text-gray-700 hover:text-sky-500 text-base">{item.name}</span>
             {(item.dropdown || item.subDropdown) && (
               <ChevronDown 
-                className={`h-5 w-5 text-gray-600 transition-transform duration-300 ease-in-out ml-2
+                className={`h-5 w-5 text-gray-600 transform transition-transform duration-300 ease-in-out ml-2
                   ${expandedItem === item.name ? 'rotate-180' : ''}`}
               />
             )}
           </button>
 
           {/* Dropdown items */}
-          {item.dropdown && expandedItem === item.name && (
-            <div className="overflow-hidden transition-all duration-300 ease-in-out">
+          {item.dropdown && (
+            <AnimatedSubmenu isOpen={expandedItem === item.name}>
               <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
                 {item.dropdown.map((subItem) => (
-                  <div key={subItem.name} className="py-2">
+                  <div key={subItem.name} className="py-1">
                     {subItem.subDropdown ? (
                       <div>
                         <button
                           onClick={(e) => handleSubItemClick(subItem.name, e)}
-                          className="w-full text-left flex items-center justify-between px-4 py-2 text-gray-600 hover:text-sky-500 transition-colors duration-200"
+                          className="w-full text-left flex items-center justify-between px-4 py-2 text-gray-600 hover:text-sky-500 transition-all duration-200"
                         >
-                          <span>{subItem.name}</span>
+                          <span className="text-sm">{subItem.name}</span>
                           <ChevronRight 
-                            className={`h-4 w-4 transition-transform duration-300 ease-in-out
+                            className={`h-4 w-4 transform transition-transform duration-300 ease-in-out
                               ${expandedSubItem === subItem.name ? 'rotate-90' : ''}`}
                           />
                         </button>
                         
                         {/* Nested submenu items */}
-                        {expandedSubItem === subItem.name && (
+                        <AnimatedSubmenu isOpen={expandedSubItem === subItem.name}>
                           <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
                             {subItem.subDropdown.map((nestedItem) => (
                               <Link
                                 key={nestedItem.name}
                                 href={nestedItem.href}
-                                className="block px-4 py-2 text-gray-600 hover:text-sky-500 transition-colors duration-200"
+                                className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
                               >
                                 {nestedItem.name}
                               </Link>
                             ))}
                           </div>
-                        )}
+                        </AnimatedSubmenu>
                       </div>
                     ) : (
                       <Link
                         href={subItem.href}
-                        className="block px-4 py-2 text-gray-600 hover:text-sky-500 transition-colors duration-200"
+                        className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
                       >
                         {subItem.name}
                       </Link>
@@ -131,24 +154,24 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </AnimatedSubmenu>
           )}
 
           {/* Direct subDropdown items */}
-          {item.subDropdown && expandedItem === item.name && (
-            <div className="overflow-hidden transition-all duration-300 ease-in-out">
+          {item.subDropdown && (
+            <AnimatedSubmenu isOpen={expandedItem === item.name}>
               <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
                 {item.subDropdown.map((subItem) => (
                   <Link
                     key={subItem.name}
                     href={subItem.href}
-                    className="block px-4 py-2 text-gray-600 hover:text-sky-500 transition-colors duration-200"
+                    className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
                   >
                     {subItem.name}
                   </Link>
                 ))}
               </div>
-            </div>
+            </AnimatedSubmenu>
           )}
         </div>
       ))}
@@ -241,28 +264,39 @@ const TopNav = () => {
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
+      if (window.innerWidth >= 1024) {
+        setIsMobileMenuOpen(false);
+      }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getNavItemClass = (hasDropdown) => {
-    let baseClasses = `font-semibold transition-colors hover:text-sky-500 flex items-center px-2 py-1`;
-    
-    if (windowWidth >= 768 && windowWidth <= 973) {
-      baseClasses += ' text-xs';
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
     } else {
-      baseClasses += ' text-sm lg:text-base';
+      document.body.style.overflow = '';
     }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
-    if (hasDropdown) {
-      baseClasses += ' items-center';
+  const getNavItemClass = (hasDropdown) => {
+    let baseClasses = `font-semibold transition-colors duration-200 hover:text-sky-500 flex items-center px-2 py-1`;
+    
+    // Simplified text sizing with wider breakpoint
+    if (windowWidth >= 768 && windowWidth <= 1100) {
+      baseClasses += ' text-sm';
+    } else {
+      baseClasses += ' text-base';
     }
 
     return baseClasses;
   };
-  
+
   return (
     <header className={`fixed w-full top-0 z-50 ${montserrat.className}`}>
       <div className="bg-sky-500 text-white py-2">
@@ -312,8 +346,8 @@ const TopNav = () => {
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:block">
-              <ul className="flex space-x-4 lg:space-x-8">
+            <nav className="hidden lg:block transition-opacity duration-200">
+              <ul className="flex items-center space-x-6 lg:space-x-8">
                 {navigationItems.map((item) => (
                   <li key={item.name} className="group">
                     <div className="relative inline-block">
@@ -343,18 +377,40 @@ const TopNav = () => {
             </nav>
           </div>
 
+          {/* Mobile Menu Overlay */}
+          <div 
+            className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 lg:hidden
+              ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
           {/* Mobile Menu */}
           <div 
-            className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-              isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-            }`}
+            className={`fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 
+              transform transition-transform duration-300 ease-in-out lg:hidden
+              ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+              flex flex-col`}
           >
-            <div className="py-2 space-y-1">
-              {navigationItems.map((item) => (
-                <div key={item.name} className="border-b border-gray-200 last:border-0">
-                  <MobileDropdownMenu items={[item]} />
-                </div>
-              ))}
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+              >
+                <X className="h-6 w-6 text-gray-800" />
+              </button>
+            </div>
+
+            {/* Scrollable Menu Content */}
+            <div className="flex-1 overflow-y-auto overscroll-contain pb-6">
+              <div className="py-2">
+                {navigationItems.map((item) => (
+                  <div key={item.name} className="border-b border-gray-200 last:border-0">
+                    <MobileDropdownMenu items={[item]} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
