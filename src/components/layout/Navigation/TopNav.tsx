@@ -192,7 +192,7 @@ const DropdownMenu = ({ items, className = '', menuType }) => {
   }, []);
 
   const positionClass = menuType === 'patient-resources' 
-    ? 'left-[-10%]'
+    ? 'left-[-50%]'
     : 'left-[-20%]';
 
   const getSubmenuPosition = (windowWidth) => {
@@ -304,17 +304,17 @@ const TopNav = () => {
           <Link 
             href="https://maps.google.com" 
             target="_blank"
-            className="flex items-center hover:text-sky-100 transition-colors font-semibold text-sm"
+            className="flex items-center hover:text-sky-100 transition-colors font-black text-m"
           >
-            <MapPin className="h-4 w-4 mr-2" />
+            <MapPin className="h-5 w-5 mr-2" />
             <span className="hidden sm:inline">Get Directions</span>
           </Link>
           
           <Link 
             href="tel:5612726664" 
-            className="flex items-center hover:text-sky-100 transition-colors font-semibold text-sm"
+            className="flex items-center hover:text-sky-100 transition-colors font-black text-m"
           >
-            <Phone className="h-4 w-4 mr-2" />
+            <Phone className="h-5 w-5 mr-2" />
             (561) 272-6664
           </Link>
         </div>

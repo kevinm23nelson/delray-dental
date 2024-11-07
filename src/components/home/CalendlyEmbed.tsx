@@ -1,23 +1,11 @@
 // src/components/home/CalendlyEmbed.tsx
 "use client";
 import { useEffect, useState } from 'react';
-import { ClipboardCheck, HeartPulse } from 'lucide-react'; // Changed to available icons
+import { HeartPulse, ClipboardCheck } from 'lucide-react';
 
 const CalendlyEmbed = () => {
-  const [selectedEventType, setSelectedEventType] = useState('hygiene'); // default to hygiene
-
-  useEffect(() => {
-    // Load the Calendly script
-    const script = document.createElement('script');
-    script.src = 'https://assets.calendly.com/assets/external/widget.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup on unmount
-      document.body.removeChild(script);
-    };
-  }, []);
+  const [selectedEventType, setSelectedEventType] = useState('hygiene');
+  const [isLoading, setIsLoading] = useState(true);
 
   const eventTypes = {
     'hygiene': {
@@ -36,6 +24,50 @@ const CalendlyEmbed = () => {
     }
   };
 
+  useEffect(() => {
+    const loadCalendly = () => {
+      // Clear any existing widgets
+      const existingScript = document.getElementById('calendly-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      // Create and load new script
+      const script = document.createElement('script');
+      script.id = 'calendly-script';
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.onload = () => {
+        setIsLoading(false);
+      };
+      document.body.appendChild(script);
+    };
+
+    loadCalendly();
+
+    return () => {
+      const script = document.getElementById('calendly-script');
+      if (script) {
+        script.remove();
+      }
+    };
+  }, []);
+
+  const handleTypeChange = (type) => {
+    setSelectedEventType(type);
+    const widget = document.querySelector('.calendly-inline-widget');
+    if (widget) {
+      widget.innerHTML = '';  // Clear the current widget
+      widget.setAttribute('data-url', eventTypes[type].url);
+      // Reinitialize Calendly for the new URL
+      if (window.Calendly) {
+        window.Calendly.initInlineWidget({
+          url: eventTypes[type].url,
+          parentElement: widget,
+        });
+      }
+    }
+  };
+
   return (
     <div className="w-full animate-in fade-in duration-700 ease-in-out">
       {/* Event Type Selection */}
@@ -46,7 +78,7 @@ const CalendlyEmbed = () => {
             return (
               <button
                 key={key}
-                onClick={() => setSelectedEventType(key)}
+                onClick={() => handleTypeChange(key)}
                 className={`px-8 py-6 rounded-xl transition-all duration-200 flex flex-col items-center text-center w-full sm:w-80 ${
                   selectedEventType === key
                     ? 'bg-sky-500 text-white shadow-lg scale-105'
@@ -67,12 +99,21 @@ const CalendlyEmbed = () => {
 
       {/* Calendly Embed */}
       <div className="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-2xl bg-white">
+        {isLoading && (
+          <div className="flex items-center justify-center h-[700px] bg-gray-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-sky-500 mb-4"></div>
+              <p className="text-gray-600">Loading calendar...</p>
+            </div>
+          </div>
+        )}
         <div 
-          className="calendly-inline-widget" 
+          className="calendly-inline-widget"
           data-url={eventTypes[selectedEventType].url}
           style={{ 
             minWidth: '320px',
             height: '700px',
+            display: isLoading ? 'none' : 'block'
           }}
         />
       </div>
