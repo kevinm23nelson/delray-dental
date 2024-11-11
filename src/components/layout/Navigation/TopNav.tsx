@@ -1,57 +1,67 @@
-'use client'
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { MapPin, Phone, ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
-import { Montserrat } from 'next/font/google';
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  MapPin,
+  Phone,
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  X,
+} from "lucide-react";
+import { Montserrat } from "next/font/google";
 
-const montserrat = Montserrat({ subsets: ['latin'] });
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 const navigationItems = [
-  { name: 'Home', href: '/' },
-  { name: 'About Us', href: '/about-us' },
+  { name: "Home", href: "/" },
+  { name: "About Us", href: "/about-us" },
   {
-    name: 'Services',
-    href: '/services',
+    name: "Services",
+    href: "/services",
     dropdown: [
-      { name: 'Dental Implants', href: '/services/dental-implants' },
-      { name: 'Teeth Whitening', href: '/services/teeth-whitening' },
-      { name: 'Oral Cancer Screening', href: '/services/oral-cancer-screening' },
-      { name: 'Cosmetic Bonding', href: '/services/cosmetic-bonding' },
-      { name: 'Veneers', href: '/services/veneers' },
-      { name: 'Teeth Cleanings', href: '/services/teeth-cleanings' },
-      { name: 'Full and Partial Dentures', href: '/services/dentures' },
-      { name: 'Oral Surgery', href: '/services/oral-surgery' },
-      { name: 'Dental Diet System', href: '/services/dental-diet-system' },
-      { name: 'Non-Surgical Gum Treatment', href: '/services/gum-treatment' },
-      { name: 'Dental Fillings', href: '/services/dental-fillings' },
-      { name: 'Root Canal Therapy', href: '/services/root-canal' },
-      { name: 'Tooth Extractions', href: '/services/tooth-extractions' },
-      { name: 'ClearCorrect™', href: '/services/clearcorrect' },
-      { name: 'Invisalign®', href: '/services/invisalign' }
-    ]
-  },
-  {
-    name: 'Patient Resources',
-    href: '/patient-resources',
-    dropdown: [
-      { name: 'Before and After', href: '/before-after' },
-      { name: 'Surgical Pre-Operative Instructions', href: '/pre-operative' },
+      { name: "Dental Implants", href: "/services/dental-implants" },
+      { name: "Teeth Whitening", href: "/services/teeth-whitening" },
       {
-        name: 'Surgical Post-Operative Instructions',
-        href: '/post-operative',
-        subDropdown: [
-          { name: 'Dry Socket', href: '/dry-socket' },
-          { name: 'For Those Who Smoke', href: '/smoking' }
-        ]
+        name: "Oral Cancer Screening",
+        href: "/services/oral-cancer-screening",
       },
-      { name: 'Testimonials', href: '/testimonials' },
-      { name: 'Video Testimonials', href: '/video-testimonials' },
-      { name: 'Fee Schedule', href: '/fee-schedule' }
-    ]
+      { name: "Cosmetic Bonding", href: "/services/cosmetic-bonding" },
+      { name: "Veneers", href: "/services/veneers" },
+      { name: "Teeth Cleanings", href: "/services/teeth-cleanings" },
+      { name: "Full and Partial Dentures", href: "/services/dentures" },
+      { name: "Oral Surgery", href: "/services/oral-surgery" },
+      { name: "Dental Diet System", href: "/services/dental-diet-system" },
+      { name: "Non-Surgical Gum Treatment", href: "/services/gum-treatment" },
+      { name: "Dental Fillings", href: "/services/dental-fillings" },
+      { name: "Root Canal Therapy", href: "/services/root-canal" },
+      { name: "Tooth Extractions", href: "/services/tooth-extractions" },
+      { name: "ClearCorrect™", href: "/services/clearcorrect" },
+      { name: "Invisalign®", href: "/services/invisalign" },
+    ],
   },
-  { name: 'Forms', href: '/forms' },
-  { name: 'Contact', href: '/contact' }
+  {
+    name: "Patient Resources",
+    href: "/patient-resources",
+    dropdown: [
+      { name: "Before and After", href: "/patient-resources/before-after" },
+      { name: "Surgical Pre-Operative Instructions", href: "/patient-resources/pre-operative" },
+      {
+        name: "Surgical Post-Operative Instructions",
+        href: "/patient-resources/post-operative",
+        subDropdown: [
+          { name: "Dry Socket", href: "/patient-resources/post-operative/dry-socket" },
+          { name: "For Those Who Smoke", href: "/smoking" },
+        ],
+      },
+      { name: "Testimonials", href: "/testimonials" },
+      { name: "Video Testimonials", href: "/video-testimonials" },
+      { name: "Fee Schedule", href: "/fee-schedule" },
+    ],
+  },
+  { name: "Forms", href: "/forms" },
+  { name: "Contact", href: "/contact" },
 ];
 
 const AnimatedSubmenu = ({ isOpen, children }) => {
@@ -70,9 +80,7 @@ const AnimatedSubmenu = ({ isOpen, children }) => {
       className="overflow-hidden transition-all duration-300 ease-in-out"
       style={{ height }}
     >
-      <div ref={contentRef}>
-        {children}
-      </div>
+      <div ref={contentRef}>{children}</div>
     </div>
   );
 };
@@ -96,15 +104,17 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
       {items.map((item) => (
         <div key={item.name}>
           {/* Main section button */}
-          <button 
+          <button
             onClick={(e) => handleItemClick(item, e)}
             className="w-full text-left flex items-center justify-between py-3 px-4 hover:bg-sky-50 transition-all duration-200"
           >
-            <span className="text-gray-700 hover:text-sky-500 text-base">{item.name}</span>
+            <span className="text-gray-700 hover:text-sky-500 text-base">
+              {item.name}
+            </span>
             {(item.dropdown || item.subDropdown) && (
-              <ChevronDown 
+              <ChevronDown
                 className={`h-5 w-5 text-gray-600 transform transition-transform duration-300 ease-in-out ml-2
-                  ${expandedItem === item.name ? 'rotate-180' : ''}`}
+                  ${expandedItem === item.name ? "rotate-180" : ""}`}
               />
             )}
           </button>
@@ -122,14 +132,20 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
                           className="w-full text-left flex items-center justify-between px-4 py-2 text-gray-600 hover:text-sky-500 transition-all duration-200"
                         >
                           <span className="text-sm">{subItem.name}</span>
-                          <ChevronRight 
+                          <ChevronRight
                             className={`h-4 w-4 transform transition-transform duration-300 ease-in-out
-                              ${expandedSubItem === subItem.name ? 'rotate-90' : ''}`}
+                              ${
+                                expandedSubItem === subItem.name
+                                  ? "rotate-90"
+                                  : ""
+                              }`}
                           />
                         </button>
-                        
+
                         {/* Nested submenu items */}
-                        <AnimatedSubmenu isOpen={expandedSubItem === subItem.name}>
+                        <AnimatedSubmenu
+                          isOpen={expandedSubItem === subItem.name}
+                        >
                           <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
                             {subItem.subDropdown.map((nestedItem) => (
                               <Link
@@ -179,21 +195,22 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
   );
 };
 
-const DropdownMenu = ({ items, className = '', menuType }) => {
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+const DropdownMenu = ({ items, className = "", menuType }) => {
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
 
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const positionClass = menuType === 'patient-resources' 
-    ? 'left-[-50%]'
-    : 'left-[-20%]';
+  const positionClass =
+    menuType === "patient-resources" ? "left-[-50%]" : "left-[-20%]";
 
   const getSubmenuPosition = (windowWidth) => {
     // Start with maximum offset
@@ -201,21 +218,23 @@ const DropdownMenu = ({ items, className = '', menuType }) => {
 
     // If screen is getting smaller, gradually reduce the offset
     if (windowWidth < 1200) {
-      baseOffset = Math.max(30, (windowWidth - 800) / 400 * 30 + 30); // Linear reduction
+      baseOffset = Math.max(30, ((windowWidth - 800) / 400) * 30 + 30); // Linear reduction
     }
 
     return `left-[${baseOffset}%]`;
   };
 
   return (
-    <div className={`absolute mt-0 w-80 bg-white rounded-md shadow-lg py-1 z-50 
+    <div
+      className={`absolute mt-0 w-80 bg-white rounded-md shadow-lg py-1 z-50 
       opacity-0 pointer-events-none translate-y-[-10px] transition-all duration-200 ease-in-out 
       group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
       ${positionClass}
-      ${className}`}>
+      ${className}`}
+    >
       {items.map((item) => {
         const hasSubmenu = Boolean(item.subDropdown?.length);
-        
+
         return (
           <div key={item.name} className="relative group/sub">
             <Link
@@ -224,18 +243,22 @@ const DropdownMenu = ({ items, className = '', menuType }) => {
             >
               <div className="flex items-center justify-between w-full pr-2">
                 <span className="flex-grow">{item.name}</span>
-                {item.name === 'Surgical Post-Operative Instructions' && (
+                {item.name === "Surgical Post-Operative Instructions" && (
                   <span className="flex items-center pl-4">
                     <ChevronRight className="h-4 w-4 flex-shrink-0" />
                   </span>
                 )}
               </div>
             </Link>
-            
+
             {hasSubmenu && (
-              <div className={`absolute ${getSubmenuPosition(windowWidth)} top-0 opacity-0 pointer-events-none 
+              <div
+                className={`absolute ${getSubmenuPosition(
+                  windowWidth
+                )} top-0 opacity-0 pointer-events-none 
                 translate-y-[-10px] transition-all duration-200 ease-in-out
-                group-hover/sub:opacity-100 group-hover/sub:pointer-events-auto group-hover/sub:translate-y-0 z-[60]`}>
+                group-hover/sub:opacity-100 group-hover/sub:pointer-events-auto group-hover/sub:translate-y-0 z-[60]`}
+              >
                 <div className="w-48 bg-white rounded-md shadow-lg py-1">
                   {item.subDropdown.map((subItem) => (
                     <Link
@@ -259,7 +282,9 @@ const DropdownMenu = ({ items, className = '', menuType }) => {
 const TopNav = () => {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -269,29 +294,29 @@ const TopNav = () => {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
 
   const getNavItemClass = (hasDropdown) => {
     let baseClasses = `font-semibold transition-colors duration-200 hover:text-sky-500 flex items-center px-2 py-1`;
-    
+
     // Simplified text sizing with wider breakpoint
     if (windowWidth >= 768 && windowWidth <= 1100) {
-      baseClasses += ' text-sm';
+      baseClasses += " text-sm";
     } else {
-      baseClasses += ' text-base';
+      baseClasses += " text-base";
     }
 
     return baseClasses;
@@ -301,18 +326,18 @@ const TopNav = () => {
     <header className={`fixed w-full top-0 z-50 ${montserrat.className}`}>
       <div className="bg-sky-500 text-white py-2">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-          <Link 
-            href="https://maps.google.com" 
+          <Link
+            href="https://maps.google.com"
             target="_blank"
-            className="flex items-center hover:text-sky-100 transition-colors font-black text-m"
+            className="flex items-center hover:text-sky-100 transition-colors font-bold text-2xl"
           >
             <MapPin className="h-5 w-5 mr-2" />
             <span className="hidden sm:inline">Get Directions</span>
           </Link>
-          
-          <Link 
-            href="tel:5612726664" 
-            className="flex items-center hover:text-sky-100 transition-colors font-black text-m"
+
+          <Link
+            href="tel:5612726664"
+            className="flex items-center hover:text-sky-100 transition-colors font-bold text-2xl"
           >
             <Phone className="h-5 w-5 mr-2" />
             (561) 272-6664
@@ -333,7 +358,7 @@ const TopNav = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <button 
+            <button
               className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
@@ -346,27 +371,31 @@ const TopNav = () => {
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:block transition-opacity duration-200">
-              <ul className="flex items-center space-x-6 lg:space-x-8">
+            <nav className="hidden lg:block transition-opacity duration-200 ">
+              <ul className="flex items-center space-x-6 lg:space-x-8 ">
                 {navigationItems.map((item) => (
                   <li key={item.name} className="group">
                     <div className="relative inline-block">
                       <Link
                         href={item.href}
                         className={`${getNavItemClass(!!item.dropdown)} 
-                          ${pathname === item.href ? 'text-sky-500' : 'text-gray-600'}`}
+                          ${
+                            pathname === item.href
+                              ? "text-sky-500"
+                              : "text-gray-600"
+                          }`}
                       >
                         {item.name}
                         {item.dropdown && (
                           <ChevronDown className="ml-1 h-4 w-4" />
                         )}
                       </Link>
-                      
+
                       {item.dropdown && (
                         <div className="absolute top-full min-w-max">
-                          <DropdownMenu 
-                            items={item.dropdown} 
-                            menuType={item.name.toLowerCase().replace(' ', '-')}
+                          <DropdownMenu
+                            items={item.dropdown}
+                            menuType={item.name.toLowerCase().replace(" ", "-")}
                           />
                         </div>
                       )}
@@ -378,17 +407,21 @@ const TopNav = () => {
           </div>
 
           {/* Mobile Menu Overlay */}
-          <div 
+          <div
             className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 lg:hidden
-              ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+              ${
+                isMobileMenuOpen
+                  ? "opacity-100"
+                  : "opacity-0 pointer-events-none"
+              }`}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
           {/* Mobile Menu */}
-          <div 
+          <div
             className={`fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 
               transform transition-transform duration-300 ease-in-out lg:hidden
-              ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+              ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}
               flex flex-col`}
           >
             {/* Mobile Header */}
@@ -406,7 +439,10 @@ const TopNav = () => {
             <div className="flex-1 overflow-y-auto overscroll-contain pb-6">
               <div className="py-2">
                 {navigationItems.map((item) => (
-                  <div key={item.name} className="border-b border-gray-200 last:border-0">
+                  <div
+                    key={item.name}
+                    className="border-b border-gray-200 last:border-0"
+                  >
                     <MobileDropdownMenu items={[item]} />
                   </div>
                 ))}
