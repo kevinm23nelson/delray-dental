@@ -1,7 +1,7 @@
 // src/components/shared/ImageComparisonSlider.tsx
 "use client";
-import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 interface ImageComparisonSliderProps {
   beforeImage: string;
@@ -24,9 +24,9 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
     if (!isResizing || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const x = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const x = "touches" in event ? event.touches[0].clientX : event.clientX;
     const position = ((x - rect.left) / rect.width) * 100;
-    
+
     setPosition(Math.min(Math.max(position, 0), 100));
   };
 
@@ -39,38 +39,33 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
   };
 
   useEffect(() => {
-    document.addEventListener('mousemove', handleMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchmove', handleMove);
-    document.addEventListener('touchend', handleMouseUp);
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("touchmove", handleMove);
+    document.addEventListener("touchend", handleMouseUp);
 
     return () => {
-      document.removeEventListener('mousemove', handleMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchmove', handleMove);
-      document.removeEventListener('touchend', handleMouseUp);
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleMove);
+      document.removeEventListener("touchend", handleMouseUp);
     };
   }, [isResizing]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative w-full aspect-[4/3] select-none overflow-hidden rounded-lg"
     >
       {/* After image (full width) */}
       <div className="absolute inset-0">
-        <Image
-          src={afterImage}
-          alt={afterAlt}
-          fill
-          className="object-cover"
-        />
+        <Image src={afterImage} alt={afterAlt} fill className="object-cover" />
       </div>
 
       {/* Before image (clipped) */}
-      <div 
+      <div
         className="absolute inset-0"
-        style={{ 
+        style={{
           clipPath: `inset(0 ${100 - position}% 0 0)`,
         }}
       >
@@ -83,13 +78,10 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
       </div>
 
       {/* Slider */}
-      <div 
-        className="absolute inset-y-0"
-        style={{ left: `${position}%` }}
-      >
+      <div className="absolute inset-y-0" style={{ left: `${position}%` }}>
         {/* Vertical line */}
         <div className="absolute inset-y-0 w-0.5 bg-white shadow-lg" />
-        
+
         {/* Drag handle */}
         <button
           onMouseDown={handleMouseDown}
@@ -97,9 +89,41 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
           className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-ew-resize"
           aria-label="Comparison slider"
         >
-          <div className="flex gap-0.5">
-            <div className="w-0.5 h-4 bg-gray-400 rounded-full" />
-            <div className="w-0.5 h-4 bg-gray-400 rounded-full" />
+          <div className="flex items-center gap-2">
+            {/* Left arrow */}
+            <svg
+              width="8"
+              height="12"
+              viewBox="0 0 8 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-gray-400"
+            >
+              <path
+                d="M7 1L2 6L7 11"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {/* Right arrow */}
+            <svg
+              width="8"
+              height="12"
+              viewBox="0 0 8 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-gray-400"
+            >
+              <path
+                d="M1 1L6 6L1 11"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
         </button>
       </div>

@@ -16,7 +16,31 @@ const montserrat = Montserrat({ subsets: ["latin"] });
 
 const navigationItems = [
   { name: "Home", href: "/" },
-  { name: "About Us", href: "/about-us" },
+  {
+    name: "Patient Resources",
+    href: "/patient-resources",
+    dropdown: [
+      { name: "Before and After", href: "/patient-resources/before-after" },
+      {
+        name: "Surgical Pre-Operative Instructions",
+        href: "/patient-resources/pre-operative",
+      },
+      {
+        name: "Surgical Post-Operative Instructions",
+        href: "/patient-resources/post-operative",
+        subDropdown: [
+          {
+            name: "Dry Socket",
+            href: "/patient-resources/post-operative/dry-socket",
+          },
+          { name: "For Those Who Smoke", href: "/smoking" },
+        ],
+      },
+      { name: "Testimonials", href: "/testimonials" },
+      { name: "Video Testimonials", href: "/video-testimonials" },
+      { name: "Fee Schedule", href: "/fee-schedule" },
+    ],
+  },
   {
     name: "Services",
     href: "/services",
@@ -41,25 +65,7 @@ const navigationItems = [
       { name: "Invisalign®", href: "/services/invisalign" },
     ],
   },
-  {
-    name: "Patient Resources",
-    href: "/patient-resources",
-    dropdown: [
-      { name: "Before and After", href: "/patient-resources/before-after" },
-      { name: "Surgical Pre-Operative Instructions", href: "/patient-resources/pre-operative" },
-      {
-        name: "Surgical Post-Operative Instructions",
-        href: "/patient-resources/post-operative",
-        subDropdown: [
-          { name: "Dry Socket", href: "/patient-resources/post-operative/dry-socket" },
-          { name: "For Those Who Smoke", href: "/smoking" },
-        ],
-      },
-      { name: "Testimonials", href: "/testimonials" },
-      { name: "Video Testimonials", href: "/video-testimonials" },
-      { name: "Fee Schedule", href: "/fee-schedule" },
-    ],
-  },
+  { name: "About Us", href: "/about-us" },
   { name: "Forms", href: "/forms" },
   { name: "Contact", href: "/contact" },
 ];
@@ -146,7 +152,7 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
                         <AnimatedSubmenu
                           isOpen={expandedSubItem === subItem.name}
                         >
-                          <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
+                          <div className="pl-4 border-l-2 border-sky-100  mt-1">
                             {subItem.subDropdown.map((nestedItem) => (
                               <Link
                                 key={nestedItem.name}
@@ -213,15 +219,7 @@ const DropdownMenu = ({ items, className = "", menuType }) => {
     menuType === "patient-resources" ? "left-[-50%]" : "left-[-20%]";
 
   const getSubmenuPosition = (windowWidth) => {
-    // Start with maximum offset
-    let baseOffset = 60; // percentage
-
-    // If screen is getting smaller, gradually reduce the offset
-    if (windowWidth < 1200) {
-      baseOffset = Math.max(30, ((windowWidth - 800) / 400) * 30 + 30); // Linear reduction
-    }
-
-    return `left-[${baseOffset}%]`;
+    return "left-full"; // This will position the submenu at the right edge of its parent
   };
 
   return (
@@ -255,11 +253,13 @@ const DropdownMenu = ({ items, className = "", menuType }) => {
               <div
                 className={`absolute ${getSubmenuPosition(
                   windowWidth
-                )} top-0 opacity-0 pointer-events-none 
+                )} top-0 -right-1 opacity-0 pointer-events-none 
                 translate-y-[-10px] transition-all duration-200 ease-in-out
                 group-hover/sub:opacity-100 group-hover/sub:pointer-events-auto group-hover/sub:translate-y-0 z-[60]`}
               >
                 <div className="w-48 bg-white rounded-md shadow-lg py-1">
+                  {" "}
+                  {/* Added ml-2 for spacing */}
                   {item.subDropdown.map((subItem) => (
                     <Link
                       key={subItem.name}
