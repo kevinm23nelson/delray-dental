@@ -47,6 +47,12 @@ const AboutUs = () => {
                   height={500}
                   className="rounded-xl shadow-xl mx-auto"
                 />
+                <div className="text-center mt-4 space-y-1">
+                  <p className="text-lg text-gray-700 italic">
+                    "Every day is a good day."
+                  </p>
+                  <p className="text-sm text-gray-500 font-semibold">- JR</p>
+                </div>
               </div>
               <div className="md:col-span-2 text-gray-800 space-y-6">
                 <h2 className="text-3xl font-bold mb-6">
@@ -55,9 +61,6 @@ const AboutUs = () => {
 
                 {/* Bio sections with arrows */}
                 <div className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 pt-1">
-                    <ArrowCircleIcon />
-                  </div>
                   <p className="text-lg leading-relaxed">
                     Dr. John Ritota graduated from Ithaca College and Georgetown
                     University School of Dentistry. He is a member of the South

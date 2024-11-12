@@ -60,19 +60,15 @@ const DrySocket = () => {
     `Gauze with medication.`,
   ];
 
-  const homeInstruction = [
+  const additionalInstruction = [
     `Applying topical anesthetic.`,
-    `Applying topical anesthetic.`,
+    `Alvogyl by Septodont.`,
   ];
 
-  const instructionsTwo = [
-    `Bleeding is excessive and cannot be controlled.`,
-
-    `Discomfort is poorly controlled.`,
-
-    `Swelling is excessive, spreading, or continuing to enlarge after 48 hours.`,
-
-    `Allergies or other reactions to medications occur.`,
+  const threeFourDaysInstruction = [
+    `Good oral health care.`,
+    `Avoid food with any residuals…popcorn, peanuts and pasta`,
+    `Eat soft foods…mashed potatoes, clear or cream soups that don’t contain any residue, puddings.`,
   ];
 
   return (
@@ -81,7 +77,7 @@ const DrySocket = () => {
       <div className="relative h-[500px] w-full">
         <div className="absolute inset-0">
           <Image
-            src="/images/backgrounds/main-smile-one.jpg"
+            src="/images/backgrounds/patient-resources.jpg"
             alt="Dental Office"
             fill
             className="object-cover"
@@ -215,84 +211,14 @@ const DrySocket = () => {
               ))}
             </div>
 
-            {/* At Home Care Section */}
+            {/* 3-4 Day Care Section */}
             <div className="text-left mb-6 mt-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Prevention of dry socket:{" "}
-              </h2>
-            </div>
-            <div className="space-y-4">
-              {preventionInstruction.map((instruction, index) => (
-                <div
-                  key={index}
-                  className="flex gap-5 items-start bg-white p-3 rounded-lg shadow-sm"
-                >
-                  <div className="flex-shrink-0">
-                    {" "}
-                    {/* Removed pt-1 and added flex-shrink-0 */}
-                    <ArrowCircleIcon />
-                  </div>
-                  <div className="text-gray-700 leading-relaxed">
-                    {instruction.content}
-                    <span className="font-bold">
-                      {" "}
-                      {instruction.bigDetail}
-                    </span>{" "}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Bottom Informational Section */}
-            <div className="text-left mt-12 mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Office:{" "}
-                <a
-                  href="tel:5614953115"
-                  className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                >
-                  (561) 495-3115
-                </a>
-              </h2>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Delray Community Hospital Emergency:{" "}
-                <a
-                  href="tel:5614953115"
-                  className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                >
-                  (561) 495-3115
-                </a>
-              </h2>
-              <p className="text-xl text-gray-600">
-                Sometimes patients develop such things as allergies to
-                medications (generalized rash, itching, etc…) infection (foul
-                taste, unusual or prolonged swelling), or dry sockets (throbbing
-                pain occurring 3-7 days following the procedure). These and
-                other potential problems are treatable if brought to our
-                attention. If the doctor is not available to talk with you about
-                a problem you are having, you can call{" "}
-                <a
-                  href="tel:5614953115"
-                  className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                >
-                  (561) 495-3115
-                </a>
-                . In our office, we are doing everything we can to make your
-                surgery as painless and uneventful as possible. However, what
-                you do or do not do following your surgery is important too.
-              </p>
-              <p className="mt-6 text-xl text-gray-600">
-                DISREGARDING THESE SUGGESTIONS may lead to severe pain and
-                discomfort.
-              </p>
-            </div>
-            <div className="text-left mt-12 mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">
-                Contact the doctor if:
+                Continue these instructions for 3-4 days:{" "}
               </h2>
             </div>
             <div className="space-y-6">
-              {instructionsTwo.map((instruction, index) => (
+              {threeFourDaysInstruction.map((instruction, index) => (
                 <div
                   key={index}
                   className="flex gap-4 items-center bg-white p-2 rounded-lg shadow-sm" // Changed items-start to items-center
@@ -305,6 +231,58 @@ const DrySocket = () => {
                   <p className="text-gray-700 leading-relaxed">{instruction}</p>
                 </div>
               ))}
+            </div>
+            {/* At Home Care Section */}
+            <div className="text-left mb-6 mt-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Additonal home care instructions:{" "}
+              </h2>
+            </div>
+            <div className="space-y-6">
+              {additionalInstruction.map((instruction, index) => (
+                <div
+                  key={index}
+                  className="flex gap-4 items-center bg-white p-2 rounded-lg shadow-sm" // Changed items-start to items-center
+                >
+                  <div className="flex-shrink-0">
+                    {" "}
+                    {/* Removed pt-1 and added flex-shrink-0 */}
+                    <ArrowCircleIcon />
+                  </div>
+                  <p className="text-gray-700 leading-relaxed">{instruction}</p>
+                </div>
+              ))}
+            </div>
+            {/* Bottom Informational Section */}
+            <div className="text-left mt-12 mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                News Updates on Dry Socket
+              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Oral Contraceptives May Increase Pain After Wisdom Tooth
+                Extraction
+              </h2>
+              <p className="text-xl text-gray-600">
+                That tests on 267 women showed that those on the birth control
+                pill were more susceptible than non-users to both postoperative
+                pain and a condition known as “dry socket”. In this condition,
+                normal healing of the vacant tooth socket is delayed by the
+                failure of a blood clot to form. Infection instead causes the
+                socket to remain empty. In the study, pain on the day after the
+                operation was experienced by 30 percent of pill takers compared
+                to just 11 percent of non-users. Five days after the operation
+                the difference was 14 percent compared to 5 percent. The
+                researchers said these results suggest that the pill may reduce
+                the pain threshold. The differential was similar when the
+                development of dry socket was compared. Here, 11 percent of pill
+                users were affected compared to 4 percent of non-pill users.
+              </p>
+              <p className="mt-2 text-xl text-gray-600">
+                SOURCE: British Dental Journal 2003;194:453-455.
+              </p>
+              <p className="mt-2 text-xl text-gray-600">
+                ** Academy of General Dentistry.{" "}
+              </p>
             </div>
           </div>
         </Container>
