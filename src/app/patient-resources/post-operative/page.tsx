@@ -1,11 +1,48 @@
-// src/app/patient-resources/pre-operative/page.tsx
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useRef } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
+import { motion, useInView } from "framer-motion";
+import BackToTop from "@/components/shared/BackToTop";
 
-const PreOperative = () => {
+const AnimatedContent = ({ children, direction = "right" }) => {
+  const contentRef = useRef(null);
+  const isInView = useInView(contentRef, {
+    once: false,
+    margin: "-100px",
+    amount: 0.3,
+  });
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      x: direction === "right" ? 30 : -30,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      ref={contentRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const PostOperative = () => {
   const instructions = [
     {
       title: "BLEEDING",
@@ -61,7 +98,6 @@ const PreOperative = () => {
             className="object-cover"
             priority
           />
-          {/* Enhanced overlay with gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
@@ -81,101 +117,129 @@ const PreOperative = () => {
       <section className="py-16 bg-gray-100">
         <Container>
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Post-Operative Instructions
-              </h2>
-              <p className="text-xl text-gray-600">
-                To insure rapid healing and to avoid complications that could be
-                both harmful and painful to you, please follow these
-                instructions carefully.
-              </p>
-            </div>
+            <AnimatedContent>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Post-Operative Instructions
+                </h2>
+                <p className="text-xl text-gray-600">
+                  To insure rapid healing and to avoid complications that could
+                  be both harmful and painful to you, please follow these
+                  instructions carefully.
+                </p>
+                <div className="flex justify-center gap-4 mt-8">
+                  <Link
+                    href="/patient-resources/post-operative/dry-socket"
+                    className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
+                  >
+                    Dry Socket Details
+                  </Link>
+                  <Link
+                    href="/patient-resources/post-operative/smoking"
+                    className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
+                  >
+                    Smoking Effects Details
+                  </Link>
+                </div>
+              </div>
+            </AnimatedContent>
 
             <div className="space-y-8">
               {instructions.map((instruction, index) => (
-                <div
+                <AnimatedContent
                   key={index}
-                  className="flex gap-6 items-start bg-white p-6 rounded-lg shadow-sm"
+                  direction="right"
                 >
-                  <div className="pt-1">
-                    <ArrowCircleIcon />
+                  <div className="flex gap-6 items-start bg-white p-6 rounded-lg shadow-sm">
+                    <div className="pt-1">
+                      <ArrowCircleIcon />
+                    </div>
+                    <div className="text-gray-700 leading-relaxed">
+                      <span className="font-bold">{instruction.title}:</span>{" "}
+                      {instruction.content}
+                    </div>
                   </div>
-                  <div className="text-gray-700 leading-relaxed">
-                    <span className="font-bold">{instruction.title}:</span>{" "}
-                    {instruction.content}
-                  </div>
-                </div>
+                </AnimatedContent>
               ))}
             </div>
 
             {/* Bottom Informational Section */}
-            <div className="text-left mt-12 mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Office:{" "}
-                <a
-                  href="tel:5614953115"
-                  className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                >
-                  (561) 495-3115
-                </a>
-              </h2>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Delray Community Hospital Emergency:{" "}
-                <a
-                  href="tel:5614953115"
-                  className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                >
-                  (561) 495-3115
-                </a>
-              </h2>
-              <p className="text-xl text-gray-600">
-                Sometimes patients develop such things as allergies to
-                medications (generalized rash, itching, etc…) infection (foul
-                taste, unusual or prolonged swelling), or dry sockets (throbbing
-                pain occurring 3-7 days following the procedure). These and
-                other potential problems are treatable if brought to our
-                attention. If the doctor is not available to talk with you about
-                a problem you are having, you can call{" "}
-                <a
-                  href="tel:5614953115"
-                  className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                >
-                  (561) 495-3115
-                </a>
-                . In our office, we are doing everything we can to make your
-                surgery as painless and uneventful as possible. However, what
-                you do or do not do following your surgery is important too.
-              </p>
-              <p className="mt-6 text-xl text-gray-600">
-                DISREGARDING THESE SUGGESTIONS may lead to severe pain and
-                discomfort.
-              </p>
-            </div>
-            <div className="text-left mt-12 mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">
-                Contact the doctor if:
-              </h2>
-            </div>
+            <AnimatedContent>
+              <div className="text-left mt-12 mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Office:{" "}
+                  <a
+                    href="tel:5614953115"
+                    className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                  >
+                    (561) 495-3115
+                  </a>
+                </h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Delray Community Hospital Emergency:{" "}
+                  <a
+                    href="tel:5614953115"
+                    className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                  >
+                    (561) 495-3115
+                  </a>
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Sometimes patients develop such things as allergies to
+                  medications (generalized rash, itching, etc…) infection (foul
+                  taste, unusual or prolonged swelling), or dry sockets
+                  (throbbing pain occurring 3-7 days following the procedure).
+                  These and other potential problems are treatable if brought to
+                  our attention. If the doctor is not available to talk with you
+                  about a problem you are having, you can call{" "}
+                  <a
+                    href="tel:5614953115"
+                    className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                  >
+                    (561) 495-3115
+                  </a>
+                  . In our office, we are doing everything we can to make your
+                  surgery as painless and uneventful as possible. However, what
+                  you do or do not do following your surgery is important too.
+                </p>
+                <p className="mt-6 text-xl text-gray-600">
+                  DISREGARDING THESE SUGGESTIONS may lead to severe pain and
+                  discomfort.
+                </p>
+              </div>
+            </AnimatedContent>
+
+            <AnimatedContent>
+              <div className="text-left mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-gray-900">
+                  Contact the doctor if:
+                </h2>
+              </div>
+            </AnimatedContent>
+
             <div className="space-y-6">
               {instructionsTwo.map((instruction, index) => (
-                <div
+                <AnimatedContent
                   key={index}
-                  className="flex gap-4 items-center bg-white p-2 rounded-lg shadow-sm" // Changed items-start to items-center
+                  direction="right"
                 >
-                  <div className="flex-shrink-0">
-                    {" "}
-                    <ArrowCircleIcon />
+                  <div className="flex gap-4 items-center bg-white p-2 rounded-lg shadow-sm">
+                    <div className="flex-shrink-0">
+                      <ArrowCircleIcon />
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">
+                      {instruction}
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">{instruction}</p>
-                </div>
+                </AnimatedContent>
               ))}
             </div>
           </div>
         </Container>
       </section>
+      <BackToTop/>
     </div>
   );
 };
 
-export default PreOperative;
+export default PostOperative;

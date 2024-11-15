@@ -1,10 +1,46 @@
-// src/app/patient-resources/pre-operative/page.tsx
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useRef } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import BlueCheckCircleIcon from "@/components/shared/BlueCheckCircleIcon";
+import { motion, useInView } from "framer-motion";
+import BackToTop from "@/components/shared/BackToTop";
 
+const AnimatedContent = ({ children }) => {
+  const contentRef = useRef(null);
+  const isInView = useInView(contentRef, {
+    once: false,
+    margin: "-100px",
+    amount: 0.3,
+  });
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      x: 30,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      ref={contentRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+};
 const Testimonials = () => {
   const testimonials = [
     {
@@ -66,7 +102,6 @@ const Testimonials = () => {
             className="object-cover"
             priority
           />
-          {/* Enhanced overlay with gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
@@ -84,54 +119,52 @@ const Testimonials = () => {
 
       <section className="py-16 bg-gray-100">
         <Container>
-        <div className="max-w-8xl mx-auto"> {/* Changed from max-w-4xl to max-w-6xl */}
-        <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                What Our Patients Say
-              </h2>
-              <p className="text-xl text-gray-600">
-                Read what our patients have to say about their experience at our
-                practice
-              </p>
-            </div>
+          <div className="max-w-8xl mx-auto">
+            <AnimatedContent>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  What Our Patients Say
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Read what our patients have to say about their experience at
+                  our practice
+                </p>
+              </div>
+            </AnimatedContent>
 
             {/* Testimonials Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">              {" "}
-              {/* Added lg:grid-cols-2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+              {" "}
               {testimonials.map((testimony, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl shadow-sm p-6 space-y-4 flex flex-col"
-                >
-                  <div className="flex items-start gap-4 h-full">
-                    {" "}
-                    {/* Added h-full for consistent height */}
-                    <div className="flex-shrink-0 mt-1">
-                      <BlueCheckCircleIcon />
-                    </div>
-                    <div className="space-y-3 flex-grow">
+                <AnimatedContent key={index}>
+                  <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 flex flex-col">
+                    <div className="flex items-start gap-4 h-full">
                       {" "}
-                      {/* Added flex-grow */}
-                      <p className="text-gray-700 text-lg leading-relaxed italic">
-                        "{testimony.content}"
-                      </p>
-                      <div className="flex items-center gap-2 mt-auto">
+                      <div className="flex-shrink-0 mt-1">
+                        <BlueCheckCircleIcon />
+                      </div>
+                      <div className="space-y-3 flex-grow">
                         {" "}
-                        {/* Added mt-auto */}
-                        <span className="text-gray-400">•</span>
-                        <span className="font-semibold text-gray-900">
-                          {testimony.author}
-                        </span>
+                        <p className="text-gray-700 text-lg leading-relaxed italic">
+                          "{testimony.content}"
+                        </p>
+                        <div className="flex items-center gap-2 mt-auto">
+                          {" "}
+                          <span className="text-gray-400">•</span>
+                          <span className="font-semibold text-gray-900">
+                            {testimony.author}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </AnimatedContent>
               ))}
             </div>
 
             {/* Bottom Section */}
-            <div className="mt-16 text-center"> {/* Increased top margin */}
-            <p className="text-lg text-gray-600">
+            <div className="mt-16 text-center">
+              <p className="text-lg text-gray-600">
                 Want to share your experience? We'd love to hear from you!
               </p>
               <Link
@@ -144,6 +177,7 @@ const Testimonials = () => {
           </div>
         </Container>
       </section>
+      <BackToTop />
     </div>
   );
 };

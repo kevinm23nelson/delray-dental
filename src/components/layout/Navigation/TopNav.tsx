@@ -18,7 +18,7 @@ const navigationItems = [
   { name: "Home", href: "/" },
   {
     name: "Patient Resources",
-    href: "/patient-resources",
+    href: "",
     dropdown: [
       { name: "Before and After", href: "/patient-resources/before-after" },
       {
@@ -40,7 +40,10 @@ const navigationItems = [
         ],
       },
       { name: "Testimonials", href: "/patient-resources/testimonials" },
-      { name: "Video Testimonials", href: "/patient-resources/video-testimonials" },
+      {
+        name: "Video Testimonials",
+        href: "/patient-resources/video-testimonials",
+      },
       { name: "Fee Schedule", href: "/patient-resources/fee-schedule" },
     ],
   },
@@ -52,20 +55,56 @@ const navigationItems = [
       { name: "Teeth Whitening", href: "/services/teeth-whitening" },
       {
         name: "Oral Cancer Screening",
-        href: "/services/oral-cancer-screening",
+        href: "/services#oral-cancer-screening",
       },
-      { name: "Cosmetic Bonding", href: "/services/cosmetic-bonding" },
-      { name: "Veneers", href: "/services/veneers" },
-      { name: "Teeth Cleanings", href: "/services/teeth-cleanings" },
-      { name: "Full and Partial Dentures", href: "/services/dentures" },
-      { name: "Oral Surgery", href: "/services/oral-surgery" },
-      { name: "Dental Diet System", href: "/services/dental-diet-system" },
-      { name: "Non-Surgical Gum Treatment", href: "/services/gum-treatment" },
-      { name: "Dental Fillings", href: "/services/dental-fillings" },
-      { name: "Root Canal Therapy", href: "/services/root-canal" },
-      { name: "Tooth Extractions", href: "/services/tooth-extractions" },
-      { name: "ClearCorrect™", href: "/services/clearcorrect" },
-      { name: "Invisalign®", href: "/services/invisalign" },
+      {
+        name: "Cosmetic Bonding",
+        href: "/services#oral-cancer-screening",
+      },
+      {
+        name: "Veneers",
+        href: "/services#veneers",
+      },
+      {
+        name: "Teeth Cleanings",
+        href: "/services#veneers",
+      },
+      {
+        name: "Full and Partial Dentures",
+        href: "/services#full-and-partial-dentures",
+      },
+      {
+        name: "Oral Surgery",
+        href: "/services#full-and-partial-dentures",
+      },
+      {
+        name: "Dental Diet System",
+        href: "/services#dental-diet-system",
+      },
+      {
+        name: "Non-Surgical Gum Treatment",
+        href: "/services#dental-diet-system",
+      },
+      {
+        name: "Dental Fillings",
+        href: "/services#dental-fillings",
+      },
+      {
+        name: "Root Canal Therapy",
+        href: "/services#dental-fillings",
+      },
+      {
+        name: "ClearCorrect™",
+        href: "/services#clearcorrect™",
+      },
+      {
+        name: "Invisalign®",
+        href: "/services#clearcorrect™",
+      },
+      {
+        name: "Tooth Extractions",
+        href: "/services#tooth-extractions",
+      },
     ],
   },
   { name: "About Us", href: "/about-us" },
@@ -94,12 +133,13 @@ const AnimatedSubmenu = ({ isOpen, children }) => {
   );
 };
 
-const MobileDropdownMenu = ({ items, level = 0 }) => {
+const MobileDropdownMenu = ({ items, level = 0, onNavigate }) => {
   const [expandedItem, setExpandedItem] = useState(null);
   const [expandedSubItem, setExpandedSubItem] = useState(null);
 
-  const handleItemClick = (item, e) => {
+  const handleDropdownToggle = (item, e) => {
     e.preventDefault();
+    e.stopPropagation();
     setExpandedItem(expandedItem === item.name ? null : item.name);
   };
 
@@ -112,21 +152,39 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
     <div className={`pl-${level * 4}`}>
       {items.map((item) => (
         <div key={item.name}>
-          {/* Main section button */}
-          <button
-            onClick={(e) => handleItemClick(item, e)}
-            className="w-full text-left flex items-center justify-between py-3 px-4 hover:bg-sky-50 transition-all duration-200"
-          >
-            <span className="text-gray-700 hover:text-sky-500 text-base">
-              {item.name}
-            </span>
-            {(item.dropdown || item.subDropdown) && (
-              <ChevronDown
-                className={`h-5 w-5 text-gray-600 transform transition-transform duration-300 ease-in-out ml-2
-                  ${expandedItem === item.name ? "rotate-180" : ""}`}
-              />
-            )}
-          </button>
+          {item.dropdown || item.subDropdown ? (
+            <div className="flex w-full">
+              <Link
+                href={item.href}
+                onClick={() => onNavigate?.()}
+                className="flex-1 py-3 px-4 text-left hover:bg-sky-50 transition-all duration-200"
+              >
+                <span className="text-gray-700 hover:text-sky-500 text-base">
+                  {item.name}
+                </span>
+              </Link>
+
+              <button
+                onClick={(e) => handleDropdownToggle(item, e)}
+                className="px-4 py-3 hover:bg-sky-50 transition-all duration-200 flex items-center"
+              >
+                <ChevronDown
+                  className={`h-5 w-5 text-gray-600 transform transition-transform duration-300 ease-in-out
+                    ${expandedItem === item.name ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href={item.href}
+              onClick={() => onNavigate?.()}
+              className="block w-full text-left py-3 px-4 hover:bg-sky-50 transition-all duration-200"
+            >
+              <span className="text-gray-700 hover:text-sky-500 text-base">
+                {item.name}
+              </span>
+            </Link>
+          )}
 
           {/* Dropdown items */}
           {item.dropdown && (
@@ -151,15 +209,15 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
                           />
                         </button>
 
-                        {/* Nested submenu items */}
                         <AnimatedSubmenu
                           isOpen={expandedSubItem === subItem.name}
                         >
-                          <div className="pl-4 border-l-2 border-sky-100  mt-1">
+                          <div className="pl-4 border-l-2 border-sky-100 mt-1">
                             {subItem.subDropdown.map((nestedItem) => (
                               <Link
                                 key={nestedItem.name}
                                 href={nestedItem.href}
+                                onClick={() => onNavigate?.()}
                                 className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
                               >
                                 {nestedItem.name}
@@ -171,6 +229,7 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
                     ) : (
                       <Link
                         href={subItem.href}
+                        onClick={() => onNavigate?.()}
                         className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
                       >
                         {subItem.name}
@@ -190,6 +249,7 @@ const MobileDropdownMenu = ({ items, level = 0 }) => {
                   <Link
                     key={subItem.name}
                     href={subItem.href}
+                    onClick={() => onNavigate?.()}
                     className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
                   >
                     {subItem.name}
@@ -222,7 +282,7 @@ const DropdownMenu = ({ items, className = "", menuType }) => {
     menuType === "patient-resources" ? "left-[-50%]" : "left-[-20%]";
 
   const getSubmenuPosition = (windowWidth) => {
-    return "left-full"; // This will position the submenu at the right edge of its parent
+    return "left-full";
   };
 
   return (
@@ -262,7 +322,6 @@ const DropdownMenu = ({ items, className = "", menuType }) => {
               >
                 <div className="w-48 bg-white rounded-md shadow-lg py-1">
                   {" "}
-                  {/* Added ml-2 for spacing */}
                   {item.subDropdown.map((subItem) => (
                     <Link
                       key={subItem.name}
@@ -315,7 +374,6 @@ const TopNav = () => {
   const getNavItemClass = (hasDropdown) => {
     let baseClasses = `font-semibold transition-colors duration-200 hover:text-sky-500 flex items-center px-2 py-1`;
 
-    // Simplified text sizing with wider breakpoint
     if (windowWidth >= 768 && windowWidth <= 1100) {
       baseClasses += " text-sm";
     } else {
@@ -420,19 +478,24 @@ const TopNav = () => {
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
-          {/* Mobile Menu */}
+          {/* Mobile Header */}
           <div
-            className={`fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 
-              transform transition-transform duration-300 ease-in-out lg:hidden
-              ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}
-              flex flex-col`}
+            className="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 
+  transform transition-transform duration-300 ease-in-out lg:hidden
+  flex flex-col"
+            style={{
+              transform: isMobileMenuOpen
+                ? "translateX(0)"
+                : "translateX(100%)",
+            }}
           >
-            {/* Mobile Header */}
+            {/* Header with Close Button */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                aria-label="Close menu"
               >
                 <X className="h-6 w-6 text-gray-800" />
               </button>
@@ -446,12 +509,23 @@ const TopNav = () => {
                     key={item.name}
                     className="border-b border-gray-200 last:border-0"
                   >
-                    <MobileDropdownMenu items={[item]} />
+                    <MobileDropdownMenu
+                      items={[item]}
+                      onNavigate={() => setIsMobileMenuOpen(false)}
+                    />
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
+          {/* Overlay */}
+          <div
+            className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 lg:hidden
+    ${isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
         </div>
       </div>
     </header>

@@ -1,9 +1,46 @@
-// src/app/patient-resources/before-after/page.tsx
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useRef } from "react";
 import Container from "../../../components/shared/Container";
 import Link from "next/link";
 import ImageComparisonSlider from "@/components/shared/ImageComparisonSlider";
+import { motion, useInView } from "framer-motion";
+import BackToTop from "@/components/shared/BackToTop";
+
+const AnimatedContent = ({ children, direction = "right" }) => {
+  const contentRef = useRef(null);
+  const isInView = useInView(contentRef, {
+    once: false,
+    margin: "-100px",
+    amount: 0.3,
+  });
+
+  const variants = {
+    hidden: { 
+      opacity: 0,
+      x: direction === "right" ? 30 : -30
+    },
+    visible: { 
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  return (
+    <motion.div
+      ref={contentRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const BeforeAfter = () => {
   const beforeAfterCases = [
@@ -113,40 +150,53 @@ const BeforeAfter = () => {
       <section className="bg-sky-500 py-12">
         <Container className="px-6 lg:px-8">
           <div className="items-center">
-            <div className="text-white">
-              <h2 className="text-4xl font-bold text-center">
-                Pre-op and Post-op examples of{" "}
-                <span className="font-black text-indigo-200 underline decoration-4">OUR</span> work!
+            <AnimatedContent>
+              <div className="text-white">
+                <h2 className="text-4xl font-bold text-center">
+                  Pre-op and Post-op examples of{" "}
+                  <span className="font-black text-indigo-200 underline decoration-4">
+                    OUR
+                  </span>{" "}
+                  work!
                 </h2>
-              <h3 className="text-xl font-bold text-center mt-2">
-                Click the tab in the middle of each photo to slide left to right
-                to view the before and after
-              </h3>
-            </div>
+                <h3 className="text-xl font-bold text-center mt-2">
+                  Click the tab in the middle of each photo to slide left to right
+                  to view the before and after
+                </h3>
+              </div>
+            </AnimatedContent>
           </div>
         </Container>
       </section>
 
-      {/* Gallery Section */}
-      <section className="bg-gray-100 py-20">
+       {/* Gallery Section */}
+       <section className="bg-gray-100 py-20">
         <Container>
           <div className="bg-white p-[2.5rem] rounded-xl grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {beforeAfterCases.map((caseItem) => (
-              <div key={caseItem.id} className="space-y-4">
-                <ImageComparisonSlider
-                  beforeImage={caseItem.beforeImage}
-                  afterImage={caseItem.afterImage}
-                  beforeAlt={`Before - ${caseItem.description}`}
-                  afterAlt={`After - ${caseItem.description}`}
-                />
-                <h3 className="text-xl font-semibold text-center text-gray-800">
-                  {caseItem.description}
-                </h3>
-              </div>
+            {beforeAfterCases.map((caseItem, index) => (
+              <AnimatedContent
+                key={caseItem.id}
+                direction={index % 2 === 0 ? "left" : "right"}
+              >
+                <div className="space-y-4">
+                  <ImageComparisonSlider
+                    beforeImage={caseItem.beforeImage}
+                    afterImage={caseItem.afterImage}
+                    beforeAlt={`Before - ${caseItem.description}`}
+                    afterAlt={`After - ${caseItem.description}`}
+                  />
+                  {caseItem.description && (
+                    <h3 className="text-xl font-semibold text-center text-gray-800">
+                      {caseItem.description}
+                    </h3>
+                  )}
+                </div>
+              </AnimatedContent>
             ))}
           </div>
         </Container>
       </section>
+      <BackToTop/>
     </div>
   );
 };

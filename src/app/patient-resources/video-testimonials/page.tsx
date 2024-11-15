@@ -1,9 +1,45 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
-import { ExternalLink, Play } from "lucide-react"; // Import icons
+import { ExternalLink, Play } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+
+const AnimatedContent = ({ children, direction = "right" }) => {
+  const contentRef = useRef(null);
+  const isInView = useInView(contentRef, {
+    once: false,
+    margin: "-100px",
+    amount: 0.3,
+  });
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      x: direction === "right" ? 30 : -30,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      ref={contentRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const VideoTestimonials = () => {
   const [activeVideo, setActiveVideo] = useState(null);
@@ -49,7 +85,6 @@ const VideoTestimonials = () => {
             className="object-cover"
             priority
           />
-          {/* Enhanced overlay with gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
@@ -67,56 +102,57 @@ const VideoTestimonials = () => {
       {/* Main Content Section */}
       <section className="flex-grow bg-gray-100 py-16">
         {" "}
-        {/* Added flex-grow */}
         <Container>
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Check Out These Videos of What Our Patients Say
-              </h2>
-              <p className="text-xl text-gray-600">
-                Watch our patient testimonials to learn more about their
-                experiences
-              </p>
-            </div>
+            <AnimatedContent>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Check Out These Videos of What Our Patients Say
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Watch our patient testimonials to learn more about their
+                  experiences
+                </p>
+              </div>
 
-            {/* Video Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {videoTestimonials.map((video) => (
-                <div key={video.id} className="group relative">
-                  {/* Thumbnail Container */}
-                  <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-200">
-                    <Image
-                      src={video.thumbnail}
-                      alt={video.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-black/40 transition-opacity group-hover:bg-black/60" />
+              {/* Video Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {videoTestimonials.map((video) => (
+                  <div key={video.id} className="group relative">
+                    {/* Thumbnail Container */}
+                    <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-200">
+                      <Image
+                        src={video.thumbnail}
+                        alt={video.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-black/40 transition-opacity group-hover:bg-black/60" />
 
-                    {/* Play Button */}
-                    <button
-                      onClick={() => setActiveVideo(video.id)}
-                      className="absolute inset-0 flex items-center justify-center"
-                    >
-                      <div className="w-16 h-16 flex items-center justify-center rounded-full bg-sky-500 text-white transition-transform duration-300 group-hover:scale-110">
-                        <Play size={32} fill="white" />
-                      </div>
-                    </button>
+                      {/* Play Button */}
+                      <button
+                        onClick={() => setActiveVideo(video.id)}
+                        className="absolute inset-0 flex items-center justify-center"
+                      >
+                        <div className="w-16 h-16 flex items-center justify-center rounded-full bg-sky-500 text-white transition-transform duration-300 group-hover:scale-110">
+                          <Play size={32} fill="white" />
+                        </div>
+                      </button>
 
-                    <Link
-                      href={`https://www.youtube.com/watch?v=${video.id}`}
-                      target="_blank"
-                      className="absolute bottom-4 right-4 p-2 bg-white/90 rounded-lg shadow-md flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-white transition-colors"
-                    >
-                      <ExternalLink size={16} />
-                      Watch on YouTube
-                    </Link>
+                      <Link
+                        href={`https://www.youtube.com/watch?v=${video.id}`}
+                        target="_blank"
+                        className="absolute bottom-4 right-4 p-2 bg-white/90 rounded-lg shadow-md flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-white transition-colors"
+                      >
+                        <ExternalLink size={16} />
+                        Watch on YouTube
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </AnimatedContent>
 
             {/* Video Modal */}
             {activeVideo && (
@@ -140,17 +176,19 @@ const VideoTestimonials = () => {
             )}
 
             {/* Bottom Section */}
-            <div className="mt-16 text-center">
-              <p className="text-lg text-gray-600">
-                Want to share your experience? We'd love to hear from you!
-              </p>
-              <Link
-                href="/contact"
-                className="mt-4 inline-flex items-center px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg shadow-sm transition-colors duration-200"
-              >
-                Contact Us
-              </Link>
-            </div>
+            <AnimatedContent>
+              <div className="mt-16 text-center">
+                <p className="text-lg text-gray-600">
+                  Want to share your experience? We'd love to hear from you!
+                </p>
+                <Link
+                  href="/contact"
+                  className="mt-4 inline-flex items-center px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg shadow-sm transition-colors duration-200"
+                >
+                  Contact Us
+                </Link>
+              </div>
+            </AnimatedContent>
           </div>
         </Container>
       </section>

@@ -19,7 +19,7 @@ export default function RootLayout({
           <div className="fixed top-0 left-0 right-0 z-50">
             <TopNav />
           </div>
-          <div className="pt-[72px] flex-grow"> {/* flex-grow ensures content takes available space */}
+          <div className="pt-[72px] flex-grow">
             {children}
           </div>
           <Footer />

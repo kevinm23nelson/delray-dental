@@ -1,4 +1,3 @@
-// src/app/page.tsx
 import HeroSection from "@/components/home/HeroSection";
 import CalendlyEmbed from "@/components/home/CalendlyEmbed";
 import WhiteCheckCircleIcon from "@/components/shared/WhiteCheckCircleIcon";
@@ -11,9 +10,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <div className="flex justify-center items-center gap-4">
-              {" "}
               <div className="flex-shrink-0">
-                {" "}
                 <WhiteCheckCircleIcon />
               </div>
               <h2 className="text-3xl font-semibold text-white font-montserrat animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 ease-in-out">
