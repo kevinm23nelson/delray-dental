@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,6 +13,38 @@ import {
 import { Montserrat } from "next/font/google";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
+
+// Type definitions
+interface SubDropdownItem {
+  name: string;
+  href: string;
+}
+
+interface DropdownItem {
+  name: string;
+  href: string;
+  subDropdown?: SubDropdownItem[];
+}
+
+interface NavigationItem {
+  name: string;
+  href: string;
+  dropdown?: DropdownItem[];
+}
+
+interface MobileDropdownMenuProps {
+  items: NavigationItem[];
+  level?: number;
+  onNavigate?: () => void;
+}
+
+interface DropdownMenuProps {
+  items: DropdownItem[];
+  className?: string;
+  menuType: MenuType;
+}
+
+type MenuType = "patient-resources" | "services";
 
 const navigationItems = [
   { name: "Home", href: "/" },
@@ -112,8 +144,14 @@ const navigationItems = [
   { name: "Contact", href: "/contact" },
 ];
 
-const AnimatedSubmenu = ({ isOpen, children }) => {
-  const contentRef = useRef(null);
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+  isOpen?: boolean;
+}
+
+const AnimatedSubmenu = ({ isOpen, children }: AnimatedContentProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
 
   useEffect(() => {
@@ -133,17 +171,21 @@ const AnimatedSubmenu = ({ isOpen, children }) => {
   );
 };
 
-const MobileDropdownMenu = ({ items, level = 0, onNavigate }) => {
-  const [expandedItem, setExpandedItem] = useState(null);
-  const [expandedSubItem, setExpandedSubItem] = useState(null);
+const MobileDropdownMenu = ({
+  items,
+  level = 0,
+  onNavigate,
+}: MobileDropdownMenuProps) => {
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [expandedSubItem, setExpandedSubItem] = useState<string | null>(null);
 
-  const handleDropdownToggle = (item, e) => {
+  const handleDropdownToggle = (item: NavigationItem, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setExpandedItem(expandedItem === item.name ? null : item.name);
   };
 
-  const handleSubItemClick = (itemName, e) => {
+  const handleSubItemClick = (itemName: string, e: React.MouseEvent) => {
     e.preventDefault();
     setExpandedSubItem(expandedSubItem === itemName ? null : itemName);
   };
@@ -152,7 +194,7 @@ const MobileDropdownMenu = ({ items, level = 0, onNavigate }) => {
     <div className={`pl-${level * 4}`}>
       {items.map((item) => (
         <div key={item.name}>
-          {item.dropdown || item.subDropdown ? (
+          {item.dropdown || (item as DropdownItem).subDropdown ? (
             <div className="flex w-full">
               <Link
                 href={item.href}
@@ -190,7 +232,7 @@ const MobileDropdownMenu = ({ items, level = 0, onNavigate }) => {
           {item.dropdown && (
             <AnimatedSubmenu isOpen={expandedItem === item.name}>
               <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
-                {item.dropdown.map((subItem) => (
+                {item.dropdown.map((subItem: DropdownItem) => (
                   <div key={subItem.name} className="py-1">
                     {subItem.subDropdown ? (
                       <div>
@@ -213,16 +255,18 @@ const MobileDropdownMenu = ({ items, level = 0, onNavigate }) => {
                           isOpen={expandedSubItem === subItem.name}
                         >
                           <div className="pl-4 border-l-2 border-sky-100 mt-1">
-                            {subItem.subDropdown.map((nestedItem) => (
-                              <Link
-                                key={nestedItem.name}
-                                href={nestedItem.href}
-                                onClick={() => onNavigate?.()}
-                                className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
-                              >
-                                {nestedItem.name}
-                              </Link>
-                            ))}
+                            {subItem.subDropdown.map(
+                              (nestedItem: SubDropdownItem) => (
+                                <Link
+                                  key={nestedItem.name}
+                                  href={nestedItem.href}
+                                  onClick={() => onNavigate?.()}
+                                  className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
+                                >
+                                  {nestedItem.name}
+                                </Link>
+                              )
+                            )}
                           </div>
                         </AnimatedSubmenu>
                       </div>
@@ -240,48 +284,21 @@ const MobileDropdownMenu = ({ items, level = 0, onNavigate }) => {
               </div>
             </AnimatedSubmenu>
           )}
-
-          {/* Direct subDropdown items */}
-          {item.subDropdown && (
-            <AnimatedSubmenu isOpen={expandedItem === item.name}>
-              <div className="pl-4 border-l-2 border-sky-100 ml-4 mt-1">
-                {item.subDropdown.map((subItem) => (
-                  <Link
-                    key={subItem.name}
-                    href={subItem.href}
-                    onClick={() => onNavigate?.()}
-                    className="block px-4 py-2 text-sm text-gray-600 hover:text-sky-500 transition-colors duration-200"
-                  >
-                    {subItem.name}
-                  </Link>
-                ))}
-              </div>
-            </AnimatedSubmenu>
-          )}
         </div>
       ))}
     </div>
   );
 };
 
-const DropdownMenu = ({ items, className = "", menuType }) => {
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 0
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
+const DropdownMenu = ({
+  items,
+  className = "",
+  menuType,
+}: DropdownMenuProps) => {
   const positionClass =
     menuType === "patient-resources" ? "left-[-50%]" : "left-[-20%]";
 
-  const getSubmenuPosition = (windowWidth) => {
+  const getSubmenuPosition = () => {
     return "left-full";
   };
 
@@ -312,16 +329,13 @@ const DropdownMenu = ({ items, className = "", menuType }) => {
               </div>
             </Link>
 
-            {hasSubmenu && (
+            {hasSubmenu && item.subDropdown && (
               <div
-                className={`absolute ${getSubmenuPosition(
-                  windowWidth
-                )} top-0 -right-1 opacity-0 pointer-events-none 
+                className={`absolute ${getSubmenuPosition()} top-0 -right-1 opacity-0 pointer-events-none 
                 translate-y-[-10px] transition-all duration-200 ease-in-out
                 group-hover/sub:opacity-100 group-hover/sub:pointer-events-auto group-hover/sub:translate-y-0 z-[60]`}
               >
                 <div className="w-48 bg-white rounded-md shadow-lg py-1">
-                  {" "}
                   {item.subDropdown.map((subItem) => (
                     <Link
                       key={subItem.name}
@@ -371,7 +385,7 @@ const TopNav = () => {
     };
   }, [isMobileMenuOpen]);
 
-  const getNavItemClass = (hasDropdown) => {
+  const getNavItemClass = () => {
     let baseClasses = `font-semibold transition-colors duration-200 hover:text-sky-500 flex items-center px-2 py-1`;
 
     if (windowWidth >= 768 && windowWidth <= 1100) {
@@ -381,6 +395,13 @@ const TopNav = () => {
     }
 
     return baseClasses;
+  };
+  const getMenuType = (itemName: string): MenuType => {
+    const convertedType = itemName.toLowerCase().replace(" ", "-");
+    if (convertedType === "patient-resources" || convertedType === "services") {
+      return convertedType;
+    }
+    return "services"; // default fallback
   };
 
   return (
@@ -439,12 +460,8 @@ const TopNav = () => {
                     <div className="relative inline-block">
                       <Link
                         href={item.href}
-                        className={`${getNavItemClass(!!item.dropdown)} 
-                          ${
-                            pathname === item.href
-                              ? "text-sky-500"
-                              : "text-gray-600"
-                          }`}
+                        className={`${getNavItemClass()} 
+    ${pathname === item.href ? "text-sky-500" : "text-gray-600"}`}
                       >
                         {item.name}
                         {item.dropdown && (
@@ -456,7 +473,7 @@ const TopNav = () => {
                         <div className="absolute top-full min-w-max">
                           <DropdownMenu
                             items={item.dropdown}
-                            menuType={item.name.toLowerCase().replace(" ", "-")}
+                            menuType={getMenuType(item.name)}
                           />
                         </div>
                       )}

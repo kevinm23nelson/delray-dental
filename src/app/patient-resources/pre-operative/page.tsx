@@ -1,13 +1,21 @@
 "use client";
 import Image from "next/image";
-import React, { useRef } from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
 import { motion, useInView } from "framer-motion";
 import BackToTop from "@/components/shared/BackToTop";
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -138,7 +146,7 @@ const PreOperative = () => {
                     href="tel:5614953115"
                     className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
                   >
-                    (561) 495-3115
+                    (561) 272-6664
                   </a>
                 </h2>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -159,7 +167,7 @@ const PreOperative = () => {
                   These and other potential problems are treatable if brought to
                   our attention. If the doctor is not available to talk with you
                   about a problem you are having, you can call
-                  {" (561) 495-3115"}. In our office, we are doing everything we
+                  {" (561) 495-3115"} (Delray Comunity Hosptial Emergency Number) or 911. In our office, we are doing everything we
                   can to make your surgery as painless and uneventful as
                   possible. However, what you do or do not do following your
                   surgery is important too.
@@ -196,7 +204,7 @@ const PreOperative = () => {
           </div>
         </Container>
       </section>
-      <BackToTop/>
+      <BackToTop />
     </div>
   );
 };

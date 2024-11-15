@@ -26,11 +26,11 @@ export default function HomePage() {
               <span className="font-bold">
                 We work for you, not someone else.{" "}
               </span>
-              We have no "
+              We have no {`"`}
               <span className="font-black text-indigo-200 underline decoration-2">
                 quota
               </span>
-              " to meet!
+              {`"`} to meet!
             </p>
           </div>
         </div>

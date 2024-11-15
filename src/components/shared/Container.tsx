@@ -1,4 +1,18 @@
-// components/shared/Container.js
-export default function Container({ children }) {
-    return <div className="max-w-screen-lg mx-auto px-4">{children}</div>;
+"use client";
+
+import { ReactNode } from "react";
+
+interface ContainerProps {
+  children: ReactNode;
+  className?: string;
 }
+
+const Container: React.FC<ContainerProps> = ({ children, className = "" }) => {
+  return (
+    <div className={`container mx-auto ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export default Container;

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, ReactNode } from "react";
 import { motion, useInView } from "framer-motion";
 import {
   HeartPulse,
@@ -7,25 +7,37 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  LucideIcon,
 } from "lucide-react";
+
+declare global {
+  interface Window {
+    Calendly?: {
+      initInlineWidget: (options: {
+        url: string;
+        parentElement: Element;
+      }) => void;
+    };
+  }
+}
 
 const CalendlySkeletonLoader = () => (
   <div className="absolute inset-0 flex items-start justify-center lg:pt-[60px]">
-    <div 
-      className="bg-white p-4 rounded-lg animate-pulse mx-auto lg:ml-[100px]" 
-      style={{ 
-        width: "400px", 
-        height: "600px" 
+    <div
+      className="bg-white p-4 rounded-lg animate-pulse mx-auto lg:ml-[100px]"
+      style={{
+        width: "400px",
+        height: "600px",
       }}
     >
       {/* Header */}
-      <div className="mb-6">  
+      <div className="mb-6">
         <div className="h-6 w-48 bg-gray-200 rounded mb-3"></div>
         <div className="h-4 w-64 bg-gray-200 rounded"></div>
       </div>
 
       {/* Calendar Grid */}
-      <div className="mb-8">  
+      <div className="mb-8">
         {/* Month Navigation */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
@@ -56,7 +68,7 @@ const CalendlySkeletonLoader = () => (
       </div>
 
       {/* Time Slots */}
-      <div className="space-y-4">  {/* Increased spacing */}
+      <div className="space-y-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="h-12 bg-gray-100 rounded-lg"></div>
         ))}
@@ -65,7 +77,12 @@ const CalendlySkeletonLoader = () => (
   </div>
 );
 
-const AnimatedContent = ({ children }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({ children }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -99,36 +116,48 @@ const AnimatedContent = ({ children }) => {
     </motion.div>
   );
 };
+
+type EventType = "hygiene" | "dental" | "secondaryDental";
+
+interface CalendlyEvent {
+  url: string;
+  title: string;
+  duration: string;
+  description: string;
+  icon: LucideIcon;
+}
+
+const eventTypes: Record<EventType, CalendlyEvent> = {
+  hygiene: {
+    url: "https://calendly.com/delraydental/hygiene-appointment",
+    title: "Hygiene Appointment",
+    duration: "60 min",
+    description: "Professional cleaning and preventive care",
+    icon: HeartPulse,
+  },
+  dental: {
+    url: "https://calendly.com/delraydental/dental-appointment",
+    title: "Dental Appointment",
+    duration: "60 min",
+    description: "Dental procedures and treatments",
+    icon: ClipboardCheck,
+  },
+  secondaryDental: {
+    url: "https://calendly.com/delraydental/secondary-dental-appointment",
+    title: "Secondary Dental Appointment",
+    duration: "45 min",
+    description: "Follow-up dental care",
+    icon: Calendar,
+  },
+};
+
 const CalendlyEmbed = () => {
-  const [selectedEventType, setSelectedEventType] = useState("hygiene");
+  const [selectedEventType, setSelectedEventType] =
+    useState<EventType>("hygiene");
   const [isLoading, setIsLoading] = useState(true);
 
-  const eventTypes = {
-    hygiene: {
-      url: "https://calendly.com/delraydental/hygiene-appointment",
-      title: "Hygiene Appointment",
-      duration: "60 min",
-      description: "Professional cleaning and preventive care",
-      icon: HeartPulse,
-    },
-    dental: {
-      url: "https://calendly.com/delraydental/dental-appointment",
-      title: "Dental Appointment",
-      duration: "60 min",
-      description: "Dental procedures and treatments",
-      icon: ClipboardCheck,
-    },
-    secondaryDental: {
-      url: "https://calendly.com/delraydental/secondary-dental-appointment",
-      title: "Secondary Dental Appointment",
-      duration: "45 min",
-      description: "Follow-up dental care",
-      icon: Calendar,
-    },
-  };
-
   useEffect(() => {
-    let timeoutId;
+    let timeoutId: NodeJS.Timeout | undefined;
 
     const loadCalendly = async () => {
       setIsLoading(true);
@@ -137,7 +166,7 @@ const CalendlyEmbed = () => {
         if (window.Calendly) {
           timeoutId = setTimeout(() => {
             initializeWidget();
-          }, 400); 
+          }, 400);
           return;
         }
 
@@ -147,7 +176,7 @@ const CalendlyEmbed = () => {
         script.onload = () => {
           timeoutId = setTimeout(() => {
             initializeWidget();
-          }, 400); 
+          }, 400);
         };
         document.body.appendChild(script);
       } catch (error) {
@@ -159,14 +188,14 @@ const CalendlyEmbed = () => {
     const initializeWidget = () => {
       const widget = document.querySelector(".calendly-inline-widget");
       if (widget && window.Calendly) {
-        widget.innerHTML = '';
-        setTimeout(() => {
-          window.Calendly.initInlineWidget({
+        widget.innerHTML = "";
+        timeoutId = setTimeout(() => {
+          window.Calendly?.initInlineWidget({
             url: eventTypes[selectedEventType].url,
             parentElement: widget,
           });
           setIsLoading(false);
-        }, 500); 
+        }, 500);
       }
     };
 
@@ -179,18 +208,15 @@ const CalendlyEmbed = () => {
     };
   }, [selectedEventType]);
 
-  const handleTypeChange = (type) => {
+  const handleTypeChange = (type: EventType) => {
     setIsLoading(true);
     setSelectedEventType(type);
   };
 
   return (
     <div className="w-full animate-in fade-in duration-700 ease-in-out bg-gray-100 xl:pl-[4rem] lg:px-6">
-      {" "}
       <div className="lg:flex lg:pl-[10rem]">
-        {/* Left column for text and event types */}
         <div className="lg:w-1/3 lg:mt-[6em] pl-[1rem]">
-          {/* Title and description */}
           <AnimatedContent>
             <div className="text-center lg:text-left mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-in-out">
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-montserrat mb-3">
@@ -203,11 +229,12 @@ const CalendlyEmbed = () => {
             </div>
           </AnimatedContent>
 
-          {/* Event Type Selection */}
           <AnimatedContent>
             <div className="mb-6 lg:mb-0">
               <div className="flex flex-col gap-4">
-                {Object.entries(eventTypes).map(([key, event]) => {
+                {(
+                  Object.entries(eventTypes) as [EventType, CalendlyEvent][]
+                ).map(([key, event]) => {
                   const Icon = event.icon;
                   return (
                     <button
@@ -246,19 +273,17 @@ const CalendlyEmbed = () => {
           </AnimatedContent>
         </div>
 
-        {/* Right column for calendar */}
         <AnimatedContent>
           <div className="lg:w-2/3">
             <div className="bg-gray-100">
               <div className="relative">
-                {" "}
                 {isLoading && (
                   <div className="absolute inset-0 z-10">
                     <CalendlySkeletonLoader />
                   </div>
                 )}
                 <div
-                  className={`calendly-inline-widget lg:scale-[.75] !overflow-hidden bg-gray-100 rounded-lg  transition-opacity duration-300 ${
+                  className={`calendly-inline-widget lg:scale-[.75] !overflow-hidden bg-gray-100 rounded-lg transition-opacity duration-300 ${
                     isLoading ? "opacity-0" : "opacity-100"
                   }`}
                   data-url={eventTypes[selectedEventType].url}

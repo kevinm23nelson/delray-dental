@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
@@ -8,8 +8,14 @@ import { ChevronDown } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import BackToTop from "@/components/shared/BackToTop";
 
-const AnimatedSubmenu = ({ isOpen, children }) => {
-  const contentRef = useRef(null);
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+  isOpen?: boolean;
+}
+
+const AnimatedSubmenu = ({ isOpen, children }: AnimatedContentProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
 
   useEffect(() => {
@@ -29,7 +35,10 @@ const AnimatedSubmenu = ({ isOpen, children }) => {
   );
 };
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -422,7 +431,7 @@ const DrySocket = () => {
           </div>
         </Container>
       </section>
-      <BackToTop/>
+      <BackToTop />
     </div>
   );
 };

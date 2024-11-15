@@ -1,13 +1,18 @@
 "use client";
 import Image from "next/image";
-import React, { useRef } from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import BlueCheckCircleIcon from "@/components/shared/BlueCheckCircleIcon";
 import { motion, useInView } from "framer-motion";
 import BackToTop from "@/components/shared/BackToTop";
 
-const AnimatedContent = ({ children }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({ children }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -60,7 +65,7 @@ const Testimonials = () => {
     },
     {
       content:
-        "Dr. Ted knows his stuff. My crown was knocked out including the nub that holds it! He had to make a new one but it would have to be held in by magic. He did it. I’m back to normal and can eat apples again thanks to him. I highly recommend him!",
+        "Dr. Ritota knows his stuff. My crown was knocked out including the nub that holds it! He had to make a new one but it would have to be held in by magic. He did it. I’m back to normal and can eat apples again thanks to him. I highly recommend him!",
       author: "J.L.",
     },
     {
@@ -70,7 +75,7 @@ const Testimonials = () => {
     },
     {
       content:
-        "Dr Ted’s been my dentist for 15 yrs & recently did major replacement of old bridgework installed after an accident 18 yrs ago. Thanks to his skill, knowledge & patience I have the best & most comfortable, natural smile I’ve ever had. He’s the best! The staff is kind, competent & supportive.",
+        "Dr. Ritota has been my dentist for 15 yrs & recently did major replacement of old bridgework installed after an accident 18 yrs ago. Thanks to his skill, knowledge & patience I have the best & most comfortable, natural smile I’ve ever had. He’s the best! The staff is kind, competent & supportive.",
       author: "M.K.",
     },
     {
@@ -80,7 +85,7 @@ const Testimonials = () => {
     },
     {
       content:
-        "Dr. Ted has been a dentist for a long time and he’s up on the latest research and best practices. He took great care of my aching teeth. Now I’m proud to smile and can do so without any pain! Everyone in the office is friendly and informative. They even made my 5 year old son feel welcome while he waited for me in the comfortable waiting area. His office is in a convenient location in southeast Delray.",
+        "Dr. Ritota has been a dentist for a long time and he’s up on the latest research and best practices. He took great care of my aching teeth. Now I’m proud to smile and can do so without any pain! Everyone in the office is friendly and informative. They even made my 5 year old son feel welcome while he waited for me in the comfortable waiting area. His office is in a convenient location in southeast Delray.",
       author: "L.G.",
     },
     {
@@ -146,7 +151,7 @@ const Testimonials = () => {
                       <div className="space-y-3 flex-grow">
                         {" "}
                         <p className="text-gray-700 text-lg leading-relaxed italic">
-                          "{testimony.content}"
+                          {`"`}{testimony.content}{`"`}
                         </p>
                         <div className="flex items-center gap-2 mt-auto">
                           {" "}
@@ -165,7 +170,7 @@ const Testimonials = () => {
             {/* Bottom Section */}
             <div className="mt-16 text-center">
               <p className="text-lg text-gray-600">
-                Want to share your experience? We'd love to hear from you!
+                Want to share your experience? {"We'd"} love to hear from you!
               </p>
               <Link
                 href="/contact"

@@ -1,12 +1,17 @@
 "use client";
 import Image from "next/image";
-import React, { useRef } from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import BlueCheckCircleIcon from "@/components/shared/BlueCheckCircleIcon";
 import { motion, useInView } from "framer-motion";
 
-const AnimatedContent = ({ children }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({ children }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -48,7 +53,7 @@ const Forms = () => {
       description:
         "Complete packet for new patients including medical history, insurance information, and office policies.",
       fileName: "New-Patient-Packet-FILLABLE.pdf",
-      downloadUrl: "/forms/New-Patient-Packet-FILLABLE.pdf", // Adjust path as needed
+      downloadUrl: "/forms/New-Patient-Packet-FILLABLE.pdf",
     },
     {
       title: "Health History Update",
@@ -110,48 +115,51 @@ const Forms = () => {
             </AnimatedContent>
 
             {/* Forms Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {forms.map((form, index) => (
-                <div className="overflow-hidden bg-white rounded-xl shadow-sm p-6 space-y-4 hover:shadow-md transition-shadow duration-200">
-                <AnimatedContent key={index}>
-                  <a
-                    href={form.downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-start gap-4"
-                  >
-                    <div className="flex-shrink-0 mt-1">
-                      <BlueCheckCircleIcon />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {form.title}
-                      </h3>
-                      <p className="text-gray-600 leading-relaxed">
-                        {form.description}
-                      </p>
-                      <div className="flex items-center text-sky-500 font-semibold">
-                        Download PDF
-                        <svg
-                          className="w-5 h-5 ml-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </a>
-                </AnimatedContent>
-              </div>
-              ))}
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  {forms.map((form, index) => (
+    <div 
+      key={index} // Move the key prop to the outermost element in the map
+      className="overflow-hidden bg-white rounded-xl shadow-sm p-6 space-y-4 hover:shadow-md transition-shadow duration-200"
+    >
+      <AnimatedContent>
+        <a
+          href={form.downloadUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-start gap-4"
+        >
+          <div className="flex-shrink-0 mt-1">
+            <BlueCheckCircleIcon />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-gray-900">
+              {form.title}
+            </h3>
+            <p className="text-gray-600 leading-relaxed">
+              {form.description}
+            </p>
+            <div className="flex items-center text-sky-500 font-semibold">
+              Download PDF
+              <svg
+                className="w-5 h-5 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
             </div>
+          </div>
+        </a>
+      </AnimatedContent>
+    </div>
+  ))}
+</div>
 
             {/* Instructions Section */}
             <AnimatedContent>
@@ -162,9 +170,9 @@ const Forms = () => {
                 <ul className="space-y-2 text-gray-600">
                   <li>• Please fill out all forms completely</li>
                   <li>• Bring your completed forms to your appointment</li>
-                  <li>• Don't forget to bring your ID and insurance card</li>
+                  <li>• {"Don't"} forget to bring your ID and insurance card</li>
                   <li>
-                    • Arrive 15 minutes early if you haven't completed the forms
+                    • Arrive 15 minutes early if you {"haven't"} completed the forms
                   </li>
                 </ul>
               </div>

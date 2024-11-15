@@ -1,12 +1,17 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import { ExternalLink, Play } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -41,10 +46,16 @@ const AnimatedContent = ({ children, direction = "right" }) => {
   );
 };
 
-const VideoTestimonials = () => {
-  const [activeVideo, setActiveVideo] = useState(null);
+interface VideoTestimonial {
+  id: string;
+  title: string;
+  thumbnail: string;
+}
 
-  const videoTestimonials = [
+const VideoTestimonials = () => {
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+
+  const videoTestimonials: VideoTestimonial[] = [
     {
       id: "v5h42qKJV5g",
       title: "Patient Testimonial 1",
@@ -179,7 +190,7 @@ const VideoTestimonials = () => {
             <AnimatedContent>
               <div className="mt-16 text-center">
                 <p className="text-lg text-gray-600">
-                  Want to share your experience? We'd love to hear from you!
+                  Want to share your experience? {"We'd"} love to hear from you!
                 </p>
                 <Link
                   href="/contact"

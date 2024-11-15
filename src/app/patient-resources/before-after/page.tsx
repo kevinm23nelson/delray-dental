@@ -1,13 +1,21 @@
 "use client";
 import Image from "next/image";
-import React, { useRef } from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "../../../components/shared/Container";
 import Link from "next/link";
 import ImageComparisonSlider from "@/components/shared/ImageComparisonSlider";
 import { motion, useInView } from "framer-motion";
 import BackToTop from "@/components/shared/BackToTop";
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -16,18 +24,18 @@ const AnimatedContent = ({ children, direction = "right" }) => {
   });
 
   const variants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
-      x: direction === "right" ? 30 : -30
+      x: direction === "right" ? 30 : -30,
     },
-    visible: { 
+    visible: {
       opacity: 1,
       x: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut"
-      }
-    }
+        ease: "easeOut",
+      },
+    },
   };
 
   return (
@@ -42,8 +50,15 @@ const AnimatedContent = ({ children, direction = "right" }) => {
   );
 };
 
+interface BeforeAfterCase {
+  id: number;
+  beforeImage: string;
+  afterImage: string;
+  description?: string;
+}
+
 const BeforeAfter = () => {
-  const beforeAfterCases = [
+  const beforeAfterCases: BeforeAfterCase[] = [
     {
       id: 1,
       beforeImage: "/images/before-after/before1.jpg",
@@ -128,6 +143,7 @@ const BeforeAfter = () => {
             src="/images/backgrounds/before-after.jpg"
             alt="Dental Office"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
@@ -160,8 +176,8 @@ const BeforeAfter = () => {
                   work!
                 </h2>
                 <h3 className="text-xl font-bold text-center mt-2">
-                  Click the tab in the middle of each photo to slide left to right
-                  to view the before and after
+                  Click the tab in the middle of each photo to slide left to
+                  right to view the before and after
                 </h3>
               </div>
             </AnimatedContent>
@@ -169,8 +185,8 @@ const BeforeAfter = () => {
         </Container>
       </section>
 
-       {/* Gallery Section */}
-       <section className="bg-gray-100 py-20">
+      {/* Gallery Section */}
+      <section className="bg-gray-100 py-20">
         <Container>
           <div className="bg-white p-[2.5rem] rounded-xl grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {beforeAfterCases.map((caseItem, index) => (
@@ -182,21 +198,21 @@ const BeforeAfter = () => {
                   <ImageComparisonSlider
                     beforeImage={caseItem.beforeImage}
                     afterImage={caseItem.afterImage}
-                    beforeAlt={`Before - ${caseItem.description}`}
-                    afterAlt={`After - ${caseItem.description}`}
+                    beforeAlt={`Before Case ${caseItem.id}${
+                      caseItem.description ? ` - ${caseItem.description}` : ""
+                    }`}
+                    afterAlt={`After Case ${caseItem.id}${
+                      caseItem.description ? ` - ${caseItem.description}` : ""
+                    }`}
+                    priority={index < 2}
                   />
-                  {caseItem.description && (
-                    <h3 className="text-xl font-semibold text-center text-gray-800">
-                      {caseItem.description}
-                    </h3>
-                  )}
                 </div>
               </AnimatedContent>
             ))}
           </div>
         </Container>
       </section>
-      <BackToTop/>
+      <BackToTop />
     </div>
   );
 };

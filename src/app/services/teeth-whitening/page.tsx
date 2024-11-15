@@ -1,13 +1,17 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useRef } from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
 import WhiteArrowCircleIcon from "@/components/shared/WhiteArrowCircleIcon";
 import { motion, useInView } from "framer-motion";
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -43,12 +47,6 @@ const AnimatedContent = ({ children, direction = "right" }) => {
 };
 
 const TeethWhitening = () => {
-  const [expandedSection, setExpandedSection] = useState(null);
-
-  const toggleSection = (sectionName) => {
-    setExpandedSection(expandedSection === sectionName ? null : sectionName);
-  };
-
   const instructions = [
     {
       title: "Internet Special:",
@@ -194,7 +192,7 @@ const TeethWhitening = () => {
                   <ArrowCircleIcon />
                   <div className="text-gray-700 leading-relaxed">
                     <span className="font-bold">{instruction.title}</span> New
-                    price, only <span className="text-sky-500">$350.00</span>{" "}
+                    price, only <span className="text-sky-500">$150.00</span>{" "}
                     for bleaching/whitening tooth take-home kit.
                   </div>
                 </div>

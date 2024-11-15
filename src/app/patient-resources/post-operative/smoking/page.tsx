@@ -1,7 +1,7 @@
 "use client";
 // src/app/patient-resources/pre-operative/page.tsx
 import Image from "next/image";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
@@ -9,7 +9,13 @@ import { ChevronDown } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import BackToTop from "@/components/shared/BackToTop";
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+  isOpen?: boolean
+}
+
+const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -44,8 +50,8 @@ const AnimatedContent = ({ children, direction = "right" }) => {
   );
 };
 
-const AnimatedSubmenu = ({ isOpen, children }) => {
-  const contentRef = useRef(null);
+const AnimatedSubmenu = ({ isOpen, children }: AnimatedContentProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
 
   useEffect(() => {
@@ -256,13 +262,9 @@ const Smoking = () => {
             </AnimatedContent>
             <div className="space-y-1.5">
               {instructions.map((instruction, index) => (
-                <AnimatedContent>
-                  <div
-                    key={index}
-                    className="flex gap-5 items-start bg-white p-2 rounded-lg shadow-sm"
-                  >
+                <AnimatedContent key={index}>
+                  <div className="flex gap-5 items-start bg-white p-2 rounded-lg shadow-sm">
                     <div className="flex-shrink-0">
-                      {" "}
                       <ArrowCircleIcon />
                     </div>
                     <div className="text-gray-700 leading-relaxed">
@@ -500,9 +502,9 @@ const Smoking = () => {
                 <p className="text-xl text-gray-600">
                   Call 1-866-632-7848 for information, support and follow-up
                   calls as often as you need, anytime, day or night. Certified
-                  counselors will develop a personalized "Quit Plan" to help you
-                  by setting specific goals and target dates for quitting and
-                  strategies for starving off cravings. Follow up calls are
+                  counselors will develop a personalized {`"Quit Plan"`} to help
+                  you by setting specific goals and target dates for quitting
+                  and strategies for starving off cravings. Follow up calls are
                   offered on a regular schedule to provide ongoing support,
                   advice and encouragement. There is no limit to the number of
                   follow up sessions or calls for support. All information is

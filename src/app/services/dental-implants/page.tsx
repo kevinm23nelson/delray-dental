@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
@@ -8,9 +8,14 @@ import { ChevronDown } from "lucide-react";
 import WhiteArrowCircleIcon from "@/components/shared/WhiteArrowCircleIcon";
 import { motion, useInView } from "framer-motion";
 
-const AnimatedSubmenu = ({ isOpen, children }) => {
-  const contentRef = useRef(null);
-  const [height, setHeight] = useState(0);
+interface AnimatedSubmenuProps {
+  isOpen: boolean;
+  children: ReactNode;
+}
+
+const AnimatedSubmenu: React.FC<AnimatedSubmenuProps> = ({ isOpen, children }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>(0);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -28,61 +33,15 @@ const AnimatedSubmenu = ({ isOpen, children }) => {
     </div>
   );
 };
-const ContentSection = ({ children, isBlue = false }) => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, {
-    once: false,
-    margin: "-100px",
-    amount: 0.3,
-  });
 
-  const containerVariants = {
-    hidden: {
-      opacity: 0,
-      y: 50,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-      },
-    },
-  };
+// Type for AnimatedContent props
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
 
-  const itemVariants = {
-    hidden: {
-      opacity: 0,
-      x: 30,
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  return (
-    <section ref={sectionRef}>
-      <motion.div
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        variants={containerVariants}
-      >
-        {children}
-      </motion.div>
-    </section>
-  );
-};
-
-const AnimatedContent = ({ children, direction = "right" }) => {
-  const contentRef = useRef(null);
+const AnimatedContent: React.FC<AnimatedContentProps> = ({ children, direction = "right" }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(contentRef, {
     once: false,
     margin: "-100px",
@@ -116,10 +75,12 @@ const AnimatedContent = ({ children, direction = "right" }) => {
   );
 };
 
-const DentalImplant = () => {
-  const [expandedSection, setExpandedSection] = useState(null);
+type SectionName = "commonlyFound" | "prevention" | null;
 
-  const toggleSection = (sectionName) => {
+const DentalImplant = () => {
+  const [expandedSection, setExpandedSection] = useState<SectionName>(null);
+
+  const toggleSection = (sectionName: Exclude<SectionName, null>) => {
     setExpandedSection(expandedSection === sectionName ? null : sectionName);
   };
 

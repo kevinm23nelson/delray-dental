@@ -1,6 +1,5 @@
-// src/components/shared/ImageComparisonSlider.tsx
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 interface ImageComparisonSliderProps {
@@ -8,6 +7,7 @@ interface ImageComparisonSliderProps {
   afterImage: string;
   beforeAlt: string;
   afterAlt: string;
+  priority?: boolean; 
 }
 
 const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
@@ -15,20 +15,24 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
   afterImage,
   beforeAlt,
   afterAlt,
+  priority = false, 
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleMove = (event: MouseEvent | TouchEvent) => {
-    if (!isResizing || !containerRef.current) return;
+  const handleMove = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      if (!isResizing || !containerRef.current) return;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = "touches" in event ? event.touches[0].clientX : event.clientX;
-    const position = ((x - rect.left) / rect.width) * 100;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = "touches" in event ? event.touches[0].clientX : event.clientX;
+      const position = ((x - rect.left) / rect.width) * 100;
 
-    setPosition(Math.min(Math.max(position, 0), 100));
-  };
+      setPosition(Math.min(Math.max(position, 0), 100));
+    },
+    [isResizing] // Add isResizing as a dependency
+  );
 
   const handleMouseDown = () => {
     setIsResizing(true);
@@ -50,16 +54,22 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
       document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("touchend", handleMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, handleMove]);
 
   return (
     <div
       ref={containerRef}
       className="relative w-full aspect-[4/3] select-none overflow-hidden rounded-lg"
     >
-      {/* After image (full width) */}
       <div className="absolute inset-0">
-        <Image src={afterImage} alt={afterAlt} fill className="object-cover" />
+        <Image 
+          src={afterImage} 
+          alt={afterAlt} 
+          fill 
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
+          priority={priority}
+        />
       </div>
 
       {/* Before image (clipped) */}
@@ -73,16 +83,16 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
           src={beforeImage}
           alt={beforeAlt}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
+          priority={priority}
         />
       </div>
 
+
       {/* Slider */}
       <div className="absolute inset-y-0" style={{ left: `${position}%` }}>
-        {/* Vertical line */}
         <div className="absolute inset-y-0 w-0.5 bg-white shadow-lg" />
-
-        {/* Drag handle */}
         <button
           onMouseDown={handleMouseDown}
           onTouchStart={handleMouseDown}
@@ -90,7 +100,6 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
           aria-label="Comparison slider"
         >
           <div className="flex items-center gap-2">
-            {/* Left arrow */}
             <svg
               width="8"
               height="12"
@@ -107,7 +116,6 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
                 strokeLinejoin="round"
               />
             </svg>
-            {/* Right arrow */}
             <svg
               width="8"
               height="12"
@@ -128,7 +136,6 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
         </button>
       </div>
 
-      {/* Labels */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-4 bottom-4 px-2 py-1 bg-black/50 text-white text-sm rounded">
           Before

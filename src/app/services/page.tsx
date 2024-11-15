@@ -8,25 +8,46 @@ import WhiteCheckCircleIcon from "@/components/shared/WhiteCheckCircleIcon";
 import BackToTop from "@/components/shared/BackToTop";
 import { motion, useInView } from "framer-motion";
 
-const getServiceId = (title) => {
-  return title
-    .toLowerCase()
-    .replace(/[\s®™]+/g, "-")
-    .replace(/[^a-z0-9-™®]/g, "");
-};
+interface Service {
+  title: string;
+  description: string;
+  showDetailsButton?: boolean;
+}
 
-const ServiceSection = ({
+// Interface for the component props
+interface ServiceSectionProps {
+  services: Service[];
+  imageSrc?: string;
+  isBlue?: boolean;
+  imageFirst?: boolean;
+  id?: string;
+}
+
+const ServiceSection: React.FC<ServiceSectionProps> = ({
   services,
   imageSrc,
   isBlue = false,
   imageFirst = false,
   id,
 }) => {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Add window size detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const isInView = useInView(sectionRef, {
-    once: false, 
-    margin: "-100px",
-    amount: 0.3, 
+    once: true, // Changed to true to prevent repeated animations
+    margin: isMobile ? "0px" : "-100px", // Reduced margin on mobile
+    amount: isMobile ? 0.1 : 0.3, // Reduced threshold on mobile
   });
 
   const bgColor = isBlue ? "bg-sky-500" : "bg-gray-100";
@@ -40,37 +61,37 @@ const ServiceSection = ({
 
   const containerVariants = {
     hidden: {
-      opacity: 0,
-      y: 50,
+      opacity: isMobile ? 1 : 0,
+      y: isMobile ? 0 : 50,
     },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.5,
+        duration: isMobile ? 0.3 : 0.5,
         ease: "easeOut",
-        when: "beforeChildren", 
-        staggerChildren: 0.2, 
+        when: "beforeChildren",
+        staggerChildren: isMobile ? 0.1 : 0.2,
       },
     },
   };
 
   const itemVariants = {
     hidden: {
-      opacity: 0,
-      x: imageFirst ? -30 : 30,
+      opacity: isMobile ? 1 : 0,
+      x: isMobile ? 0 : imageFirst ? -30 : 30,
     },
     visible: {
       opacity: 1,
       x: 0,
       transition: {
-        duration: 0.5,
+        duration: isMobile ? 0.3 : 0.5,
         ease: "easeOut",
       },
     },
   };
 
-  const ServiceContent = ({ service }) => (
+  const ServiceContent: React.FC<{ service: Service }> = ({ service }) => (
     <motion.div className="space-y-4" variants={itemVariants}>
       <h2 className="text-3xl font-bold">{service.title}</h2>
       <div className="flex gap-4 items-start">
@@ -95,11 +116,7 @@ const ServiceSection = ({
   );
 
   return (
-    <section
-      className={`${bgColor} py-20`}
-      ref={sectionRef}
-      id={id} 
-    >
+    <section className={`${bgColor} py-20`} ref={sectionRef} id={id}>
       <Container className="px-6 lg:px-8">
         <motion.div
           className={`max-w-6xl mx-auto ${innerBgColor} rounded-xl p-8 lg:p-12`}
@@ -156,8 +173,28 @@ const ServiceSection = ({
   );
 };
 
+type ServiceScrollMap = {
+  [key: string]: string;
+};
+
+const serviceScrollMapping: ServiceScrollMap = {
+  "cosmetic-bonding": "oral-cancer-screening",
+  "teeth-cleanings": "veneers",
+  "oral-surgery": "full-and-partial-dentures",
+  "non-surgical-gum-treatment": "dental-diet-system",
+  "root-canal-therapy": "dental-fillings",
+  "invisalign®": "clearcorrect™",
+};
+
+interface DentalService {
+  title: string;
+  description: string;
+  showDetailsButton?: boolean;
+  imageSrc: string;
+}
+
 const DentalServicesPage = () => {
-  const featuredServices = [
+  const featuredServices: DentalService[] = [
     {
       title: "Dental Implants",
       description:
@@ -174,7 +211,7 @@ const DentalServicesPage = () => {
     },
   ];
 
-  const regularServices = [
+  const regularServices: DentalService[] = [
     {
       title: "Oral Cancer Screening",
       description:
@@ -255,34 +292,17 @@ const DentalServicesPage = () => {
     },
   ];
 
-  const serviceScrollMapping = {
-    "cosmetic-bonding": "oral-cancer-screening",
-    "teeth-cleanings": "veneers",
-    "oral-surgery": "full-and-partial-dentures",
-    "non-surgical-gum-treatment": "dental-diet-system",
-    "root-canal-therapy": "dental-fillings",
-    "invisalign®": "clearcorrect™",
+  const getServiceId = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-™®]/g, "");
   };
 
   useEffect(() => {
-    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
-    if (hash) {
-      setTimeout(() => {
+    const handleScroll = (hash: string) => {
+      if (hash) {
         const targetId = serviceScrollMapping[hash] || hash;
-        const element = document.getElementById(targetId);
-        if (element) {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }, 100);
-    }
-
-    const handleHashChange = () => {
-      const newHash = decodeURIComponent(window.location.hash.replace("#", ""));
-      if (newHash) {
-        const targetId = serviceScrollMapping[newHash] || newHash;
         const element = document.getElementById(targetId);
         if (element) {
           element.scrollIntoView({
@@ -293,31 +313,36 @@ const DentalServicesPage = () => {
       }
     };
 
+    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
+    if (hash) {
+      setTimeout(() => handleScroll(hash), 100);
+    }
+
+    const handleHashChange = () => {
+      const newHash = decodeURIComponent(window.location.hash.replace("#", ""));
+      handleScroll(newHash);
+    };
+
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  const getServiceId = (title) => {
-    return title
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-™®]/g, ""); 
-  };
-
-  const servicePairs = [];
+  // Type your servicePairs array
+  const servicePairs: DentalService[][] = [];
   for (let i = 0; i < regularServices.length; i += 2) {
     servicePairs.push(regularServices.slice(i, i + 2));
   }
 
-  const needsExtraPair =
-    (featuredServices.length + servicePairs.length) % 2 !== 0;
-  if (needsExtraPair && servicePairs.length > 0) {
-    const lastPair = servicePairs.pop();
+  const needsExtraPair = (featuredServices.length + servicePairs.length) % 2 !== 0;
+if (needsExtraPair && servicePairs.length > 0) {
+  const lastPair: DentalService[] | undefined = servicePairs.pop();
+  if (lastPair && lastPair.length > 0) {  // Check both for undefined and length
     servicePairs.push([lastPair[0]]);
-    if (lastPair[1]) {
+    if (lastPair.length > 1) {  // Check if there's a second item
       servicePairs.push([lastPair[1]]);
     }
   }
+}
 
   return (
     <div className="min-h-screen">
@@ -347,7 +372,7 @@ const DentalServicesPage = () => {
       </div>
       <div className="w-full bg-sky-500 animate-in fade-in duration-700 ease-in-out">
         <div className="max-w-8xl mx-auto py-12 px-4 sm:px-6 lg:px-10">
-          <div className="max-w-5xl mx-auto text-center space-y-8 bg-sky-400 rounded-xl p-6">
+          <div className="max-w-5xl mx-auto text-center space-y-8 bg-sky-400 rounded-xl p-8">
             <div className="flex justify-center items-center gap-4">
               <div className="flex-shrink-0">
                 <WhiteCheckCircleIcon />
@@ -357,31 +382,40 @@ const DentalServicesPage = () => {
               </h2>
             </div>
 
-            {/* Services Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-left max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 ease-in-out">
-              {[...featuredServices, ...regularServices].map((service) => {
-                const serviceId = getServiceId(service.title);
-                const targetId = serviceScrollMapping[serviceId] || serviceId;
+            {/* Services Grid - simplified animations for mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+              {[...featuredServices, ...regularServices].map(
+                (service, index) => {
+                  const serviceId = getServiceId(service.title);
+                  const targetId = serviceScrollMapping[serviceId] || serviceId;
 
-                return (
-                  <button
-                    key={service.title}
-                    onClick={() => {
-                      const element = document.getElementById(targetId);
-                      if (element) {
-                        element.scrollIntoView({
-                          behavior: "smooth",
-                          block: "center",
-                        });
-                      }
-                    }}
-                    className="flex items-center space-x-3 text-white hover:text-sky-100 transition-colors duration-200 group cursor-pointer"
-                  >
-                    <div className="w-2 h-2 bg-white rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-200"></div>
-                    <span className="text-lg">{service.title}</span>
-                  </button>
-                );
-              })}
+                  return (
+                    <motion.button
+                      key={service.title}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: index * 0.05, // Shorter stagger delay
+                        ease: "easeOut",
+                      }}
+                      onClick={() => {
+                        const element = document.getElementById(targetId);
+                        if (element) {
+                          element.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                          });
+                        }
+                      }}
+                      className="flex items-center space-x-3 text-white hover:text-sky-100 transition-colors duration-200 group cursor-pointer whitespace-nowrap"
+                    >
+                      <div className="w-2 h-2 bg-white rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-200"></div>
+                      <span className="text-lg">{service.title}</span>
+                    </motion.button>
+                  );
+                }
+              )}
             </div>
 
             <p className="text-white font-montserrat text-lg px-4 pt-6">

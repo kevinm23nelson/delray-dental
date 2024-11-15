@@ -1,14 +1,19 @@
 "use client";
 import Image from "next/image";
-import React, { useRef } from "react";
-import Container from "../../components/shared/Container";
+import React, { useRef, ReactNode } from "react";
+import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
 import WhiteArrowCircleIcon from "@/components/shared/WhiteArrowCircleIcon";
 import BackToTop from "@/components/shared/BackToTop";
 import { motion, useInView } from "framer-motion";
 
-const AnimatedContent = ({ children, direction = "right" }) => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -43,7 +48,7 @@ const AnimatedContent = ({ children, direction = "right" }) => {
   );
 };
 
-const AboutUs = () => {
+function Page() {
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
@@ -87,7 +92,7 @@ const AboutUs = () => {
                   />
                   <div className="text-center mt-4 space-y-1">
                     <p className="text-lg text-gray-700 italic">
-                      "Every day is a great day!"
+                      {`"Every day is a great day!"`}
                     </p>
                     <p className="text-sm text-gray-500 font-semibold">- JR</p>
                   </div>
@@ -108,8 +113,8 @@ const AboutUs = () => {
                         The Florida Academy of Dental Practice Administration.
                         Dr. John has additional training in IMZ, Stryker, ITI
                         Dental Implant System and completion of the Alabama
-                        Implant Congress. His abstract “Observation of thee
-                        Auriculotemporal Nerve in Human Specimens” was presented
+                        Implant Congress. His abstract {`"Observation of thee
+                        Auriculotemporal Nerve in Human Specimens"`} was presented
                         to the American Academy of Oralfacial pain Scientific
                         Congress on temporal mandibular disorders. Dr. John has
                         been published in the Outstanding Young Men In America
@@ -159,7 +164,7 @@ const AboutUs = () => {
                       </div>
                       <p className="text-xl leading-relaxed">
                         At Ritota & Ritota, patients are our top priority.{" "}
-                        <span className="font-bold">"IN PAIN? CALL US!"</span>{" "}
+                        <span className="font-bold">IN PAIN? CALL US!</span>{" "}
                         We pride ourselves on providing the best and most
                         comprehensive dental care possible across a wide range
                         of services, focusing on{" "}
@@ -224,9 +229,9 @@ const AboutUs = () => {
                     </h2>
                     <p className="text-lg leading-relaxed">
                       Proudly celebrating our 44th year in the same location.
-                      Conveniently located at the Boca Raton – Delray Beach City
+                      Conveniently located at the Boca Raton, Delray Beach City
                       line on Federal Highway. Click the button below to view an
-                      amazing January 2020 article about Drs. Ritotas' 40 years
+                      amazing January 2020 article about Drs. {"Ritotas'"} 40 years
                       in business as featured in the Atlantic Ave Magazine.
                     </p>
                     <div className="flex justify-center">
@@ -247,6 +252,6 @@ const AboutUs = () => {
       <BackToTop />
     </div>
   );
-};
+}
 
-export default AboutUs;
+export default Page;
