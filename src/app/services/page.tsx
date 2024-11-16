@@ -45,9 +45,9 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
   }, []);
 
   const isInView = useInView(sectionRef, {
-    once: true, // Changed to true to prevent repeated animations
-    margin: isMobile ? "0px" : "-100px", // Reduced margin on mobile
-    amount: isMobile ? 0.1 : 0.3, // Reduced threshold on mobile
+    once: true,
+    margin: isMobile ? "0px" : "-100px",
+    amount: isMobile ? 0.1 : 0.3,
   });
 
   const bgColor = isBlue ? "bg-sky-500" : "bg-gray-100";
@@ -327,22 +327,22 @@ const DentalServicesPage = () => {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  // Type your servicePairs array
   const servicePairs: DentalService[][] = [];
   for (let i = 0; i < regularServices.length; i += 2) {
     servicePairs.push(regularServices.slice(i, i + 2));
   }
 
-  const needsExtraPair = (featuredServices.length + servicePairs.length) % 2 !== 0;
-if (needsExtraPair && servicePairs.length > 0) {
-  const lastPair: DentalService[] | undefined = servicePairs.pop();
-  if (lastPair && lastPair.length > 0) {  // Check both for undefined and length
-    servicePairs.push([lastPair[0]]);
-    if (lastPair.length > 1) {  // Check if there's a second item
-      servicePairs.push([lastPair[1]]);
+  const needsExtraPair =
+    (featuredServices.length + servicePairs.length) % 2 !== 0;
+  if (needsExtraPair && servicePairs.length > 0) {
+    const lastPair: DentalService[] | undefined = servicePairs.pop();
+    if (lastPair && lastPair.length > 0) {
+      servicePairs.push([lastPair[0]]);
+      if (lastPair.length > 1) {
+        servicePairs.push([lastPair[1]]);
+      }
     }
   }
-}
 
   return (
     <div className="min-h-screen">
@@ -382,8 +382,8 @@ if (needsExtraPair && servicePairs.length > 0) {
               </h2>
             </div>
 
-            {/* Services Grid - simplified animations for mobile */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            {/* Services Grid */}
+            <div className="grid grid-cols-1 lg:pl-8 md:grid-cols-3 gap-6 text-left">
               {[...featuredServices, ...regularServices].map(
                 (service, index) => {
                   const serviceId = getServiceId(service.title);
@@ -396,7 +396,7 @@ if (needsExtraPair && servicePairs.length > 0) {
                       animate={{ opacity: 1 }}
                       transition={{
                         duration: 0.3,
-                        delay: index * 0.05, // Shorter stagger delay
+                        delay: index * 0.05,
                         ease: "easeOut",
                       }}
                       onClick={() => {
