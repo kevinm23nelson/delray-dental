@@ -137,10 +137,6 @@ const PreOperative = () => {
             <AnimatedContent>
               <div className="text-left mt-12 mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  All instruments, handpieces and materials used are heat
-                  sterilized in an autoclave for your protection!
-                </h2>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                   Office:{" "}
                   <a
                     href="tel:5614953115"
@@ -158,7 +154,6 @@ const PreOperative = () => {
                     (561) 495-3115
                   </a>
                 </h2>
-
                 <p className="text-xl text-gray-600">
                   Sometimes patients develop such things as allergies to
                   medications (generalized rash, itching, etc…) infection (foul
@@ -166,20 +161,33 @@ const PreOperative = () => {
                   (throbbing pain occurring 3-7 days following the procedure).
                   These and other potential problems are treatable if brought to
                   our attention. If the doctor is not available to talk with you
-                  about a problem you are having, you can call
-                  {" (561) 495-3115"} (Delray Comunity Hosptial Emergency Number) or 911. In our office, we are doing everything we
-                  can to make your surgery as painless and uneventful as
-                  possible. However, what you do or do not do following your
-                  surgery is important too.
+                  about a problem you are having, you can call the Delray
+                  Community Hospital at{" "}
+                  <a
+                    href="tel:5614953115"
+                    className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                  >
+                    (561) 495-3115
+                  </a>
+                  , or{" "}
+                  <a
+                    href="tel:5614953115"
+                    className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                  >
+                    911
+                  </a>
+                  . In our office, we are doing everything we can to make your
+                  surgery as painless and uneventful as possible. However, what
+                  you do or do not do following your surgery is important too.
                 </p>
                 <p className="mt-6 text-xl text-gray-600">
                   DISREGARDING THESE SUGGESTIONS may lead to severe pain and
                   discomfort.
                 </p>
               </div>
-            </AnimatedContent>
+         
 
-            <AnimatedContent>
+           
               <div className="text-left mt-12 mb-6">
                 <h2 className="text-3xl font-bold text-gray-900">
                   Contact the doctor if:

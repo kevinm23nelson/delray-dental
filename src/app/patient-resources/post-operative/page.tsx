@@ -12,7 +12,10 @@ interface AnimatedContentProps {
   direction?: "left" | "right";
 }
 
-const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -151,10 +154,7 @@ const PostOperative = () => {
 
             <div className="space-y-8">
               {instructions.map((instruction, index) => (
-                <AnimatedContent
-                  key={index}
-                  direction="right"
-                >
+                <AnimatedContent key={index} direction="right">
                   <div className="flex gap-6 items-start bg-white p-6 rounded-lg shadow-sm">
                     <div className="pt-1">
                       <ArrowCircleIcon />
@@ -177,7 +177,7 @@ const PostOperative = () => {
                     href="tel:5614953115"
                     className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
                   >
-                    (561) 495-3115
+                    (561) 272-6664
                   </a>
                 </h2>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -196,12 +196,20 @@ const PostOperative = () => {
                   (throbbing pain occurring 3-7 days following the procedure).
                   These and other potential problems are treatable if brought to
                   our attention. If the doctor is not available to talk with you
-                  about a problem you are having, you can call{" "}
+                  about a problem you are having, you can call the Delray
+                  Community Hospital at{" "}
                   <a
                     href="tel:5614953115"
                     className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
                   >
                     (561) 495-3115
+                  </a>
+                  , or{" "}
+                  <a
+                    href="tel:5614953115"
+                    className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                  >
+                    911
                   </a>
                   . In our office, we are doing everything we can to make your
                   surgery as painless and uneventful as possible. However, what
@@ -224,10 +232,7 @@ const PostOperative = () => {
 
             <div className="space-y-6">
               {instructionsTwo.map((instruction, index) => (
-                <AnimatedContent
-                  key={index}
-                  direction="right"
-                >
+                <AnimatedContent key={index} direction="right">
                   <div className="flex gap-4 items-center bg-white p-2 rounded-lg shadow-sm">
                     <div className="flex-shrink-0">
                       <ArrowCircleIcon />
@@ -242,7 +247,7 @@ const PostOperative = () => {
           </div>
         </Container>
       </section>
-      <BackToTop/>
+      <BackToTop />
     </div>
   );
 };

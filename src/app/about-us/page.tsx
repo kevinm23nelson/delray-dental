@@ -127,7 +127,7 @@ function Page() {
 
                     {/* Arrow points */}
                     {[
-                      "Can surgically place and cosmetically restore...",
+                      "Can surgically  surgically place and cosmetically restore your dental implants in one convenient location, avoiding the need to travel from office to office. We are always willing to provide a second opinion for FREE!",
                       "Has been published in Guide to America's Top Dentists.",
                       "Has been published in both the...",
                       "Has lectured extensively in the United States and Canada.",
