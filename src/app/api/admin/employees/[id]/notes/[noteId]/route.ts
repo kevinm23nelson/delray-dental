@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(req.url); // Extract params from the request URL
-    const id = searchParams.get('id'); // Get the `id` from the URL search params
+    const { searchParams } = new URL(req.url); 
+    const id = searchParams.get('id');
 
     if (!id) {
       return NextResponse.json(
