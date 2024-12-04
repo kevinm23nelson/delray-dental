@@ -10,7 +10,7 @@ const Footer = () => {
 
   return (
     <>
-      {/* Appointment Section - Moved outside footer and made full-width */}
+      {/* Appointment Section */}
       <div className="w-full bg-sky-500 animate-in fade-in duration-700 ease-in-out">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center space-y-4">
@@ -26,9 +26,9 @@ const Footer = () => {
             </div>
             <p className="text-white font-montserrat text-lg px-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 ease-in-out">
               <span className="font-bold">
-                If you have issues with the Calendly app
+                If you have issues with the homepage calendar
               </span>
-              , please just call the office:{" "}
+              , please call the office:{" "}
               <a
                 href="tel:+15612726664"
                 className="underline hover:no-underline"
@@ -54,9 +54,8 @@ const Footer = () => {
       {/* Main Footer */}
       <footer className="bg-gray-100 animate-in fade-in duration-1000 ease-in-out">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          {/* Main Container - Stack on mobile, but allow nested flex on lg and up */}
           <div className="flex flex-col lg:flex-row lg:space-y-0 space-y-8">
-            {/* Hours Section */}
+            {/* Hours Section - Desktop */}
             <div className="hidden lg:block lg:w-1/4 px-4 animate-in fade-in slide-in-from-left-8 duration-700 delay-200 ease-in-out">
               <h3 className="text-2xl font-semibold text-gray-900 mb-6 text-center lg:text-left">
                 <span className="border-b-2 border-gray-300 pb-2">Hours</span>
@@ -76,6 +75,14 @@ const Footer = () => {
                     <span className="text-gray-600 ml-4">{hours}</span>
                   </div>
                 ))}
+              </div>
+              <div className="mt-6 text-center lg:text-left">
+                <Link
+                  href="/admin/login"
+                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                >
+                  Admin Login
+                </Link>
               </div>
             </div>
 

@@ -10,7 +10,7 @@ const BlueCheckCircleIcon = () => (
         className="text-white"
       >
         <path 
-          d="M20 6L9 17L4 12"  // Changed path data to create a checkmark
+          d="M20 6L9 17L4 12" 
           stroke="currentColor" 
           strokeWidth="2" 
           strokeLinecap="round" 

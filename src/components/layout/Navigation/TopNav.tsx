@@ -401,7 +401,7 @@ const TopNav = () => {
     if (convertedType === "patient-resources" || convertedType === "services") {
       return convertedType;
     }
-    return "services"; // default fallback
+    return "services"; 
   };
 
   return (

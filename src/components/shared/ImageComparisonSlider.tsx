@@ -31,7 +31,7 @@ const ImageComparisonSlider: React.FC<ImageComparisonSliderProps> = ({
 
       setPosition(Math.min(Math.max(position, 0), 100));
     },
-    [isResizing] // Add isResizing as a dependency
+    [isResizing]
   );
 
   const handleMouseDown = () => {

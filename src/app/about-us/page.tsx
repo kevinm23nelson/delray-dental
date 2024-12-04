@@ -13,7 +13,10 @@ interface AnimatedContentProps {
   direction?: "left" | "right";
 }
 
-const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -113,13 +116,14 @@ function Page() {
                         The Florida Academy of Dental Practice Administration.
                         Dr. John has additional training in IMZ, Stryker, ITI
                         Dental Implant System and completion of the Alabama
-                        Implant Congress. His abstract {`"Observation of thee
-                        Auriculotemporal Nerve in Human Specimens"`} was presented
-                        to the American Academy of Oralfacial pain Scientific
-                        Congress on temporal mandibular disorders. Dr. John has
-                        been published in the Outstanding Young Men In America
-                        as a recipient of the Van Cliburn Award and for
-                        extensive TMJ Dental Research. Dr. John Ritota is
+                        Implant Congress. His abstract{" "}
+                        {`"Observation of thee
+                        Auriculotemporal Nerve in Human Specimens"`}{" "}
+                        was presented to the American Academy of Oralfacial pain
+                        Scientific Congress on temporal mandibular disorders.
+                        Dr. John has been published in the Outstanding Young Men
+                        In America as a recipient of the Van Cliburn Award and
+                        for extensive TMJ Dental Research. Dr. John Ritota is
                         licensed to practice general dentistry in Washington
                         D.C., New Jersey, and Florida.
                       </p>
@@ -129,7 +133,7 @@ function Page() {
                     {[
                       "Can surgically  surgically place and cosmetically restore your dental implants in one convenient location, avoiding the need to travel from office to office. We are always willing to provide a second opinion for FREE!",
                       "Has been published in Guide to America's Top Dentists.",
-                      "Has been published in both the...",
+                      "Has been published in both the “Journal of Oral-Facial Pain” and “Dental Survey”, and have lectured extensively in the United States and Canada.",
                       "Has lectured extensively in the United States and Canada.",
                     ].map((text, index) => (
                       <div key={index} className="flex gap-4 items-start">
@@ -164,8 +168,8 @@ function Page() {
                       </div>
                       <p className="text-xl leading-relaxed">
                         At Ritota & Ritota, patients are our top priority.{" "}
-                        <span className="font-bold">IN PAIN? CALL US!</span>{" "}
-                        We pride ourselves on providing the best and most
+                        <span className="font-bold">IN PAIN? CALL US!</span> We
+                        pride ourselves on providing the best and most
                         comprehensive dental care possible across a wide range
                         of services, focusing on{" "}
                         <span className="font-bold">
@@ -231,8 +235,9 @@ function Page() {
                       Proudly celebrating our 44th year in the same location.
                       Conveniently located at the Boca Raton, Delray Beach City
                       line on Federal Highway. Click the button below to view an
-                      amazing January 2020 article about Drs. {"Ritotas'"} 40 years
-                      in business as featured in the Atlantic Ave Magazine.
+                      amazing January 2020 article about Drs. {"Ritotas'"} 40
+                      years in business as featured in the Atlantic Ave
+                      Magazine.
                     </p>
                     <div className="flex justify-center">
                       <Link
