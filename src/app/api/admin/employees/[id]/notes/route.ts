@@ -1,31 +1,28 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
-export async function POST(request: Request): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract the `id` parameter from the URL
-    const { pathname } = new URL(request.url);
-    const match = pathname.match(/\/api\/admin\/employees\/(?<id>[^/]+)\/notes/);
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
 
-    if (!match || !match.groups?.id) {
+    if (!id) {
       return NextResponse.json(
-        { error: "Invalid URL or missing employee ID" },
+        { error: "Employee ID is required" },
         { status: 400 }
       );
     }
 
-    const { id } = match.groups;
-    const { content } = await request.json();
-
+    const { content } = await req.json();
     if (!content) {
       return NextResponse.json(
         { error: "Note content is required" },
@@ -51,25 +48,22 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 }
 
-export async function GET(request: Request): Promise<NextResponse> {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract the `id` parameter from the URL
-    const { pathname } = new URL(request.url);
-    const match = pathname.match(/\/api\/admin\/employees\/(?<id>[^/]+)\/notes/);
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
 
-    if (!match || !match.groups?.id) {
+    if (!id) {
       return NextResponse.json(
-        { error: "Invalid URL or missing employee ID" },
+        { error: "Employee ID is required" },
         { status: 400 }
       );
     }
-
-    const { id } = match.groups;
 
     const notes = await prisma.practitionerNote.findMany({
       where: {
