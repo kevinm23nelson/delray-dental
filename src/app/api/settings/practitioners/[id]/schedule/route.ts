@@ -1,5 +1,4 @@
-// src/app/api/settings/practitioners/[id]/schedule/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient, DayOfWeek } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../auth/[...nextauth]/auth";
@@ -15,10 +14,7 @@ interface ScheduleInput {
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     
@@ -26,9 +22,19 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Practitioner ID is required" },
+        { status: 400 }
+      );
+    }
+
     const schedule = await prisma.schedule.findMany({
       where: {
-        practitionerId: params.id,
+        practitionerId: id,
         effectiveUntil: null,
       },
       orderBy: {
@@ -46,10 +52,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     
@@ -57,11 +60,21 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { schedule } = await request.json() as { schedule: ScheduleInput[] };
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Practitioner ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const { schedule } = await req.json() as { schedule: ScheduleInput[] };
 
     await prisma.schedule.deleteMany({
       where: {
-        practitionerId: params.id,
+        practitionerId: id,
         effectiveUntil: null,
       },
     });
@@ -70,7 +83,7 @@ export async function POST(
       schedule.map((item: ScheduleInput) =>
         prisma.schedule.create({
           data: {
-            practitionerId: params.id,
+            practitionerId: id,
             dayOfWeek: item.dayOfWeek,
             startTime: item.startTime,
             endTime: item.endTime,
