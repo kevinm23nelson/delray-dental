@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, DayOfWeek } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../../auth/[...nextauth]/route";
+import { authOptions } from "../../../../auth/[...nextauth]/auth";
 
 interface ScheduleInput {
   dayOfWeek: DayOfWeek;
