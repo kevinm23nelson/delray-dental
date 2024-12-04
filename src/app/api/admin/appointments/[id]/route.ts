@@ -3,15 +3,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-type Props = {
-  params: {
-    id: string;
-  };
-}
-
 export async function PATCH(
   req: NextRequest,
-  { params }: Props
+  { params }: { params: { id: string }}
 ): Promise<NextResponse> {
   try {
     const data = await req.json();
