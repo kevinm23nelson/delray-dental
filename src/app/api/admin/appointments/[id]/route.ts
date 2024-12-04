@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string }}
+  { params }: { params: { id: string } } // Inline typing for params
 ): Promise<NextResponse> {
   try {
     const data = await req.json();
