@@ -1,15 +1,11 @@
-// src/app/api/settings/appointment-types/[id]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../auth/[...nextauth]/auth";
 
 const prisma = new PrismaClient();
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     
@@ -17,10 +13,20 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const data = await request.json();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Appointment Type ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const data = await req.json();
 
     const appointmentType = await prisma.appointmentType.update({
-      where: { id: params.id },
+      where: { id },
       data: { isActive: data.isActive },
     });
 
