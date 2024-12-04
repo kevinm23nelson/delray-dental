@@ -3,18 +3,18 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-interface RouteParams {
+type Props = {
   params: {
     id: string;
   };
 }
 
 export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+  req: NextRequest,
+  { params }: Props
+): Promise<NextResponse> {
   try {
-    const data = await request.json();
+    const data = await req.json();
     if (data.patientPhone === '') {
       return NextResponse.json(
         { error: 'Phone number is required' },
