@@ -1,43 +1,43 @@
-// src/app/api/admin/employees/[id]/notes/[noteId]/route.ts
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../../../../../auth/[...nextauth]/route";
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string; noteId: string } }
-) {
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { searchParams } = new URL(req.url); // Extract params from the request URL
+    const id = searchParams.get('id'); // Get the `id` from the URL search params
 
-    const { content } = await request.json();
-    if (!content) {
+    if (!id) {
       return NextResponse.json(
-        { error: "Note content is required" },
+        { error: 'Missing appointment ID' },
         { status: 400 }
       );
     }
 
-    const note = await prisma.practitionerNote.update({
-      where: {
-        id: params.noteId,
-      },
-      data: {
-        content,
+    const data = await req.json();
+
+    if (data.patientPhone === '') {
+      return NextResponse.json(
+        { error: 'Phone number is required' },
+        { status: 400 }
+      );
+    }
+
+    const appointment = await prisma.appointment.update({
+      where: { id },
+      data,
+      include: {
+        appointmentType: true,
+        practitioner: true,
       },
     });
 
-    return NextResponse.json(note);
+    return NextResponse.json(appointment);
   } catch (error) {
-    console.error("Failed to update note:", error);
+    console.error('Failed to update appointment:', error);
     return NextResponse.json(
-      { error: "Failed to update note" },
+      { error: 'Failed to update appointment' },
       { status: 500 }
     );
   }
