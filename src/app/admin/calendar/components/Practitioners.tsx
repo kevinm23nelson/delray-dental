@@ -65,8 +65,6 @@ export default function PractitionersSettings() {
     loadPractitioners();
   }, []);
 
-  const CLINICAL_ROLES = ["DENTIST", "HYGIENIST"] as const;
-
   async function loadPractitioners() {
     try {
       const response = await fetch("/api/settings/practitioners");
