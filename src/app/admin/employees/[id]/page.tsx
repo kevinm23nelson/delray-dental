@@ -174,9 +174,6 @@ export default function EmployeeDetailsPage() {
     }
   }, [employee]);
 
-  useEffect(() => {
-    loadEmployeeDetails();
-  }, [params.id]);
 
   const loadEmployeeDetails = useCallback(async () => {
     try {
