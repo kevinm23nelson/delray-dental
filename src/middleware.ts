@@ -3,9 +3,11 @@ import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export default withAuth(
-  function middleware(req: NextRequest) {
+  function middleware(
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+    req: NextRequest
+  ) {
     return NextResponse.next()
   },
   {

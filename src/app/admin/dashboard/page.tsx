@@ -63,7 +63,7 @@ export default function Dashboard() {
               <Calendar className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-sky-900">
-              Today's Appointments
+              Today&apos;s Appointments
             </h3>
           </div>
           <p className="text-3xl font-bold text-sky-600">
@@ -71,7 +71,6 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* You can keep the third card for future use or remove it */}
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-100">
           <h3 className="text-lg font-semibold text-sky-900 mb-2">
             Total Patients
