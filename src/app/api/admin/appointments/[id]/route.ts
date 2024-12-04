@@ -3,12 +3,20 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } } // Inline typing for params
-): Promise<NextResponse> {
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
+    const { searchParams } = new URL(req.url); // Extract params from the request URL
+    const id = searchParams.get('id'); // Get the `id` from the URL search params
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Missing appointment ID' },
+        { status: 400 }
+      );
+    }
+
     const data = await req.json();
+
     if (data.patientPhone === '') {
       return NextResponse.json(
         { error: 'Phone number is required' },
@@ -17,7 +25,7 @@ export async function PATCH(
     }
 
     const appointment = await prisma.appointment.update({
-      where: { id: params.id },
+      where: { id },
       data,
       include: {
         appointmentType: true,
