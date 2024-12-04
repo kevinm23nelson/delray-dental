@@ -1,12 +1,12 @@
-// src/app/api/admin/appointments/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Add correct types for Next.js route handlers
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const data = await request.json();
@@ -18,7 +18,7 @@ export async function PATCH(
     }
 
     const appointment = await prisma.appointment.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data,
       include: {
         appointmentType: true,
