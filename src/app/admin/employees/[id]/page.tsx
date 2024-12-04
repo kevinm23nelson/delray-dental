@@ -1,7 +1,7 @@
 // src/app/admin/employees/[id]/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,28 @@ import {
 } from "lucide-react";
 import { formatDateForInput, formatDateForDisplay } from "@/lib/utils/dates";
 
+interface EditFormData {
+  name: string;
+  role: PractitionerRole;
+  phone: string;
+  email?: string;
+  address?: string;
+  startDate: string;
+}
+
+interface Note {
+  id: string;
+  content: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+interface NoteItemProps {
+  note: Note;
+  practitionerId: string;
+  onNoteUpdate: (updatedNote: Note) => void;
+}
+
 interface EmployeeDetails {
   id: string;
   name: string;
@@ -37,20 +59,7 @@ interface EmployeeDetails {
   address?: string;
   startDate: string;
   isActive: boolean;
-  notes: {
-    id: string;
-    content: string;
-    createdAt: string;
-    createdBy: string;
-  }[];
-}
-interface EditFormData {
-  name: string;
-  role: PractitionerRole;
-  phone: string;
-  email?: string;
-  address?: string;
-  startDate: string;
+  notes: Note[];
 }
 
 function isString(value: string | string[] | undefined): value is string {
@@ -76,16 +85,6 @@ export default function EmployeeDetailsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const ALL_ROLES = ["DENTIST", "HYGIENIST", "OFFICE_STAFF"] as const;
-  interface NoteItemProps {
-    note: {
-      id: string;
-      content: string;
-      createdAt: string;
-      createdBy: string;
-    };
-    practitionerId: string;
-    onNoteUpdate: (updatedNote: any) => void;
-  }
 
   const NoteItem = ({ note, practitionerId, onNoteUpdate }: NoteItemProps) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -179,9 +178,9 @@ export default function EmployeeDetailsPage() {
     loadEmployeeDetails();
   }, [params.id]);
 
-  async function loadEmployeeDetails() {
+  const loadEmployeeDetails = useCallback(async () => {
     try {
-      const response = await fetch(`/api/admin/employees/${params.id}`);
+      const response = await fetch(`/api/admin/employees/${employeeId}`);
       if (!response.ok) throw new Error("Failed to load employee details");
       const data = await response.json();
       setEmployee(data);
@@ -192,7 +191,11 @@ export default function EmployeeDetailsPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [employeeId]);
+
+  useEffect(() => {
+    loadEmployeeDetails();
+  }, [loadEmployeeDetails]);
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
