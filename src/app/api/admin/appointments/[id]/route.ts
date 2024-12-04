@@ -1,12 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Add correct types for Next.js route handlers
+interface RouteParams {
+  params: {
+    id: string;
+  };
+}
+
 export async function PATCH(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: RouteParams
 ) {
   try {
     const data = await request.json();
@@ -18,7 +23,7 @@ export async function PATCH(
     }
 
     const appointment = await prisma.appointment.update({
-      where: { id: context.params.id },
+      where: { id: params.id },
       data,
       include: {
         appointmentType: true,
