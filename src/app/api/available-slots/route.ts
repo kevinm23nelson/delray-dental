@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
-import { addMinutes, parseISO, format } from "date-fns";
+import { addMinutes, parseISO, format, isBefore, isAfter } from "date-fns";
 
 const prisma = new PrismaClient();
 
@@ -8,16 +8,14 @@ interface ExistingAppointment {
   startTime: Date;
   endTime: Date;
 }
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get("date");
     const appointmentTypeId = searchParams.get("appointmentTypeId");
 
-    console.log("Query params:", { dateStr, appointmentTypeId });
-
     if (!dateStr || !appointmentTypeId) {
-      console.log("Missing required parameters");
       return NextResponse.json(
         { error: "Missing required parameters" },
         { status: 400 }
@@ -25,21 +23,44 @@ export async function GET(request: Request) {
     }
 
     const date = parseISO(dateStr);
-    console.log("Parsed date:", date);
+    const dayOfWeek = format(date, "EEEE").toUpperCase() as DayOfWeek;
+
+    // Get business hours for the selected day
+    const businessHours = await prisma.officeSettings.findFirst({
+      where: {
+        name: "businessHours",
+        effectiveUntil: null,
+      },
+    });
+
+    if (!businessHours) {
+      return NextResponse.json(
+        { error: "Business hours not configured" },
+        { status: 400 }
+      );
+    }
+
+    const businessHoursData = businessHours.value as Record<string, {
+      startTime: string;
+      endTime: string;
+      isOpen: boolean;
+    }>;
+
+    const dayBusinessHours = businessHoursData[dayOfWeek];
+    if (!dayBusinessHours?.isOpen) {
+      return NextResponse.json([]);
+    }
 
     const appointmentType = await prisma.appointmentType.findUnique({
       where: { id: appointmentTypeId },
     });
 
     if (!appointmentType) {
-      console.log("Appointment type not found:", appointmentTypeId);
       return NextResponse.json(
         { error: "Appointment type not found" },
         { status: 404 }
       );
     }
-
-    const dayOfWeek = format(date, "EEEE").toUpperCase() as DayOfWeek;
 
     const practitioners = await prisma.practitioner.findMany({
       where: {
@@ -55,8 +76,6 @@ export async function GET(request: Request) {
         },
       },
     });
-
-    console.log(`Found ${practitioners.length} practitioners`);
 
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -83,33 +102,34 @@ export async function GET(request: Request) {
         },
       });
       practitionerAppointments.set(practitioner.id, appointments);
-      console.log(
-        `Found ${appointments.length} appointments for practitioner ${practitioner.name}`
-      );
     }
 
     const availableSlots = [];
 
+    // Parse business hours
+    const officeStart = parseISO(`${format(date, "yyyy-MM-dd")}T${dayBusinessHours.startTime}`);
+    const officeEnd = parseISO(`${format(date, "yyyy-MM-dd")}T${dayBusinessHours.endTime}`);
+
     for (const practitioner of practitioners) {
       const schedule = practitioner.schedule[0];
-      if (!schedule) {
-        console.log(`No schedule found for practitioner ${practitioner.name}`);
-        continue;
-      }
+      if (!schedule) continue;
 
-      const startTime = parseISO(
-        `${format(date, "yyyy-MM-dd")}T${schedule.startTime}`
-      );
-      const endTime = parseISO(
-        `${format(date, "yyyy-MM-dd")}T${schedule.endTime}`
-      );
-      let currentTime = startTime;
+      // Use the later start time between office hours and practitioner schedule
+      const startTime = parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.startTime}`);
+      const effectiveStartTime = isAfter(startTime, officeStart) ? startTime : officeStart;
+
+      // Use the earlier end time between office hours and practitioner schedule
+      const endTime = parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.endTime}`);
+      const effectiveEndTime = isBefore(endTime, officeEnd) ? endTime : officeEnd;
+
+      let currentTime = effectiveStartTime;
 
       const practitionerExistingAppointments =
         practitionerAppointments.get(practitioner.id) || [];
 
-      while (currentTime < endTime) {
+      while (currentTime < effectiveEndTime) {
         const slotEndTime = addMinutes(currentTime, appointmentType.duration);
+        if (slotEndTime > effectiveEndTime) break;
 
         const hasConflict = practitionerExistingAppointments.some(
           (appt: ExistingAppointment) => {
@@ -153,7 +173,6 @@ export async function GET(request: Request) {
       return timeComparison;
     });
 
-    console.log(`Returning ${availableSlots.length} available slots`);
     return NextResponse.json(availableSlots);
   } catch (error) {
     console.error("Failed to get available slots:", error);
