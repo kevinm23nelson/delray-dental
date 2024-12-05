@@ -6,15 +6,9 @@ import { standardizeDate } from "@/lib/utils/dates";
 
 const prisma = new PrismaClient();
 
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
-
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  context: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
@@ -23,7 +17,7 @@ export async function GET(
     }
 
     const id = context.params.id;
-    
+
     if (!id) {
       return NextResponse.json(
         { error: "Employee ID is required" },
