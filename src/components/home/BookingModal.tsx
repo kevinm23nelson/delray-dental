@@ -71,20 +71,21 @@ export default function BookingModal({
           dateParam
         )}&appointmentTypeId=${encodeURIComponent(appointmentType.id)}`;
 
-        console.log("Fetching available slots:", url); 
+        console.log("Fetching slots with URL:", url);
 
         const response = await fetch(url);
         const data = await response.json();
 
-        console.log("Response:", data); 
+        console.log("Response status:", response.status);
+        console.log("Response data:", data);
 
         if (!response.ok) {
-          throw new Error("Failed to fetch available slots");
+          throw new Error(data.error || "Failed to fetch available slots");
         }
 
         setAvailableSlots(data);
       } catch (error) {
-        console.error("Error fetching available slots:", error);
+        console.error("Error details:", error);
         toast.error("Failed to load available time slots");
         setAvailableSlots([]);
       } finally {
@@ -131,9 +132,7 @@ export default function BookingModal({
         <div className="bg-white rounded-xl w-full max-w-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h2 className="text-xl font-bold">
-                Book {appointmentType.name}
-              </h2>
+              <h2 className="text-xl font-bold">Book {appointmentType.name}</h2>
               <p className="text-gray-600">
                 {format(selectedDate, "EEEE, MMMM d, yyyy")}
               </p>
