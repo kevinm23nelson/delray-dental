@@ -38,12 +38,21 @@ export default function PractitionerSchedule({ practitionerId, onClose }: Practi
 
   const loadPractitionerSchedule = useCallback(async () => {
     try {
-      const response = await fetch(`/api/settings/practitioners/${practitionerId}/schedule`);
-      if (!response.ok) throw new Error('Failed to load schedule');
+      // Updated API endpoint
+      const response = await fetch(`/api/admin/employees/${practitionerId}/schedule`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to load schedule');
+      }
       const data = await response.json();
       
       if (data && data.length > 0) {
-        setScheduleForm(data);
+        // Sort the schedule by day of week to maintain consistent order
+        const sortedData = data.sort((a: Schedule, b: Schedule) => {
+          const days = Object.values(DayOfWeek);
+          return days.indexOf(a.dayOfWeek) - days.indexOf(b.dayOfWeek);
+        });
+        setScheduleForm(sortedData);
       }
     } catch (error) {
       console.error('Failed to load schedule:', error);
@@ -60,19 +69,23 @@ export default function PractitionerSchedule({ practitionerId, onClose }: Practi
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const response = await fetch(`/api/settings/practitioners/${practitionerId}/schedule`, {
+      // Updated API endpoint
+      const response = await fetch(`/api/admin/employees/${practitionerId}/schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ schedule: scheduleForm }),
       });
 
-      if (!response.ok) throw new Error('Failed to update schedule');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update schedule');
+      }
       
       toast.success('Schedule updated successfully');
       onClose();
     } catch (error) {
-      toast.error('Failed to update schedule');
-      console.error(error);
+      console.error('Failed to update schedule:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update schedule');
     }
   }
 
