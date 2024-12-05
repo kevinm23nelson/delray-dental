@@ -6,24 +6,21 @@ import { standardizeDate } from "@/lib/utils/dates";
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  request: NextRequest,
-  context: { params: Record<string, string> }
-): Promise<NextResponse> {
+// Define the params type as per Next.js docs
+type Props = {
+  params: {
+    id: string
+  }
+}
+
+export async function GET(request: NextRequest, props: Props) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 }
-      );
-    }
+    const id = props.params.id;
 
     const employee = await prisma.practitioner.findUnique({
       where: { id },
@@ -53,25 +50,14 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  context: { params: Record<string, string> }
-): Promise<NextResponse> {
+export async function PATCH(request: NextRequest, props: Props) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 }
-      );
-    }
-
+    const id = props.params.id;
     const data = await request.json();
 
     if (!data.name || !data.role || !data.phone) {
@@ -95,10 +81,10 @@ export async function PATCH(
       include: {
         notes: {
           orderBy: {
-            createdAt: "desc",
-          },
-        },
-      },
+            createdAt: 'desc'
+          }
+        }
+      }
     });
 
     return NextResponse.json(employee);
@@ -111,24 +97,14 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Record<string, string> }
-): Promise<NextResponse> {
+export async function DELETE(request: NextRequest, props: Props) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 }
-      );
-    }
+    const id = props.params.id;
 
     await prisma.practitioner.delete({
       where: { id },
