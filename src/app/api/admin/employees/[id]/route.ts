@@ -6,22 +6,19 @@ import { standardizeDate } from "@/lib/utils/dates";
 
 const prisma = new PrismaClient();
 
-// Define the params type as per Next.js docs
-type Props = {
-  params: {
-    id: string
-  }
-}
+type Context = {
+  params: Record<string, string | string[]>;
+};
 
-export async function GET(request: NextRequest, props: Props) {
+export async function GET(request: NextRequest, context: Context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = props.params.id;
-
+    const id = context.params.id as string;
+    
     const employee = await prisma.practitioner.findUnique({
       where: { id },
       include: {
@@ -34,37 +31,28 @@ export async function GET(request: NextRequest, props: Props) {
     });
 
     if (!employee) {
-      return NextResponse.json(
-        { error: "Employee not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     return NextResponse.json(employee);
   } catch (error) {
     console.error("Failed to fetch employee:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch employee" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch employee" }, { status: 500 });
   }
 }
 
-export async function PATCH(request: NextRequest, props: Props) {
+export async function PATCH(request: NextRequest, context: Context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = props.params.id;
+    const id = context.params.id as string;
     const data = await request.json();
 
     if (!data.name || !data.role || !data.phone) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const employee = await prisma.practitioner.update({
@@ -90,21 +78,18 @@ export async function PATCH(request: NextRequest, props: Props) {
     return NextResponse.json(employee);
   } catch (error) {
     console.error("Failed to update employee:", error);
-    return NextResponse.json(
-      { error: "Failed to update employee" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update employee" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, props: Props) {
+export async function DELETE(request: NextRequest, context: Context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = props.params.id;
+    const id = context.params.id as string;
 
     await prisma.practitioner.delete({
       where: { id },
@@ -113,9 +98,6 @@ export async function DELETE(request: NextRequest, props: Props) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete employee:", error);
-    return NextResponse.json(
-      { error: "Failed to delete employee" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete employee" }, { status: 500 });
   }
 }
