@@ -7,23 +7,16 @@ import { standardizeDate } from "@/lib/utils/dates";
 const prisma = new PrismaClient();
 
 export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
+  _: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 }
-      );
-    }
+    const id = params.id;
 
     const employee = await prisma.practitioner.findUnique({
       where: { id },
@@ -55,26 +48,17 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  context: RouteContext
-): Promise<NextResponse> {
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 }
-      );
-    }
-
+    const id = params.id;
     const data = await request.json();
-    console.log("Updating employee with data:", data);
-
+    
     if (!data.name || !data.role || !data.phone) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -113,23 +97,16 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  context: RouteContext
-): Promise<NextResponse> {
+  _: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Employee ID is required" },
-        { status: 400 }
-      );
-    }
+    const id = params.id;
 
     await prisma.practitioner.delete({
       where: { id },
