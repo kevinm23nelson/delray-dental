@@ -1,5 +1,6 @@
+// src/app/page.tsx
 import HeroSection from "@/components/home/HeroSection";
-import CalendlyEmbed from "@/components/home/CalendlyEmbed";
+import AppointmentBooking from "@/components/home/AppointmentBooking";
 import WhiteCheckCircleIcon from "@/components/shared/WhiteCheckCircleIcon";
 
 export default function HomePage() {
@@ -38,7 +39,7 @@ export default function HomePage() {
       {/* Calendar Section */}
       <section className="py-8 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <CalendlyEmbed />
+          <AppointmentBooking />
         </div>
       </section>
     </main>

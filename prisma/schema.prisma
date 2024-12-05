@@ -1,0 +1,131 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Practitioner {
+  id            String           @id @default(cuid())
+  name          String
+  role          PractitionerRole
+  phone         String
+  email         String?
+  address       String?
+  startDate     DateTime         @db.Date 
+  isActive      Boolean          @default(true)
+  appointments  Appointment[]    @relation("PractitionerAppointments")
+  schedule      Schedule[]       @relation("PractitionerSchedule")
+  notes         PractitionerNote[] @relation("PractitionerNotes")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model PractitionerNote {
+  id             String       @id @default(cuid())
+  practitioner   Practitioner @relation("PractitionerNotes", fields: [practitionerId], references: [id], onDelete: Cascade)
+  practitionerId String
+  content        String
+  createdAt      DateTime     @default(now())
+  createdBy      String       
+  
+  @@index([practitionerId])
+}
+
+enum PractitionerRole {
+  DENTIST
+  HYGIENIST
+  OFFICE_STAFF
+}
+
+model Schedule {
+  id              String        @id @default(cuid())
+  practitioner    Practitioner  @relation("PractitionerSchedule", fields: [practitionerId], references: [id], onDelete: Cascade)
+  practitionerId  String
+  dayOfWeek       DayOfWeek
+  startTime       String       
+  endTime         String        
+  isAvailable     Boolean       @default(true)
+  breakStart      String?       
+  breakEnd        String?      
+  effectiveFrom   DateTime      @default(now())
+  effectiveUntil  DateTime?     
+
+  @@index([practitionerId])
+}
+
+model OfficeSettings {
+  id              String     @id @default(cuid())
+  name            String     @unique // 
+  value           Json       
+  effectiveFrom   DateTime   @default(now())
+  effectiveUntil  DateTime?  
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+model AppointmentType {
+  id              String        @id @default(cuid())
+  name            String        
+  duration        Int          
+  description     String?
+  allowedRoles    PractitionerRole[]
+  isActive        Boolean       @default(true)
+  appointments    Appointment[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Appointment {
+  id              String           @id @default(cuid())
+  appointmentType AppointmentType  @relation(fields: [typeId], references: [id])
+  typeId          String
+  startTime       DateTime
+  endTime         DateTime
+  patientName     String
+  patientEmail    String
+  patientPhone    String         
+  notes           String?
+  practitioner    Practitioner     @relation("PractitionerAppointments", fields: [practitionerId], references: [id], onDelete: Cascade)
+  practitionerId  String
+  status          AppointmentStatus @default(PENDING) 
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([practitionerId])
+  @@index([startTime, endTime])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}

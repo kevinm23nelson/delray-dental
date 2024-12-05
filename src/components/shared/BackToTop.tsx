@@ -9,7 +9,6 @@ const BackToTop = () => {
     const scrollTop = window.pageYOffset;
     const distanceFromBottom = documentHeight - (scrollTop + windowHeight);
     
-    // Show button when scrolled past 500px AND not at the bottom (within 100px margin)
     setIsVisible(scrollTop > 500 && distanceFromBottom > 100);
   };
 
@@ -17,7 +16,6 @@ const BackToTop = () => {
     window.addEventListener('scroll', toggleVisibility);
     window.addEventListener('resize', toggleVisibility);
     
-    // Initial check
     toggleVisibility();
     
     return () => {
