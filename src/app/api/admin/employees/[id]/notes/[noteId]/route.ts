@@ -1,43 +1,50 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../../../../auth/[...nextauth]/auth";
 
 const prisma = new PrismaClient();
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(req.url); 
-    const id = searchParams.get('id');
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!id) {
+    // Extract IDs from the URL path
+    const pathParts = req.url.split('/');
+    const employeeId = pathParts[pathParts.indexOf('employees') + 1];
+    const noteId = pathParts.pop();
+
+    if (!employeeId || !noteId) {
       return NextResponse.json(
-        { error: 'Missing appointment ID' },
+        { error: "Employee ID and Note ID are required" },
         { status: 400 }
       );
     }
 
-    const data = await req.json();
-
-    if (data.patientPhone === '') {
+    const { content } = await req.json();
+    if (!content) {
       return NextResponse.json(
-        { error: 'Phone number is required' },
+        { error: "Note content is required" },
         { status: 400 }
       );
     }
 
-    const appointment = await prisma.appointment.update({
-      where: { id },
-      data,
-      include: {
-        appointmentType: true,
-        practitioner: true,
+    const note = await prisma.practitionerNote.update({
+      where: {
+        id: noteId,
+        practitionerId: employeeId,
       },
+      data: { content },
     });
 
-    return NextResponse.json(appointment);
+    return NextResponse.json(note);
   } catch (error) {
-    console.error('Failed to update appointment:', error);
+    console.error("Failed to update note:", error);
     return NextResponse.json(
-      { error: 'Failed to update appointment' },
+      { error: "Failed to update note" },
       { status: 500 }
     );
   }
