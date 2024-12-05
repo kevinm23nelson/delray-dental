@@ -6,19 +6,22 @@ import { standardizeDate } from "@/lib/utils/dates";
 
 const prisma = new PrismaClient();
 
-type Context = {
-  params: Record<string, string | string[]>;
-};
-
-export async function GET(req: NextRequest, context: Context) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get ID from path parameter instead of query parameter
-    const id = context.params.id as string;
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
 
     const employee = await prisma.practitioner.findUnique({
       where: { id },
@@ -48,15 +51,25 @@ export async function GET(req: NextRequest, context: Context) {
   }
 }
 
-export async function PATCH(req: NextRequest, context: Context) {
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id as string;
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
+
     const data = await req.json();
+    console.log("Updating employee with data:", data);
 
     if (!data.name || !data.role || !data.phone) {
       return NextResponse.json(
@@ -95,14 +108,22 @@ export async function PATCH(req: NextRequest, context: Context) {
   }
 }
 
-export async function DELETE(req: NextRequest, context: Context) {
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id as string;
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
 
     await prisma.practitioner.delete({
       where: { id },
