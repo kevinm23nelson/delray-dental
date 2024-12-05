@@ -13,8 +13,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
 
     if (!id) {
       return NextResponse.json(
@@ -58,8 +58,8 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
 
     if (!id) {
       return NextResponse.json(
@@ -115,8 +115,8 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
 
     if (!id) {
       return NextResponse.json(
