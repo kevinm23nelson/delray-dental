@@ -9,11 +9,21 @@ interface ExistingAppointment {
   endTime: Date;
 }
 
+interface BusinessHoursValue {
+  [key: string]: {
+    isOpen: boolean;
+    endTime: string;
+    startTime: string;
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get("date");
     const appointmentTypeId = searchParams.get("appointmentTypeId");
+
+    console.log("Received request for:", { dateStr, appointmentTypeId });
 
     if (!dateStr || !appointmentTypeId) {
       return NextResponse.json(
@@ -24,33 +34,40 @@ export async function GET(request: Request) {
 
     const date = parseISO(dateStr);
     const dayOfWeek = format(date, "EEEE").toUpperCase() as DayOfWeek;
+    console.log("Processing for day:", dayOfWeek);
 
-    // Get business hours for the selected day
+    // Get business hours with explicit typing
     const businessHours = await prisma.officeSettings.findFirst({
       where: {
-        name: "businessHours",
-        effectiveUntil: null,
+        name: "business_hours", // Using underscore as seen in your DB
       },
+      select: {
+        value: true
+      }
     });
 
-    if (!businessHours) {
+    console.log("Raw business hours from DB:", businessHours);
+
+    // Parse the business hours value
+    const businessHoursData = businessHours?.value as BusinessHoursValue;
+    console.log("Parsed business hours data:", businessHoursData);
+
+    if (!businessHours || !businessHoursData) {
+      console.log("No business hours found, using defaults");
       return NextResponse.json(
         { error: "Business hours not configured" },
         { status: 400 }
       );
     }
 
-    const businessHoursData = businessHours.value as Record<string, {
-      startTime: string;
-      endTime: string;
-      isOpen: boolean;
-    }>;
-
     const dayBusinessHours = businessHoursData[dayOfWeek];
+    console.log("Business hours for", dayOfWeek, ":", dayBusinessHours);
+
     if (!dayBusinessHours?.isOpen) {
       return NextResponse.json([]);
     }
 
+    // Rest of your code remains the same...
     const appointmentType = await prisma.appointmentType.findUnique({
       where: { id: appointmentTypeId },
     });
@@ -75,6 +92,12 @@ export async function GET(request: Request) {
           },
         },
       },
+    });
+
+    console.log(`Found ${practitioners.length} practitioners`);
+
+    practitioners.forEach(p => {
+      console.log("Practitioner:", p.name, "Schedule:", p.schedule);
     });
 
     const startOfDay = new Date(date);
@@ -173,6 +196,7 @@ export async function GET(request: Request) {
       return timeComparison;
     });
 
+    console.log("Final available slots:", availableSlots.length);
     return NextResponse.json(availableSlots);
   } catch (error) {
     console.error("Failed to get available slots:", error);
@@ -180,6 +204,7 @@ export async function GET(request: Request) {
       {
         error: "Failed to get available slots",
         details: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
