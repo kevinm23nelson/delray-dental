@@ -6,16 +6,18 @@ import { standardizeDate } from "@/lib/utils/dates";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-
+    const { id } = params;
+    
     if (!id) {
       return NextResponse.json(
         { error: "Employee ID is required" },
@@ -51,15 +53,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export async function PATCH(req: NextRequest): Promise<NextResponse> {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json(
@@ -108,15 +112,17 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export async function DELETE(req: NextRequest): Promise<NextResponse> {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json(
