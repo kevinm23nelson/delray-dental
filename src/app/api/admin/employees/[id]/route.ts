@@ -6,19 +6,23 @@ import { standardizeDate } from "@/lib/utils/dates";
 
 const prisma = new PrismaClient();
 
-type Context = {
-  params: Record<string, string | string[]>;
-};
-
-export async function GET(request: NextRequest, context: Context) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id as string;
-    
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
+
     const employee = await prisma.practitioner.findUnique({
       where: { id },
       include: {
@@ -31,28 +35,47 @@ export async function GET(request: NextRequest, context: Context) {
     });
 
     if (!employee) {
-      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Employee not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(employee);
   } catch (error) {
     console.error("Failed to fetch employee:", error);
-    return NextResponse.json({ error: "Failed to fetch employee" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch employee" },
+      { status: 500 }
+    );
   }
 }
 
-export async function PATCH(request: NextRequest, context: Context) {
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id as string;
-    const data = await request.json();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const data = await req.json();
+    console.log("Updating employee with data:", data);
 
     if (!data.name || !data.role || !data.phone) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     const employee = await prisma.practitioner.update({
@@ -78,18 +101,29 @@ export async function PATCH(request: NextRequest, context: Context) {
     return NextResponse.json(employee);
   } catch (error) {
     console.error("Failed to update employee:", error);
-    return NextResponse.json({ error: "Failed to update employee" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update employee" },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: NextRequest, context: Context) {
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = context.params.id as string;
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
 
     await prisma.practitioner.delete({
       where: { id },
@@ -98,6 +132,9 @@ export async function DELETE(request: NextRequest, context: Context) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete employee:", error);
-    return NextResponse.json({ error: "Failed to delete employee" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete employee" },
+      { status: 500 }
+    );
   }
 }
