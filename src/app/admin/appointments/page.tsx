@@ -15,8 +15,7 @@ import { EventClickArg } from "@fullcalendar/core";
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [selectedAppointment, setSelectedAppointment] =
-    useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,13 +25,13 @@ export default function AppointmentsPage() {
 
   async function loadAppointments() {
     try {
-      const response = await fetch("/api/admin/appointments");
-      if (!response.ok) throw new Error("Failed to load appointments");
+      const response = await fetch('/api/admin/appointments');
+      if (!response.ok) throw new Error('Failed to load appointments');
       const data = await response.json();
       setAppointments(data);
     } catch (error) {
-      console.error("Failed to load appointments:", error);
-      toast.error("Failed to load appointments");
+      console.error('Failed to load appointments:', error);
+      toast.error('Failed to load appointments');
     } finally {
       setIsLoading(false);
     }

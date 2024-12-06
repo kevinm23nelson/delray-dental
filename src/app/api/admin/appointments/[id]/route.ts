@@ -1,12 +1,17 @@
+// src/app/api/admin/appointments/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: NextRequest): Promise<NextResponse> {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(req.url); // Extract params from the request URL
-    const id = searchParams.get('id'); // Get the `id` from the URL search params
+    const { id } = params;
+    const data = await req.json();
 
     if (!id) {
       return NextResponse.json(
@@ -15,8 +20,6 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const data = await req.json();
-
     if (data.patientPhone === '') {
       return NextResponse.json(
         { error: 'Phone number is required' },
@@ -24,9 +27,18 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Only update the fields we want to change
+    const appointmentData = {
+      patientName: data.patientName,
+      patientEmail: data.patientEmail,
+      patientPhone: data.patientPhone,
+      notes: data.notes,
+      status: data.status,
+    };
+
     const appointment = await prisma.appointment.update({
       where: { id },
-      data,
+      data: appointmentData,
       include: {
         appointmentType: true,
         practitioner: true,

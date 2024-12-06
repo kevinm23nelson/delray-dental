@@ -15,6 +15,7 @@ import {
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
 import { formatInTimeZone } from "date-fns-tz";
+import { addHours } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -26,6 +27,11 @@ interface AppointmentModalProps {
     notes?: string;
     status: AppointmentStatus;
   }) => Promise<void>;
+}
+
+function adjustForTimezone(date: Date | string): Date {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return addHours(d, 5); // Add 5 hours to correct UTC offset
 }
 
 export default function AppointmentModal({
@@ -61,27 +67,22 @@ export default function AppointmentModal({
       <div className="relative min-h-screen sm:min-h-[auto] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl w-full max-w-2xl p-6">
           <div className="flex justify-between items-center mb-6">
-          <div>
-        <h2 className="text-xl font-bold">Appointment Details</h2>
-        <p className="text-gray-600">
-          {formatInTimeZone(
-            // Convert Date to string if it's a Date object
-            typeof appointment.startTime === 'string' 
-              ? new Date(appointment.startTime)
-              : appointment.startTime,
-            timeZone,
-            'EEEE, MMMM d, yyyy'
-          )}
-          {" at "}
-          {formatInTimeZone(
-            typeof appointment.startTime === 'string'
-              ? new Date(appointment.startTime)
-              : appointment.startTime,
-            timeZone,
-            'h:mm a'
-          )}
-        </p>
-      </div>
+            <div>
+              <h2 className="text-xl font-bold">Appointment Details</h2>
+              <p className="text-gray-600">
+                {formatInTimeZone(
+                  adjustForTimezone(appointment.startTime),
+                  timeZone,
+                  "EEEE, MMMM d, yyyy"
+                )}
+                {" at "}
+                {formatInTimeZone(
+                  adjustForTimezone(appointment.startTime),
+                  timeZone,
+                  "h:mm a"
+                )}
+              </p>
+            </div>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
