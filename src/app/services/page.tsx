@@ -29,6 +29,35 @@ interface ServiceContentProps {
   itemVariants: any;
 }
 
+const ServiceContent: React.FC<ServiceContentProps> = ({
+  service,
+  buttonStyles,
+  CheckIcon,
+  itemVariants,
+}) => (
+  <motion.div className="space-y-4" variants={itemVariants}>
+    <h2 className="text-3xl font-bold">{service.title}</h2>
+    <div className="flex gap-4 items-start">
+      <div className="flex-shrink-0 pt-1">
+        <CheckIcon />
+      </div>
+      <p className="text-xl leading-relaxed">{service.description}</p>
+    </div>
+    {service.showDetailsButton && (
+      <div className="flex justify-center pt-6">
+        <Link
+          href={`/services/${service.title
+            .toLowerCase()
+            .replace(/[\s®™]+/g, "-")}`}
+          className={`inline-flex items-center px-8 py-3 ${buttonStyles} text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out`}
+        >
+          Details
+        </Link>
+      </div>
+    )}
+  </motion.div>
+);
+
 const ServiceSection: React.FC<ServiceSectionProps> = ({
   services,
   imageSrc,
@@ -96,34 +125,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
     },
   };
 
-  const ServiceContent: React.FC<ServiceContentProps> = ({
-    service,
-    buttonStyles,
-    CheckIcon,
-    itemVariants,
-  }) => (
-    <motion.div className="space-y-4" variants={itemVariants}>
-      <h2 className="text-3xl font-bold">{service.title}</h2>
-      <div className="flex gap-4 items-start">
-        <div className="flex-shrink-0 pt-1">
-          <CheckIcon />
-        </div>
-        <p className="text-xl leading-relaxed">{service.description}</p>
-      </div>
-      {service.showDetailsButton && (
-        <div className="flex justify-center pt-6">
-          <Link
-            href={`/services/${service.title
-              .toLowerCase()
-              .replace(/[\s®™]+/g, "-")}`}
-            className={`inline-flex items-center px-8 py-3 ${buttonStyles} text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out`}
-          >
-            Details
-          </Link>
-        </div>
-      )}
-    </motion.div>
-  );
 
   return (
     <section className={`${bgColor} py-20`} ref={sectionRef} id={id}>
