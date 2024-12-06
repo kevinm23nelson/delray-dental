@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -159,27 +160,36 @@ export default function BookingModal({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {availableSlots.map((slot, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSelectedSlot(slot);
-                        setStep("details");
-                      }}
-                      className={`p-4 text-center rounded-lg border transition-all ${
-                        selectedSlot === slot
-                          ? "bg-sky-50 border-sky-500 text-sky-700"
-                          : "border-gray-200 hover:border-sky-200 hover:bg-sky-50"
-                      }`}
-                    >
-                      <div className="font-semibold">
-                        {format(parseISO(slot.startTime), "h:mm a")}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {slot.practitionerName}
-                      </div>
-                    </button>
-                  ))}
+                  {availableSlots.map((slot, index) => {
+                    const timeZone =
+                      Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedSlot(slot);
+                          setStep("details");
+                        }}
+                        className={`p-4 text-center rounded-lg border transition-all ${
+                          selectedSlot === slot
+                            ? "bg-sky-50 border-sky-500 text-sky-700"
+                            : "border-gray-200 hover:border-sky-200 hover:bg-sky-50"
+                        }`}
+                      >
+                        <div className="font-semibold">
+                          {formatInTimeZone(
+                            new Date(slot.startTime),
+                            timeZone,
+                            "h:mm a"
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {slot.practitionerName}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -188,8 +198,12 @@ export default function BookingModal({
               <div className="mb-6 bg-sky-50 p-4 rounded-lg">
                 <div className="text-sm text-gray-600">Selected Time:</div>
                 <div className="font-semibold">
-                  {format(parseISO(selectedSlot!.startTime), "h:mm a")} with{" "}
-                  {selectedSlot!.practitionerName}
+                  {formatInTimeZone(
+                    new Date(selectedSlot!.startTime),
+                    Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    "h:mm a"
+                  )}{" "}
+                  with {selectedSlot!.practitionerName}
                 </div>
               </div>
 
