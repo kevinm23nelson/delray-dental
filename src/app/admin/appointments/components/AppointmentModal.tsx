@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,19 +13,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@prisma/client";
-import type { Appointment } from "@/types/calendar"; 
+import type { Appointment } from "@/types/calendar";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface AppointmentModalProps {
-    appointment: Appointment;
-    onClose: () => void;
-    onSave: (updatedAppointment: {
-      patientName: string;
-      patientEmail: string;
-      patientPhone: string;
-      notes?: string;
-      status: AppointmentStatus;
-    }) => Promise<void>;
-  }
+  appointment: Appointment;
+  onClose: () => void;
+  onSave: (updatedAppointment: {
+    patientName: string;
+    patientEmail: string;
+    patientPhone: string;
+    notes?: string;
+    status: AppointmentStatus;
+  }) => Promise<void>;
+}
 
 export default function AppointmentModal({
   appointment,
@@ -36,7 +36,7 @@ export default function AppointmentModal({
   const [formData, setFormData] = useState({
     patientName: appointment.patientName,
     patientEmail: appointment.patientEmail,
-    patientPhone: appointment.patientPhone, 
+    patientPhone: appointment.patientPhone,
     notes: appointment.notes || "",
     status: appointment.status,
   });
@@ -52,6 +52,8 @@ export default function AppointmentModal({
     }
   }
 
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
@@ -59,14 +61,27 @@ export default function AppointmentModal({
       <div className="relative min-h-screen sm:min-h-[auto] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl w-full max-w-2xl p-6">
           <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-xl font-bold">Appointment Details</h2>
-              <p className="text-gray-600">
-                {format(new Date(appointment.startTime), "EEEE, MMMM d, yyyy")}
-                {" at "}
-                {format(new Date(appointment.startTime), "h:mm a")}
-              </p>
-            </div>
+          <div>
+        <h2 className="text-xl font-bold">Appointment Details</h2>
+        <p className="text-gray-600">
+          {formatInTimeZone(
+            // Convert Date to string if it's a Date object
+            typeof appointment.startTime === 'string' 
+              ? new Date(appointment.startTime)
+              : appointment.startTime,
+            timeZone,
+            'EEEE, MMMM d, yyyy'
+          )}
+          {" at "}
+          {formatInTimeZone(
+            typeof appointment.startTime === 'string'
+              ? new Date(appointment.startTime)
+              : appointment.startTime,
+            timeZone,
+            'h:mm a'
+          )}
+        </p>
+      </div>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
