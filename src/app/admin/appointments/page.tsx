@@ -19,7 +19,6 @@ export default function AppointmentsPage() {
     useState<Appointment | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   useEffect(() => {
     loadAppointments();
