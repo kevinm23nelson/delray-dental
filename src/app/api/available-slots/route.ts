@@ -207,8 +207,8 @@ export async function GET(request: Request) {
 
         if (!hasConflict && !isBreakTime) {
           availableSlots.push({
-            startTime: currentTime.toISOString(),
-            endTime: slotEndTime.toISOString(),
+            startTime: currentTime.toLocaleString(), 
+            endTime: slotEndTime.toLocaleString(),
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
           });
@@ -218,7 +218,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // Sort slots by time and then practitioner name
     availableSlots.sort((a, b) => {
       const timeComparison =
         new Date(a.startTime).getTime() - new Date(b.startTime).getTime();

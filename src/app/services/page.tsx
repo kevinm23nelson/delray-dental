@@ -6,7 +6,7 @@ import Link from "next/link";
 import BlueCheckCircleIcon from "@/components/shared/BlueCheckCircleIcon";
 import WhiteCheckCircleIcon from "@/components/shared/WhiteCheckCircleIcon";
 import BackToTop from "@/components/shared/BackToTop";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 
 interface Service {
   title: string;
@@ -14,7 +14,6 @@ interface Service {
   showDetailsButton?: boolean;
 }
 
-// Interface for the component props
 interface ServiceSectionProps {
   services: Service[];
   imageSrc?: string;
@@ -22,6 +21,42 @@ interface ServiceSectionProps {
   imageFirst?: boolean;
   id?: string;
 }
+
+interface ServiceContentProps {
+  service: Service;
+  buttonStyles: string;
+  CheckIcon: React.ComponentType;
+  itemVariants: Variants; // Use framer-motion's Variants type
+}
+
+const ServiceContent: React.FC<ServiceContentProps> = ({
+  service,
+  buttonStyles,
+  CheckIcon,
+  itemVariants,
+}) => (
+  <motion.div className="space-y-4" variants={itemVariants}>
+    <h2 className="text-3xl font-bold">{service.title}</h2>
+    <div className="flex gap-4 items-start">
+      <div className="flex-shrink-0 pt-1">
+        <CheckIcon />
+      </div>
+      <p className="text-xl leading-relaxed">{service.description}</p>
+    </div>
+    {service.showDetailsButton && (
+      <div className="flex justify-center pt-6">
+        <Link
+          href={`/services/${service.title
+            .toLowerCase()
+            .replace(/[\s®™]+/g, "-")}`}
+          className={`inline-flex items-center px-8 py-3 ${buttonStyles} text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out`}
+        >
+          Details
+        </Link>
+      </div>
+    )}
+  </motion.div>
+);
 
 const ServiceSection: React.FC<ServiceSectionProps> = ({
   services,
@@ -33,7 +68,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
   const sectionRef = useRef<HTMLElement>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  // Add window size detection
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -91,30 +125,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
     },
   };
 
-  const ServiceContent: React.FC<{ service: Service }> = ({ service }) => (
-    <motion.div className="space-y-4" variants={itemVariants}>
-      <h2 className="text-3xl font-bold">{service.title}</h2>
-      <div className="flex gap-4 items-start">
-        <div className="flex-shrink-0 pt-1">
-          <CheckIcon />
-        </div>
-        <p className="text-xl leading-relaxed">{service.description}</p>
-      </div>
-      {service.showDetailsButton && (
-        <div className="flex justify-center pt-6">
-          <Link
-            href={`/services/${service.title
-              .toLowerCase()
-              .replace(/[\s®™]+/g, "-")}`}
-            className={`inline-flex items-center px-8 py-3 ${buttonStyles} text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out`}
-          >
-            Details
-          </Link>
-        </div>
-      )}
-    </motion.div>
-  );
-
   return (
     <section className={`${bgColor} py-20`} ref={sectionRef} id={id}>
       <Container className="px-6 lg:px-8">
@@ -141,7 +151,13 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   variants={itemVariants}
                 >
                   {services.map((service) => (
-                    <ServiceContent key={service.title} service={service} />
+                    <ServiceContent
+                      key={service.title}
+                      service={service}
+                      buttonStyles={buttonStyles}
+                      CheckIcon={CheckIcon}
+                      itemVariants={itemVariants}
+                    />
                   ))}
                 </motion.div>
               </>
@@ -152,7 +168,13 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   variants={itemVariants}
                 >
                   {services.map((service) => (
-                    <ServiceContent key={service.title} service={service} />
+                    <ServiceContent
+                      key={service.title}
+                      service={service}
+                      buttonStyles={buttonStyles}
+                      CheckIcon={CheckIcon}
+                      itemVariants={itemVariants}
+                    />
                   ))}
                 </motion.div>
                 <motion.div variants={itemVariants}>
@@ -292,41 +314,6 @@ const DentalServicesPage = () => {
     },
   ];
 
-  const getServiceId = (title: string): string => {
-    return title
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-™®]/g, "");
-  };
-
-  useEffect(() => {
-    const handleScroll = (hash: string) => {
-      if (hash) {
-        const targetId = serviceScrollMapping[hash] || hash;
-        const element = document.getElementById(targetId);
-        if (element) {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }
-    };
-
-    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
-    if (hash) {
-      setTimeout(() => handleScroll(hash), 100);
-    }
-
-    const handleHashChange = () => {
-      const newHash = decodeURIComponent(window.location.hash.replace("#", ""));
-      handleScroll(newHash);
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
   const servicePairs: DentalService[][] = [];
   for (let i = 0; i < regularServices.length; i += 2) {
     servicePairs.push(regularServices.slice(i, i + 2));
@@ -343,6 +330,41 @@ const DentalServicesPage = () => {
       }
     }
   }
+
+  const getServiceId = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-™®]/g, "");
+  };
+
+  const handleScroll = React.useCallback((hash: string) => {
+    if (hash) {
+      const targetId = serviceScrollMapping[hash] || hash;
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
+    if (hash) {
+      setTimeout(() => handleScroll(hash), 100);
+    }
+
+    const handleHashChange = () => {
+      const newHash = decodeURIComponent(window.location.hash.replace("#", ""));
+      handleScroll(newHash);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [handleScroll]);
 
   return (
     <div className="min-h-screen">
