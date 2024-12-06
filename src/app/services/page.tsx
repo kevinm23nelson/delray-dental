@@ -14,13 +14,19 @@ interface Service {
   showDetailsButton?: boolean;
 }
 
-// Interface for the component props
 interface ServiceSectionProps {
   services: Service[];
   imageSrc?: string;
   isBlue?: boolean;
   imageFirst?: boolean;
   id?: string;
+}
+
+interface ServiceContentProps {
+  service: Service;
+  buttonStyles: string;
+  CheckIcon: React.ComponentType;
+  itemVariants: any;
 }
 
 const ServiceSection: React.FC<ServiceSectionProps> = ({
@@ -33,7 +39,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
   const sectionRef = useRef<HTMLElement>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  // Add window size detection
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -91,12 +96,12 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
     },
   };
 
-  const ServiceContent: React.FC<{
-    service: Service;
-    buttonStyles: string;
-    textColor: string;
-    CheckIcon: React.ComponentType;
-  }> = ({ service, buttonStyles, textColor, CheckIcon }) => (
+  const ServiceContent: React.FC<ServiceContentProps> = ({
+    service,
+    buttonStyles,
+    CheckIcon,
+    itemVariants,
+  }) => (
     <motion.div className="space-y-4" variants={itemVariants}>
       <h2 className="text-3xl font-bold">{service.title}</h2>
       <div className="flex gap-4 items-start">
@@ -163,14 +168,14 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   variants={itemVariants}
                 >
                   {services.map((service) => (
-                    <ServiceContent
-                      key={service.title}
-                      service={service}
-                      buttonStyles={buttonStyles}
-                      textColor={textColor}
-                      CheckIcon={CheckIcon}
-                    />
-                  ))}
+  <ServiceContent
+    key={service.title}
+    service={service}
+    buttonStyles={buttonStyles}
+    CheckIcon={CheckIcon}
+    itemVariants={itemVariants}
+  />
+))}
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <Image
