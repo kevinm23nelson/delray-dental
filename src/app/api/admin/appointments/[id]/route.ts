@@ -1,3 +1,4 @@
+// src/app/api/admin/appointments/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
@@ -5,8 +6,8 @@ const prisma = new PrismaClient();
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(req.url); // Extract params from the request URL
-    const id = searchParams.get('id'); // Get the `id` from the URL search params
+    // Extract ID from the path
+    const id = req.url.split('/').pop();
 
     if (!id) {
       return NextResponse.json(
@@ -24,9 +25,18 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Only update the fields we want to change
+    const appointmentData = {
+      patientName: data.patientName,
+      patientEmail: data.patientEmail,
+      patientPhone: data.patientPhone,
+      notes: data.notes,
+      status: data.status,
+    };
+
     const appointment = await prisma.appointment.update({
       where: { id },
-      data,
+      data: appointmentData,
       include: {
         appointmentType: true,
         practitioner: true,
@@ -38,6 +48,43 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     console.error('Failed to update appointment:', error);
     return NextResponse.json(
       { error: 'Failed to update appointment' },
+      { status: 500 }
+    );
+  }
+}
+
+// You might also want to add a GET handler for fetching single appointments
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  try {
+    const id = req.url.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Missing appointment ID' },
+        { status: 400 }
+      );
+    }
+
+    const appointment = await prisma.appointment.findUnique({
+      where: { id },
+      include: {
+        appointmentType: true,
+        practitioner: true,
+      },
+    });
+
+    if (!appointment) {
+      return NextResponse.json(
+        { error: 'Appointment not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(appointment);
+  } catch (error) {
+    console.error('Failed to fetch appointment:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch appointment' },
       { status: 500 }
     );
   }
