@@ -6,7 +6,7 @@ import Link from "next/link";
 import BlueCheckCircleIcon from "@/components/shared/BlueCheckCircleIcon";
 import WhiteCheckCircleIcon from "@/components/shared/WhiteCheckCircleIcon";
 import BackToTop from "@/components/shared/BackToTop";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 
 interface Service {
   title: string;
@@ -22,11 +22,26 @@ interface ServiceSectionProps {
   id?: string;
 }
 
+interface MotionVariants {
+  hidden: {
+    opacity: number;
+    x: number;
+  };
+  visible: {
+    opacity: number;
+    x: number;
+    transition: {
+      duration: number;
+      ease: string;
+    };
+  };
+}
+
 interface ServiceContentProps {
   service: Service;
   buttonStyles: string;
   CheckIcon: React.ComponentType;
-  itemVariants: any;
+  itemVariants: Variants; // Use framer-motion's Variants type
 }
 
 const ServiceContent: React.FC<ServiceContentProps> = ({
@@ -125,7 +140,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
     },
   };
 
-
   return (
     <section className={`${bgColor} py-20`} ref={sectionRef} id={id}>
       <Container className="px-6 lg:px-8">
@@ -156,8 +170,8 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                       key={service.title}
                       service={service}
                       buttonStyles={buttonStyles}
-                      textColor={textColor}
                       CheckIcon={CheckIcon}
+                      itemVariants={itemVariants}
                     />
                   ))}
                 </motion.div>
@@ -169,14 +183,14 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   variants={itemVariants}
                 >
                   {services.map((service) => (
-  <ServiceContent
-    key={service.title}
-    service={service}
-    buttonStyles={buttonStyles}
-    CheckIcon={CheckIcon}
-    itemVariants={itemVariants}
-  />
-))}
+                    <ServiceContent
+                      key={service.title}
+                      service={service}
+                      buttonStyles={buttonStyles}
+                      CheckIcon={CheckIcon}
+                      itemVariants={itemVariants}
+                    />
+                  ))}
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <Image
@@ -217,6 +231,18 @@ interface DentalService {
 }
 
 const DentalServicesPage = () => {
+  const handleScroll = (hash: string) => {
+    if (hash) {
+      const targetId = serviceScrollMapping[hash] || hash;
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  };
   const featuredServices: DentalService[] = [
     {
       title: "Dental Implants",
@@ -323,19 +349,6 @@ const DentalServicesPage = () => {
   };
 
   useEffect(() => {
-    const handleScroll = (hash: string) => {
-      if (hash) {
-        const targetId = serviceScrollMapping[hash] || hash;
-        const element = document.getElementById(targetId);
-        if (element) {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }
-    };
-
     const hash = decodeURIComponent(window.location.hash.replace("#", ""));
     if (hash) {
       setTimeout(() => handleScroll(hash), 100);
