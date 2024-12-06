@@ -14,7 +14,7 @@ interface BusinessHoursValue {
     isOpen: boolean;
     startTime: string;
     endTime: string;
-  }
+  };
 }
 
 export async function GET(request: Request) {
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     const businessHours = await prisma.officeSettings.findFirst({
       where: {
         name: "business_hours",
-        effectiveUntil: null
+        effectiveUntil: null,
       },
     });
 
@@ -50,7 +50,10 @@ export async function GET(request: Request) {
 
     const businessHoursData = businessHours.value as BusinessHoursValue;
     const dayBusinessHours = businessHoursData[dayOfWeek];
-
+    console.log("=== Business Hours Debug ===");
+    console.log("Day of week:", dayOfWeek);
+    console.log("Business hours data:", businessHoursData);
+    console.log("Day business hours:", dayBusinessHours);
     if (!dayBusinessHours?.isOpen) {
       return NextResponse.json([]);
     }
@@ -78,7 +81,7 @@ export async function GET(request: Request) {
           where: {
             dayOfWeek,
             isAvailable: true,
-            effectiveUntil: null
+            effectiveUntil: null,
           },
         },
       },
@@ -86,21 +89,29 @@ export async function GET(request: Request) {
 
     // Set up the day boundaries based on business hours
     const baseDate = new Date(date);
-    const [officeStartHour, officeStartMinute] = dayBusinessHours.startTime.split(":").map(Number);
-    const [officeEndHour, officeEndMinute] = dayBusinessHours.endTime.split(":").map(Number);
-
-    const officeStart = set(baseDate, { 
-      hours: officeStartHour, 
+    const [officeStartHour, officeStartMinute] = dayBusinessHours.startTime
+      .split(":")
+      .map(Number);
+    const [officeEndHour, officeEndMinute] = dayBusinessHours.endTime
+      .split(":")
+      .map(Number);
+    console.log("=== Office Hours Debug ===");
+    console.log("Office hours:", {
+      startTime: `${officeStartHour}:${officeStartMinute}`,
+      endTime: `${officeEndHour}:${officeEndMinute}`,
+    });
+    const officeStart = set(baseDate, {
+      hours: officeStartHour,
       minutes: officeStartMinute,
       seconds: 0,
-      milliseconds: 0 
+      milliseconds: 0,
     });
-    
-    const officeEnd = set(baseDate, { 
-      hours: officeEndHour, 
+
+    const officeEnd = set(baseDate, {
+      hours: officeEndHour,
       minutes: officeEndMinute,
       seconds: 0,
-      milliseconds: 0 
+      milliseconds: 0,
     });
 
     // Get existing appointments
@@ -132,28 +143,43 @@ export async function GET(request: Request) {
       const schedule = practitioner.schedule[0];
       if (!schedule) continue;
 
-      // Parse practitioner schedule times
-      const [schedStartHour, schedStartMinute] = schedule.startTime.split(":").map(Number);
-      const [schedEndHour, schedEndMinute] = schedule.endTime.split(":").map(Number);
+      const [schedStartHour, schedStartMinute] = schedule.startTime
+        .split(":")
+        .map(Number);
+      const [schedEndHour, schedEndMinute] = schedule.endTime
+        .split(":")
+        .map(Number);
 
+      console.log("=== Practitioner Schedule Debug ===");
+      console.log("Practitioner:", {
+        name: practitioner.name,
+        scheduleStart: `${schedStartHour}:${schedStartMinute}`,
+        scheduleEnd: `${schedEndHour}:${schedEndMinute}`,
+        rawSchedule: schedule,
+      });
       // Use the later start time between office hours and practitioner schedule
       const startTime = set(baseDate, {
         hours: Math.max(officeStartHour, schedStartHour),
-        minutes: schedStartHour > officeStartHour ? schedStartMinute : officeStartMinute,
+        minutes:
+          schedStartHour > officeStartHour
+            ? schedStartMinute
+            : officeStartMinute,
         seconds: 0,
-        milliseconds: 0
+        milliseconds: 0,
       });
 
       // Use the earlier end time between office hours and practitioner schedule
       const endTime = set(baseDate, {
         hours: Math.min(officeEndHour, schedEndHour),
-        minutes: schedEndHour < officeEndHour ? schedEndMinute : officeEndMinute,
+        minutes:
+          schedEndHour < officeEndHour ? schedEndMinute : officeEndMinute,
         seconds: 0,
-        milliseconds: 0
+        milliseconds: 0,
       });
 
       let currentTime = startTime;
-      const practitionerExistingAppointments = practitionerAppointments.get(practitioner.id) || [];
+      const practitionerExistingAppointments =
+        practitionerAppointments.get(practitioner.id) || [];
 
       while (currentTime < endTime) {
         const slotEndTime = addMinutes(currentTime, appointmentType.duration);
@@ -174,8 +200,10 @@ export async function GET(request: Request) {
         const isBreakTime =
           schedule.breakStart &&
           schedule.breakEnd &&
-          currentTime >= parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.breakStart}`) &&
-          slotEndTime <= parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.breakEnd}`);
+          currentTime >=
+            parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.breakStart}`) &&
+          slotEndTime <=
+            parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.breakEnd}`);
 
         if (!hasConflict && !isBreakTime) {
           availableSlots.push({
@@ -192,7 +220,8 @@ export async function GET(request: Request) {
 
     // Sort slots by time and then practitioner name
     availableSlots.sort((a, b) => {
-      const timeComparison = new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      const timeComparison =
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
       if (timeComparison === 0) {
         return a.practitionerName.localeCompare(b.practitionerName);
       }
