@@ -22,21 +22,6 @@ interface ServiceSectionProps {
   id?: string;
 }
 
-interface MotionVariants {
-  hidden: {
-    opacity: number;
-    x: number;
-  };
-  visible: {
-    opacity: number;
-    x: number;
-    transition: {
-      duration: number;
-      ease: string;
-    };
-  };
-}
-
 interface ServiceContentProps {
   service: Service;
   buttonStyles: string;
@@ -231,18 +216,6 @@ interface DentalService {
 }
 
 const DentalServicesPage = () => {
-  const handleScroll = (hash: string) => {
-    if (hash) {
-      const targetId = serviceScrollMapping[hash] || hash;
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-    }
-  };
   const featuredServices: DentalService[] = [
     {
       title: "Dental Implants",
@@ -341,28 +314,6 @@ const DentalServicesPage = () => {
     },
   ];
 
-  const getServiceId = (title: string): string => {
-    return title
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-™®]/g, "");
-  };
-
-  useEffect(() => {
-    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
-    if (hash) {
-      setTimeout(() => handleScroll(hash), 100);
-    }
-
-    const handleHashChange = () => {
-      const newHash = decodeURIComponent(window.location.hash.replace("#", ""));
-      handleScroll(newHash);
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
   const servicePairs: DentalService[][] = [];
   for (let i = 0; i < regularServices.length; i += 2) {
     servicePairs.push(regularServices.slice(i, i + 2));
@@ -379,6 +330,41 @@ const DentalServicesPage = () => {
       }
     }
   }
+
+  const getServiceId = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-™®]/g, "");
+  };
+
+  const handleScroll = React.useCallback((hash: string) => {
+    if (hash) {
+      const targetId = serviceScrollMapping[hash] || hash;
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
+    if (hash) {
+      setTimeout(() => handleScroll(hash), 100);
+    }
+
+    const handleHashChange = () => {
+      const newHash = decodeURIComponent(window.location.hash.replace("#", ""));
+      handleScroll(newHash);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [handleScroll]);
 
   return (
     <div className="min-h-screen">
