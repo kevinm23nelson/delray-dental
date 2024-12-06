@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +15,6 @@ import {
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
 import { formatInTimeZone } from "date-fns-tz";
-import { parseISO } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -53,7 +51,7 @@ export default function AppointmentModal({
       setIsSubmitting(false);
     }
   }
-  
+
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (

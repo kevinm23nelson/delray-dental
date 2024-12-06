@@ -1,8 +1,7 @@
 // src/app/api/admin/appointments/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient, Appointment } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { formatInTimeZone } from 'date-fns-tz';
-import { parseISO } from 'date-fns';
 
 const prisma = new PrismaClient();
 

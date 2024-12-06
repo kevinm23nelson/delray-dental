@@ -12,8 +12,6 @@ import AppointmentModal from "./components/AppointmentModal";
 import type { Appointment } from "@/types/calendar";
 import { AppointmentStatus } from "@prisma/client";
 import { EventClickArg } from "@fullcalendar/core";
-import { formatInTimeZone } from "date-fns-tz";
-import { parseISO } from "date-fns";
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
