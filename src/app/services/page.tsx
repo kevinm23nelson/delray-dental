@@ -91,7 +91,12 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
     },
   };
 
-  const ServiceContent: React.FC<{ service: Service }> = ({ service }) => (
+  const ServiceContent: React.FC<{
+    service: Service;
+    buttonStyles: string;
+    textColor: string;
+    CheckIcon: React.ComponentType;
+  }> = ({ service, buttonStyles, textColor, CheckIcon }) => (
     <motion.div className="space-y-4" variants={itemVariants}>
       <h2 className="text-3xl font-bold">{service.title}</h2>
       <div className="flex gap-4 items-start">
@@ -141,7 +146,13 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   variants={itemVariants}
                 >
                   {services.map((service) => (
-                    <ServiceContent key={service.title} service={service} />
+                    <ServiceContent
+                      key={service.title}
+                      service={service}
+                      buttonStyles={buttonStyles}
+                      textColor={textColor}
+                      CheckIcon={CheckIcon}
+                    />
                   ))}
                 </motion.div>
               </>
@@ -152,7 +163,13 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   variants={itemVariants}
                 >
                   {services.map((service) => (
-                    <ServiceContent key={service.title} service={service} />
+                    <ServiceContent
+                      key={service.title}
+                      service={service}
+                      buttonStyles={buttonStyles}
+                      textColor={textColor}
+                      CheckIcon={CheckIcon}
+                    />
                   ))}
                 </motion.div>
                 <motion.div variants={itemVariants}>
