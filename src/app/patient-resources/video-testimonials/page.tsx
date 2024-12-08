@@ -87,7 +87,7 @@ const VideoTestimonials = () => {
     <div className="flex flex-col min-h-screen">
       {" "}
       {/* Hero Banner Section */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[400px] w-full">
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/testimonials.jpg"
@@ -99,7 +99,7 @@ const VideoTestimonials = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
             Our Video Testimonials in Delray Beach, FL{" "}
           </h1>
           <Link

@@ -11,7 +11,10 @@ interface AnimatedContentProps {
   children: ReactNode;
   direction?: "left" | "right";
 }
-const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -67,7 +70,7 @@ const TeethWhitening = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[450px] w-full">
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/patient-resources.jpg"
@@ -79,7 +82,7 @@ const TeethWhitening = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
             Teeth Whitening in Delray Beach, Florida
           </h1>
           <Link
@@ -125,7 +128,7 @@ const TeethWhitening = () => {
                 <Image
                   src="/images/services/whitening.jpg"
                   alt="Tooth Implant"
-                  width={250}
+                  width={350}
                   height={400}
                   className="rounded-xl shadow-xl mx-auto"
                 />
@@ -166,14 +169,6 @@ const TeethWhitening = () => {
                         give us a call anytime.
                       </p>
                     </div>
-                    <div className="flex justify-center">
-                      <Link
-                        href="/services/dental-implants"
-                        className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-                      >
-                        Check Out Implants
-                      </Link>
-                    </div>
                   </div>
                 </AnimatedContent>
               </div>
@@ -183,9 +178,9 @@ const TeethWhitening = () => {
       </section>
 
       {/* Specials Sections */}
-      <section className="bg-gray-100 py-12">
+      <section className="bg-gray-100 py-6">
         <Container>
-          <div className="space-y-8">
+          <div className="space-y-8 mt-6">
             {instructions.map((instruction, index) => (
               <AnimatedContent key={index} direction="right">
                 <div className="flex gap-6 items-start bg-white p-4 rounded-lg shadow-sm">
@@ -222,17 +217,37 @@ const TeethWhitening = () => {
             ))}
           </div>
 
-          {/* View All Services Button */}
-          <div className="flex justify-center mt-12">
-            <AnimatedContent direction="right">
-              <Link
-                href="/services"
-                className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-              >
-                View All Services
-              </Link>
-            </AnimatedContent>
-          </div>
+          <section className="bg-gray-100 py-16">
+            <Container className="px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-xl">
+                <div className="text-center space-y-8">
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Check out our other great dental services
+                  </h2>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Link
+                      href="/services"
+                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                    >
+                      All Services
+                    </Link>
+                    <Link
+                      href="/services/dental-implants"
+                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                    >
+                      Implants
+                    </Link>
+                    <Link
+                      href="/services/invisalign"
+                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                    >
+                      Invisalign
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </Container>
+          </section>
         </Container>
       </section>
     </div>

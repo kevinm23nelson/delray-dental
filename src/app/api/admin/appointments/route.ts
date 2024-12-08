@@ -18,7 +18,6 @@ export async function GET() {
       ],
     });
 
-    // Convert times to local timezone
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const formattedAppointments = appointments.map(appointment => {
       const { startTime, endTime, ...rest } = appointment;

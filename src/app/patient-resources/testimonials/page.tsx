@@ -90,7 +90,7 @@ const Testimonials = () => {
     },
     {
       content:
-        "I have seen many dentists in many, many years and I have to tell you that these guys are better than the best! They have been to the race track before. My treatment was totally professional, and done on a timely basis. Their pricing was completely fair and I might add it was less than the corporate dental firms charge practicing in the area today. My rating is `6/5!` I don’t usually comment, let alone give anybody a 6 star rating, but I couldn’t help it — These professionals are great!",
+        "I have seen many dentists in many, many years and I have to tell you that these guys are better than the best! They have been to the race track before. My treatment was totally professional, and done on a timely basis. Their pricing was completely fair and I might add it was less than the corporate dental firms charge practicing in the area today. My rating is `5/5!` I don’t usually comment, let alone give anybody a 5/5 star rating, but I couldn’t help it — These professionals are great!",
       author: "D.W.",
     },
   ];
@@ -151,7 +151,9 @@ const Testimonials = () => {
                       <div className="space-y-3 flex-grow">
                         {" "}
                         <p className="text-gray-700 text-lg leading-relaxed italic">
-                          {`"`}{testimony.content}{`"`}
+                          {`"`}
+                          {testimony.content}
+                          {`"`}
                         </p>
                         <div className="flex items-center gap-2 mt-auto">
                           {" "}

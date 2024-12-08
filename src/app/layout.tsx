@@ -26,7 +26,28 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
-          <Toaster position="top-right" />
+          <Toaster 
+            position="top-right" 
+            toastOptions={{
+              duration: 5000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+              success: {
+                duration: 3000,
+                style: {
+                  background: '#059669',
+                },
+              },
+              error: {
+                duration: 4000,
+                style: {
+                  background: '#DC2626',
+                },
+              },
+            }}
+          />
         </NextAuthProvider>
       </body>
     </html>

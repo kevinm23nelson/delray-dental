@@ -1,6 +1,7 @@
 // src/app/api/appointments/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { emailService } from '@/lib/emailService';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
         notes: data.notes,
         practitionerId: data.practitionerId,
         typeId: data.appointmentTypeId,
-        status: 'PENDING', 
+        status: 'PENDING',
       },
       include: {
         appointmentType: true,
@@ -35,7 +36,19 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log('Created appointment:', appointment);
+    // Send email notification
+    await emailService.sendAppointmentEmail({
+      patientName: appointment.patientName,
+      patientEmail: appointment.patientEmail,
+      patientPhone: appointment.patientPhone,
+      appointmentType: appointment.appointmentType.name,
+      practitionerName: appointment.practitioner.name,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      notes: appointment.notes || undefined,
+    });
+
+    console.log('Created appointment and sent email notification');
     return NextResponse.json(appointment);
   } catch (error) {
     console.error('Failed to create appointment:', error);

@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
-    // Extract ID from the path
     const id = req.url.split('/').pop();
 
     if (!id) {
@@ -25,7 +24,6 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Only update the fields we want to change
     const appointmentData = {
       patientName: data.patientName,
       patientEmail: data.patientEmail,
@@ -53,7 +51,6 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-// You might also want to add a GET handler for fetching single appointments
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const id = req.url.split('/').pop();

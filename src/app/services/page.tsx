@@ -10,8 +10,11 @@ import { motion, useInView, Variants } from "framer-motion";
 
 interface Service {
   title: string;
+  title2?: string;
   description: string;
+  description2?: string;
   showDetailsButton?: boolean;
+  imageSrc: string;
 }
 
 interface ServiceSectionProps {
@@ -36,6 +39,7 @@ const ServiceContent: React.FC<ServiceContentProps> = ({
   itemVariants,
 }) => (
   <motion.div className="space-y-4" variants={itemVariants}>
+    {/* First service title and description */}
     <h2 className="text-3xl font-bold">{service.title}</h2>
     <div className="flex gap-4 items-start">
       <div className="flex-shrink-0 pt-1">
@@ -43,17 +47,35 @@ const ServiceContent: React.FC<ServiceContentProps> = ({
       </div>
       <p className="text-xl leading-relaxed">{service.description}</p>
     </div>
+
+    {/* Details button specifically after first description */}
     {service.showDetailsButton && (
-      <div className="flex justify-center pt-6">
+      <div className="flex justify-center pt-6 pb-6">
         <Link
           href={`/services/${service.title
             .toLowerCase()
-            .replace(/[\s®™]+/g, "-")}`}
+            .replace(/®/g, "")
+            .replace(/™/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+$/, "")}`}
           className={`inline-flex items-center px-8 py-3 ${buttonStyles} text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out`}
         >
           Details
         </Link>
       </div>
+    )}
+
+    {/* Second service title and description if they exist */}
+    {service.title2 && service.description2 && (
+      <>
+        <h2 className="text-3xl font-bold pt-2">{service.title2}</h2>
+        <div className="flex gap-4 items-start">
+          <div className="flex-shrink-0 pt-1">
+            <CheckIcon />
+          </div>
+          <p className="text-xl leading-relaxed">{service.description2}</p>
+        </div>
+      </>
     )}
   </motion.div>
 );
@@ -79,9 +101,9 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
   }, []);
 
   const isInView = useInView(sectionRef, {
-    once: true,
-    margin: isMobile ? "0px" : "-100px",
-    amount: isMobile ? 0.1 : 0.3,
+    once: true, // Always true now
+    margin: isMobile ? "0px" : "-50px", // Reduced margin
+    amount: isMobile ? 0.1 : 0.2, // Reduced amount needed to trigger
   });
 
   const bgColor = isBlue ? "bg-sky-500" : "bg-gray-100";
@@ -95,55 +117,57 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
 
   const containerVariants = {
     hidden: {
-      opacity: isMobile ? 1 : 0,
-      y: isMobile ? 0 : 50,
+      opacity: isMobile ? 0 : 0, // Changed initial opacity for mobile
+      y: isMobile ? 10 : 30,
     },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: isMobile ? 0.3 : 0.5,
+        duration: isMobile ? 0.2 : 0.3,
         ease: "easeOut",
         when: "beforeChildren",
-        staggerChildren: isMobile ? 0.1 : 0.2,
+        staggerChildren: isMobile ? 0.05 : 0.1,
       },
     },
   };
 
   const itemVariants = {
     hidden: {
-      opacity: isMobile ? 1 : 0,
-      x: isMobile ? 0 : imageFirst ? -30 : 30,
+      opacity: isMobile ? 0 : 0,
+      x: isMobile ? 0 : imageFirst ? -20 : 20,
     },
     visible: {
       opacity: 1,
       x: 0,
       transition: {
-        duration: isMobile ? 0.3 : 0.5,
+        duration: isMobile ? 0.2 : 0.3,
         ease: "easeOut",
       },
     },
   };
 
   return (
-    <section className={`${bgColor} py-20`} ref={sectionRef} id={id}>
+    <section className={`${bgColor} py-12`} ref={sectionRef} id={id}>
+      {" "}
+      {/* Changed from py-20 */}
       <Container className="px-6 lg:px-8">
         <motion.div
-          className={`max-w-6xl mx-auto ${innerBgColor} rounded-xl p-8 lg:p-12`}
+          className={`max-w-5xl mx-auto ${innerBgColor} rounded-xl p-6 lg:p-8`}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           variants={containerVariants}
         >
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
             {imageFirst ? (
               <>
                 <motion.div variants={itemVariants}>
                   <Image
                     src={imageSrc || "/api/placeholder/600/800"}
                     alt="Services"
-                    width={600}
-                    height={800}
-                    className="rounded-xl shadow-xl mx-auto"
+                    width={350} // Changed from 600
+                    height={400} // Changed from 800
+                    className="rounded-xl shadow-lg mx-auto" // Changed from shadow-xl
                   />
                 </motion.div>
                 <motion.div
@@ -202,15 +226,18 @@ type ServiceScrollMap = {
 const serviceScrollMapping: ServiceScrollMap = {
   "cosmetic-bonding": "oral-cancer-screening",
   "teeth-cleanings": "veneers",
+  invisalign: "invisalign",
+  clearcorrect: "invisalign", // Add this line to map ClearCorrect to Invisalign section
   "oral-surgery": "full-and-partial-dentures",
   "non-surgical-gum-treatment": "dental-diet-system",
   "root-canal-therapy": "dental-fillings",
-  "invisalign®": "clearcorrect™",
 };
 
 interface DentalService {
   title: string;
+  title2?: string;
   description: string;
+  description2?: string;
   showDetailsButton?: boolean;
   imageSrc: string;
 }
@@ -231,8 +258,17 @@ const DentalServicesPage = () => {
       showDetailsButton: true,
       imageSrc: "/images/services/whitening.jpg",
     },
+    {
+      title: "Invisalign®",
+      description:
+        "The world's leading clear aligner system for a straighter smile without traditional braces.",
+      showDetailsButton: true,
+      title2: "ClearCorrect™",
+      description2:
+        "Another excellent option for invisible aligners to straighten your teeth discreetly and comfortably.", // Add this field
+      imageSrc: "/images/services/invisalign.jpg",
+    },
   ];
-
   const regularServices: DentalService[] = [
     {
       title: "Oral Cancer Screening",
@@ -293,18 +329,6 @@ const DentalServicesPage = () => {
       description:
         "Gentle and effective root canal treatments to save damaged teeth and relieve pain.",
       imageSrc: "/images/services/rootcanal.jpg",
-    },
-    {
-      title: "ClearCorrect™",
-      description:
-        "Invisible aligners to straighten your teeth discreetly and comfortably.",
-      imageSrc: "/images/services/invisalign.jpg",
-    },
-    {
-      title: "Invisalign®",
-      description:
-        "The world's leading clear aligner system for a straighter smile without traditional braces.",
-      imageSrc: "/images/services/invisalign.jpg",
     },
     {
       title: "Tooth Extractions",
@@ -369,7 +393,7 @@ const DentalServicesPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Banner */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[450px] w-full">
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/main-smile-one.jpg"
@@ -381,7 +405,7 @@ const DentalServicesPage = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
             Our Dental Services in Delray Beach, FL
           </h1>
           <Link
@@ -405,39 +429,52 @@ const DentalServicesPage = () => {
             </div>
 
             {/* Services Grid */}
-            <div className="grid grid-cols-1 lg:pl-8 md:grid-cols-3 gap-6 text-left">
-              {[...featuredServices, ...regularServices].map(
-                (service, index) => {
-                  const serviceId = getServiceId(service.title);
-                  const targetId = serviceScrollMapping[serviceId] || serviceId;
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
+              {[
+                ...featuredServices,
+                ...regularServices,
+                // Add ClearCorrect separately
+                ...featuredServices
+                  .filter((service) => service.title2)
+                  .map((service) => ({
+                    ...service,
+                    title: service.title2!,
+                    description: service.description2!,
+                  })),
+              ].map((service, index) => {
+                const serviceId = getServiceId(service.title);
+                // For ClearCorrect, point to Invisalign section
+                const targetId =
+                  service.title === "ClearCorrect™"
+                    ? getServiceId("Invisalign®")
+                    : serviceScrollMapping[serviceId] || serviceId;
 
-                  return (
-                    <motion.button
-                      key={service.title}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: index * 0.05,
-                        ease: "easeOut",
-                      }}
-                      onClick={() => {
-                        const element = document.getElementById(targetId);
-                        if (element) {
-                          element.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                          });
-                        }
-                      }}
-                      className="flex items-center space-x-3 text-white hover:text-sky-100 transition-colors duration-200 group cursor-pointer whitespace-nowrap"
-                    >
-                      <div className="w-2 h-2 bg-white rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-200"></div>
-                      <span className="text-lg">{service.title}</span>
-                    </motion.button>
-                  );
-                }
-              )}
+                return (
+                  <motion.button
+                    key={`${service.title}-${index}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: index * 0.05,
+                      ease: "easeOut",
+                    }}
+                    onClick={() => {
+                      const element = document.getElementById(targetId);
+                      if (element) {
+                        element.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
+                      }
+                    }}
+                    className="flex items-center justify-center space-x-3 text-white hover:text-sky-100 transition-colors duration-200 group cursor-pointer"
+                  >
+                    <div className="w-2 h-2 bg-white rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-200"></div>
+                    <span className="text-lg text-center">{service.title}</span>
+                  </motion.button>
+                );
+              })}
             </div>
 
             <p className="text-white font-montserrat text-lg px-4 pt-6">
