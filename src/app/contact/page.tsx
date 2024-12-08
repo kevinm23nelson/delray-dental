@@ -7,105 +7,156 @@ import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
 import { ChevronDown } from "lucide-react";
 import WhiteArrowCircleIcon from "@/components/shared/WhiteArrowCircleIcon";
 import { motion, useInView } from "framer-motion";
+import { toast } from "react-hot-toast";
+import emailjs from "@emailjs/browser";
 
 const AnimatedSubmenu: React.FC<{
-    isOpen: boolean;
-    children: ReactNode;
-  }> = ({ isOpen, children }) => {
-    const contentRef = useRef<HTMLDivElement>(null);
-    const [height, setHeight] = useState<number>(0);
-  
-    useEffect(() => {
-      if (contentRef.current) {
-        const contentHeight = contentRef.current.scrollHeight;
-        setHeight(isOpen ? contentHeight : 0);
-      }
-    }, [isOpen, children]);
-  
-    return (
-      <div
-        className="overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ height }}
-      >
-        <div ref={contentRef}>{children}</div>
-      </div>
-    );
+  isOpen: boolean;
+  children: ReactNode;
+}> = ({ isOpen, children }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const contentHeight = contentRef.current.scrollHeight;
+      setHeight(isOpen ? contentHeight : 0);
+    }
+  }, [isOpen, children]);
+
+  return (
+    <div
+      className="overflow-hidden transition-all duration-300 ease-in-out"
+      style={{ height }}
+    >
+      <div ref={contentRef}>{children}</div>
+    </div>
+  );
+};
+
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent: React.FC<AnimatedContentProps> = ({
+  children,
+  direction = "right",
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(contentRef, {
+    once: false,
+    margin: "-100px",
+    amount: 0.3,
+  });
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      x: direction === "right" ? 30 : -30,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
   };
 
+  return (
+    <motion.div
+      ref={contentRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
- 
-  interface AnimatedContentProps {
-    children: ReactNode;
-    direction?: 'left' | 'right';
-  }
-  
-  const AnimatedContent: React.FC<AnimatedContentProps> = ({ children, direction = "right" }) => {
-    const contentRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(contentRef, {
-      once: false,
-      margin: "-100px",
-      amount: 0.3,
-    });
-  
-    const variants = {
-      hidden: {
-        opacity: 0,
-        x: direction === "right" ? 30 : -30,
-      },
-      visible: {
-        opacity: 1,
-        x: 0,
-        transition: {
-          duration: 0.5,
-          ease: "easeOut",
+type SectionName = "commonlyFound" | "prevention" | null;
+
+const ContactUs = () => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<SectionName>(null);
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_CONTACT_TEMPLATE_ID!,
+        {
+          from_name: `${formData.firstName} ${formData.lastName}`,
+          from_email: formData.email,
+          phone: formData.phone || "Not provided",
+          subject: formData.subject,
+          message: formData.message,
         },
-      },
-    };
-  
-    return (
-      <motion.div
-        ref={contentRef}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        variants={variants}
-      >
-        {children}
-      </motion.div>
-    );
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY // Add this line
+      );
+
+      toast.success("Message sent successfully!");
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  type SectionName = 'commonlyFound' | 'prevention' | null;
-
-  const DentalImplant = () => {
-    const [expandedSection, setExpandedSection] = useState<SectionName>(null);
-  
-    const toggleSection = (sectionName: SectionName) => {
-      setExpandedSection(expandedSection === sectionName ? null : sectionName);
-    };
+  const toggleSection = (sectionName: SectionName) => {
+    setExpandedSection(expandedSection === sectionName ? null : sectionName);
+  };
 
   const instructions = [
     {
-      title:
-        "Content",
-      content:
-        "Placeholder",
+      title: "Content",
+      content: "Placeholder",
     },
-    
   ];
 
   const preventionInstruction = [
     {
-        title:
-          "Content",
-        content:
-          "Placeholder",
-      },
+      title: "Content",
+      content: "Placeholder",
+    },
   ];
 
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[425px] w-full">
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/patient-resources.jpg"
@@ -117,7 +168,7 @@ const AnimatedSubmenu: React.FC<{
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
             Get in Touch With Us!
           </h1>
           <Link
@@ -202,7 +253,7 @@ const AnimatedSubmenu: React.FC<{
           <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-b-xl">
             <div className="grid md:grid-cols-1 gap-8">
               <AnimatedContent direction="right">
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-gray-700 font-semibold mb-2">
@@ -210,8 +261,12 @@ const AnimatedSubmenu: React.FC<{
                       </label>
                       <input
                         type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
                     <div>
@@ -220,8 +275,12 @@ const AnimatedSubmenu: React.FC<{
                       </label>
                       <input
                         type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
                     <div>
@@ -230,8 +289,12 @@ const AnimatedSubmenu: React.FC<{
                       </label>
                       <input
                         type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
                     <div>
@@ -240,7 +303,11 @@ const AnimatedSubmenu: React.FC<{
                       </label>
                       <input
                         type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
@@ -251,8 +318,12 @@ const AnimatedSubmenu: React.FC<{
                     </label>
                     <input
                       type="text"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -261,18 +332,23 @@ const AnimatedSubmenu: React.FC<{
                       Message*
                     </label>
                     <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
                       rows={6}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       required
+                      disabled={isSubmitting}
                     ></textarea>
                   </div>
 
                   <div className="flex justify-center">
                     <button
                       type="submit"
-                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
+                      disabled={isSubmitting}
+                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Send Message
+                      {isSubmitting ? "Sending..." : "Send Message"}
                     </button>
                   </div>
                 </form>
@@ -400,4 +476,4 @@ const AnimatedSubmenu: React.FC<{
   );
 };
 
-export default DentalImplant;
+export default ContactUs;

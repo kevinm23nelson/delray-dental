@@ -1,5 +1,44 @@
 import { type Config } from "tailwindcss"
 
+const calendarStyles = `
+.fc .fc-button-primary {
+  background-color: rgb(14 165 233) !important;
+  border-color: rgb(14 165 233) !important;
+  font-weight: 500;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: rgb(2 132 199) !important;
+  border-color: rgb(2 132 199) !important;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: rgb(186 230 253) !important;
+  border-color: rgb(186 230 253) !important;
+}
+
+.fc .fc-daygrid-day:hover {
+  background-color: rgb(240 249 255) !important;
+}
+
+.fc .fc-col-header-cell {
+  background-color: rgb(240 249 255);
+  padding: 8px 0;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem !important;
+  font-weight: 600;
+}
+
+.fc .fc-daygrid-day-frame {
+  padding: 8px 4px !important;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: rgb(226 232 240) !important;
+}
+`;
 const config = {
   darkMode: ["class"],
   content: [

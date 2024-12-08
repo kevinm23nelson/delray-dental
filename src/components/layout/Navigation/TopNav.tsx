@@ -86,6 +86,10 @@ const navigationItems = [
       { name: "Dental Implants", href: "/services/dental-implants" },
       { name: "Teeth Whitening", href: "/services/teeth-whitening" },
       {
+        name: "Invisalign®",
+        href: "/services/invisalign",
+      },
+      {
         name: "Oral Cancer Screening",
         href: "/services#oral-cancer-screening",
       },
@@ -127,10 +131,6 @@ const navigationItems = [
       },
       {
         name: "ClearCorrect™",
-        href: "/services#clearcorrect™",
-      },
-      {
-        name: "Invisalign®",
         href: "/services#clearcorrect™",
       },
       {
@@ -401,12 +401,12 @@ const TopNav = () => {
     if (convertedType === "patient-resources" || convertedType === "services") {
       return convertedType;
     }
-    return "services"; 
+    return "services";
   };
 
   return (
     <header className={`fixed w-full top-0 z-50 ${montserrat.className}`}>
-      <div className="bg-sky-500 text-white py-2">
+      <div className="bg-sky-500 text-white py-1">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <Link
             href="https://maps.google.com"
@@ -429,12 +429,12 @@ const TopNav = () => {
 
       <div className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-2">
             <div className="flex-shrink-0">
               <Link href="/" className="text-2xl font-bold text-gray-800">
                 Delray Dental
               </Link>
-              <div className="text-sm text-gray-600 mt-1">
+              <div className="text-md font-normal text-gray-600 mt-1">
                 Ritota & Ritota, P.A.
               </div>
             </div>

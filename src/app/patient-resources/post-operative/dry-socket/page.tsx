@@ -108,7 +108,7 @@ const DrySocket = () => {
   const preventionInstruction = [
     {
       content:
-        "Women who use birth control pills or have their teeth removed in the first 22 days of the menstrual cycle are twice as likely to develop dry socket after an extraction. Schedule extractions during the last week of your menstrual cycle (days 23 through 28) ** when estrogen levels are low or inactive.",
+        "Women who use birth control pills or have their teeth removed in the first 22 days of the menstrual cycle are twice as likely to develop dry socket after an extraction. Schedule extractions during the last week of your menstrual cycle (days 23 through 28) when estrogen levels are low or inactive.",
     },
     {
       content: "Avoid drinking through a straw.",
@@ -387,38 +387,7 @@ const DrySocket = () => {
                   </div>
                 ))}
               </div>
-              {/* Bottom Informational Section */}
-              <div className="text-left mt-12 mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  News Updates on Dry Socket
-                </h2>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Oral Contraceptives May Increase Pain After Wisdom Tooth
-                  Extraction
-                </h2>
-                <p className="text-xl text-gray-600">
-                  That tests on 267 women showed that those on the birth control
-                  pill were more susceptible than non-users to both
-                  postoperative pain and a condition known as “dry socket”. In
-                  this condition, normal healing of the vacant tooth socket is
-                  delayed by the failure of a blood clot to form. Infection
-                  instead causes the socket to remain empty. In the study, pain
-                  on the day after the operation was experienced by 30 percent
-                  of pill takers compared to just 11 percent of non-users. Five
-                  days after the operation the difference was 14 percent
-                  compared to 5 percent. The researchers said these results
-                  suggest that the pill may reduce the pain threshold. The
-                  differential was similar when the development of dry socket
-                  was compared. Here, 11 percent of pill users were affected
-                  compared to 4 percent of non-pill users.
-                </p>
-                <p className="mt-2 text-xl text-gray-600">
-                  SOURCE: British Dental Journal 2003;194:453-455.
-                </p>
-                <p className="mt-2 text-xl text-gray-600">
-                  ** Academy of General Dentistry.{" "}
-                </p>
-              </div>
+              
               <div className="flex justify-center gap-4 mt-8">
                 <Link
                   href="/patient-resources/post-operative/smoking"

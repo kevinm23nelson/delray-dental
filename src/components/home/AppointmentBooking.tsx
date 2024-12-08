@@ -137,10 +137,12 @@ export default function AppointmentBooking() {
   }
   return (
     <div className="w-full bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="lg:flex lg:gap-12 lg:items-start">
+          
+      <div className="max-w-5xl mx-auto">
+        <div className="lg:flex lg:gap-8 lg:items-start">
           {/* Left Column - Appointment Types */}
-          <div className="lg:w-[400px] mb-8 lg:mb-0">
+          <div className="lg:w-[350px] mb-8 lg:mb-0">
+            {" "}
             <AnimatedContent>
               <div className="text-center lg:text-left mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 font-montserrat mb-4">
@@ -198,7 +200,8 @@ export default function AppointmentBooking() {
           {/* Right Column - Calendar */}
           <div className="lg:flex-1">
             <AnimatedContent>
-              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+              <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4">
+                {" "}
                 <FullCalendar
                   plugins={[dayGridPlugin, interactionPlugin]}
                   initialView="dayGridMonth"
@@ -208,7 +211,8 @@ export default function AppointmentBooking() {
                     right: "dayGridMonth",
                   }}
                   dateClick={handleDateClick}
-                  height="auto"
+                  contentHeight="auto"
+                  aspectRatio={1.5}
                   expandRows={true}
                   dayMaxEvents={true}
                   selectable={true}
@@ -235,7 +239,7 @@ export default function AppointmentBooking() {
         </div>
       </div>
 
-      {/* Modal remains the same */}
+      {/* Booking Modal */}
       {showBookingModal && selectedDate && selectedType && (
         <BookingModal
           isOpen={showBookingModal}
