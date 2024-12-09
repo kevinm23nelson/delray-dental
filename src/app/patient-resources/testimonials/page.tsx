@@ -90,7 +90,7 @@ const Testimonials = () => {
     },
     {
       content:
-        "I have seen many dentists in many, many years and I have to tell you that these guys are better than the best! They have been to the race track before. My treatment was totally professional, and done on a timely basis. Their pricing was completely fair and I might add it was less than the corporate dental firms charge practicing in the area today. My rating is `6/5!` I don’t usually comment, let alone give anybody a 6 star rating, but I couldn’t help it — These professionals are great!",
+        "I have seen many dentists in many, many years and I have to tell you that these guys are better than the best! They have been to the race track before. My treatment was totally professional, and done on a timely basis. Their pricing was completely fair and I might add it was less than the corporate dental firms charge practicing in the area today. My rating is `5/5!` I don’t usually comment, let alone give anybody a 5/5 star rating, but I couldn’t help it — These professionals are great!",
       author: "D.W.",
     },
   ];
@@ -98,7 +98,7 @@ const Testimonials = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[425px] w-full">
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/testimonials.jpg"
@@ -110,7 +110,7 @@ const Testimonials = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
             Why Our Patients Love Us in Delray Beach, FL{" "}
           </h1>
           <Link
@@ -151,7 +151,9 @@ const Testimonials = () => {
                       <div className="space-y-3 flex-grow">
                         {" "}
                         <p className="text-gray-700 text-lg leading-relaxed italic">
-                          {`"`}{testimony.content}{`"`}
+                          {`"`}
+                          {testimony.content}
+                          {`"`}
                         </p>
                         <div className="flex items-center gap-2 mt-auto">
                           {" "}

@@ -13,27 +13,24 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get today's date at midnight local time
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Get total employees count
     const totalEmployees = await prisma.practitioner.count({
       where: {
         isActive: true,
       },
     });
 
-    // Get today's appointments count
     const todayAppointments = await prisma.appointment.count({
       where: {
         startTime: {
           gte: today,
           lt: tomorrow,
         },
-        status: "SCHEDULED", // Only count confirmed appointments
+        status: "SCHEDULED",
       },
     });
 

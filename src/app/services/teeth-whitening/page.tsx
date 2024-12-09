@@ -11,7 +11,10 @@ interface AnimatedContentProps {
   children: ReactNode;
   direction?: "left" | "right";
 }
-const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
+const AnimatedContent = ({
+  children,
+  direction = "right",
+}: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
     once: false,
@@ -47,27 +50,10 @@ const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps
 };
 
 const TeethWhitening = () => {
-  const instructions = [
-    {
-      title: "Internet Special:",
-      content:
-        "New price, only $350.00 for bleaching/whitening tooth take-home kit.",
-    },
-  ];
-
-  const instructionsTwo = [
-    {
-      title: "In-Office Special:",
-      content: "`Brighten Up Your Smile` - Regularly $550",
-      detail:
-        "We charge $350 for one session or $500 for two or more in-office whitenings.",
-    },
-  ];
-
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[450px] w-full">
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/patient-resources.jpg"
@@ -79,7 +65,7 @@ const TeethWhitening = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
             Teeth Whitening in Delray Beach, Florida
           </h1>
           <Link
@@ -90,7 +76,6 @@ const TeethWhitening = () => {
           </Link>
         </div>
       </div>
-
       <section className="bg-sky-500 pt-12">
         <Container className="px-6 lg:px-8">
           <div className="max-w-7xl mx-auto bg-sky-400 p-8 lg:p-10 rounded-t-xl">
@@ -125,7 +110,7 @@ const TeethWhitening = () => {
                 <Image
                   src="/images/services/whitening.jpg"
                   alt="Tooth Implant"
-                  width={250}
+                  width={350}
                   height={400}
                   className="rounded-xl shadow-xl mx-auto"
                 />
@@ -134,7 +119,6 @@ const TeethWhitening = () => {
           </div>
         </Container>
       </section>
-
       <section className="bg-gray-100">
         <Container className="px-6 lg:px-8">
           <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-b-xl">
@@ -166,14 +150,6 @@ const TeethWhitening = () => {
                         give us a call anytime.
                       </p>
                     </div>
-                    <div className="flex justify-center">
-                      <Link
-                        href="/services/dental-implants"
-                        className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-                      >
-                        Check Out Implants
-                      </Link>
-                    </div>
                   </div>
                 </AnimatedContent>
               </div>
@@ -181,57 +157,110 @@ const TeethWhitening = () => {
           </div>
         </Container>
       </section>
-
-      {/* Specials Sections */}
-      <section className="bg-gray-100 py-12">
+      {/* Whitening Specials Section */}
+      <section className="bg-gray-100 py-8">
         <Container>
-          <div className="space-y-8">
-            {instructions.map((instruction, index) => (
-              <AnimatedContent key={index} direction="right">
-                <div className="flex gap-6 items-start bg-white p-4 rounded-lg shadow-sm">
-                  <ArrowCircleIcon />
-                  <div className="text-gray-700 leading-relaxed">
-                    <span className="font-bold">{instruction.title}</span> New
-                    price, only <span className="text-sky-500">$150.00</span>{" "}
-                    for bleaching/whitening tooth take-home kit.
-                  </div>
-                </div>
-              </AnimatedContent>
-            ))}
-          </div>
-          <div className="space-y-8 mt-6">
-            {instructionsTwo.map((instruction, index) => (
-              <AnimatedContent key={index} direction="right">
-                <div className="flex gap-6 items-start bg-white p-4 rounded-lg shadow-sm">
-                  <ArrowCircleIcon />
-                  <div className="text-gray-700 leading-relaxed space-y-2">
-                    <div>
-                      <span className="font-bold">{instruction.title}</span>{" "}
-                      `Brighten Up Your Smile` - Regularly{" "}
-                      <span className="text-sky-500">$550</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-sky-500 font-bold">-</div>
-                      We charge <span className="text-sky-500">$350</span> for
-                      one session or <span className="text-sky-500">$500</span>{" "}
-                      for two or more in-office whitenings.
-                    </div>
-                  </div>
-                </div>
-              </AnimatedContent>
-            ))}
-          </div>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
+              Teeth Whitening Specials
+            </h2>
 
-          {/* View All Services Button */}
-          <div className="flex justify-center mt-12">
-            <AnimatedContent direction="right">
-              <Link
-                href="/services"
-                className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-              >
-                View All Services
-              </Link>
-            </AnimatedContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Take-Home Kit Special */}
+              <AnimatedContent direction="right">
+                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <ArrowCircleIcon />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Take-Home Kit Special
+                      </h3>
+                      <div className="text-lg text-gray-700">
+                        <p>Professional whitening kit for home use</p>
+                        <p className="mt-2">
+                          <span className="line-through text-gray-500">
+                            $350.00
+                          </span>
+                          <span className="text-sky-500 font-bold ml-2">
+                            $150.00
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </AnimatedContent>
+
+              {/* In-Office Special */}
+              <AnimatedContent direction="right">
+                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <ArrowCircleIcon />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-bold text-gray-900">
+                        In-Office Treatment
+                      </h3>
+                      <div className="text-lg text-gray-700">
+                        <p className="font-semibold">
+                          &quot;Brighten Up Your Smile&quot;
+                        </p>
+                        <div className="mt-3 space-y-2">
+                          <p>
+                            <span className="line-through text-gray-500">
+                              $550.00
+                            </span>
+                            <span className="text-sky-500 font-bold ml-2">
+                              $350.00
+                            </span>
+                            <span className="ml-2">per session</span>
+                          </p>
+                          <p className="text-sky-600 font-semibold">
+                            Special Offer: Two sessions for $500
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </AnimatedContent>
+            </div>
+
+           
+          </div>
+        </Container>
+      </section>
+      <section className="bg-gray-100 py-10 pb-16">
+        <Container className="px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-xl">
+            <div className="text-center space-y-8">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Check out our other great dental services
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                  href="/services"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  All Services
+                </Link>
+                <Link
+                  href="/services/dental-implants"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  Implants
+                </Link>
+                <Link
+                  href="/services/invisalign"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  Invisalign
+                </Link>
+              </div>
+            </div>
           </div>
         </Container>
       </section>

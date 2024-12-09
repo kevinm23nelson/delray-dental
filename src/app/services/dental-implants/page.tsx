@@ -13,7 +13,10 @@ interface AnimatedSubmenuProps {
   children: ReactNode;
 }
 
-const AnimatedSubmenu: React.FC<AnimatedSubmenuProps> = ({ isOpen, children }) => {
+const AnimatedSubmenu: React.FC<AnimatedSubmenuProps> = ({
+  isOpen,
+  children,
+}) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number>(0);
 
@@ -40,10 +43,13 @@ interface AnimatedContentProps {
   direction?: "left" | "right";
 }
 
-const AnimatedContent: React.FC<AnimatedContentProps> = ({ children, direction = "right" }) => {
+const AnimatedContent: React.FC<AnimatedContentProps> = ({
+  children,
+  direction = "right",
+}) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(contentRef, {
-    once: false,
+    once: true,  // Changed from false to true
     margin: "-100px",
     amount: 0.3,
   });
@@ -160,7 +166,9 @@ const DentalImplant = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative h-[500px] w-full">
+      <div className="relative h-[450px] w-full">
+        {" "}
+        {/* Reduced from 500px to 450px */}
         <div className="absolute inset-0">
           <Image
             src="/images/backgrounds/patient-resources.jpg"
@@ -172,7 +180,8 @@ const DentalImplant = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
+            {/* Reduced from text-5xl md:text-6xl to text-4xl md:text-5xl */}
             Dental Implants in Delray Beach, Florida
           </h1>
           <Link
@@ -219,10 +228,10 @@ const DentalImplant = () => {
 
               <AnimatedContent direction="right">
                 <Image
-                  src="/images/services/implant.jpg"
+                  src="/images/services/implantImage.webp"
                   alt="Tooth Implant"
-                  width={500}
-                  height={600}
+                  width={400}
+                  height={500}
                   className="rounded-xl shadow-xl mx-auto"
                 />
               </AnimatedContent>
@@ -238,7 +247,7 @@ const DentalImplant = () => {
               <div className="md:col-span-1">
                 <AnimatedContent direction="left">
                   <Image
-                    src="/images/services/fillings.jpg"
+                    src="/images/services/implantImage2.jpg"
                     alt="Teeth Cleaning"
                     width={300}
                     height={400}
@@ -264,14 +273,6 @@ const DentalImplant = () => {
                         determine your individual treatment plan.
                       </p>
                     </div>
-                    <div className="flex justify-center">
-                      <Link
-                        href="/services/teeth-whitening"
-                        className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-                      >
-                        Check Out Whitening
-                      </Link>
-                    </div>
                   </div>
                 </AnimatedContent>
               </div>
@@ -281,25 +282,25 @@ const DentalImplant = () => {
       </section>
 
       {/* Instructions Sections */}
-      <section className="bg-gray-100 py-12">
+      <section className="bg-gray-100 py-10">
         <Container>
           <div className="max-w-4xl mx-auto space-y-6">
-              <AnimatedContent direction="right">
-            {/* Pre-Operative Instructions */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <button
-                onClick={() => toggleSection("commonlyFound")}
-                className="w-full flex items-center justify-between p-6 text-left bg-white hover:bg-gray-50 transition-colors duration-200"
-              >
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Pre-Operative Instructions For Patients Receiving Implants
-                </h2>
-                <ChevronDown
-                  className={`h-6 w-6 text-gray-600 transform transition-transform duration-300 ${
-                    expandedSection === "commonlyFound" ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+            <AnimatedContent direction="right">
+              {/* Pre-Operative Instructions */}
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <button
+                  onClick={() => toggleSection("commonlyFound")}
+                  className="w-full flex items-center justify-between p-6 text-left bg-white hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Pre-Operative Instructions For Patients Receiving Implants
+                  </h2>
+                  <ChevronDown
+                    className={`h-6 w-6 text-gray-600 transform transition-transform duration-300 ${
+                      expandedSection === "commonlyFound" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
                 <AnimatedSubmenu isOpen={expandedSection === "commonlyFound"}>
                   <div className="px-6 pb-6">
                     <div className="font-bold text-gray-900 mb-4">
@@ -322,26 +323,26 @@ const DentalImplant = () => {
                     </div>
                   </div>
                 </AnimatedSubmenu>
-            </div>
-              </AnimatedContent>
+              </div>
+            </AnimatedContent>
 
             {/* Post-Operative Instructions */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <AnimatedContent direction="right">
-              <button
-                onClick={() => toggleSection("prevention")}
-                className="w-full flex items-center justify-between p-6 text-left bg-white hover:bg-gray-50 transition-colors duration-200"
-              >
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Post-Operative Instructions For Patients Receiving Implants
-                </h2>
-                <ChevronDown
-                  className={`h-6 w-6 text-gray-600 transform transition-transform duration-300 ${
-                    expandedSection === "prevention" ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              <AnimatedSubmenu isOpen={expandedSection === "prevention"}>
+                <button
+                  onClick={() => toggleSection("prevention")}
+                  className="w-full flex items-center justify-between p-6 text-left bg-white hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Post-Operative Instructions For Patients Receiving Implants
+                  </h2>
+                  <ChevronDown
+                    className={`h-6 w-6 text-gray-600 transform transition-transform duration-300 ${
+                      expandedSection === "prevention" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <AnimatedSubmenu isOpen={expandedSection === "prevention"}>
                   <div className="px-6 pb-6">
                     {preventionInstruction.map((instruction, index) => (
                       <div
@@ -376,20 +377,41 @@ const DentalImplant = () => {
                       </div>
                     ))}
                   </div>
-              </AnimatedSubmenu>
-                </AnimatedContent>
+                </AnimatedSubmenu>
+              </AnimatedContent>
             </div>
           </div>
-          {/* View All Services Button */}
-          <div className="flex justify-center mt-12">
-            <AnimatedContent direction="right">
-              <Link
-                href="/services"
-                className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-              >
-                View All Services
-              </Link>
-            </AnimatedContent>
+        </Container>
+      </section>
+      {/* View All Services Button */}
+      <section className="bg-gray-100 py-8 pb-16">
+        <Container className="px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-xl">
+            <div className="text-center space-y-8">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Check out our other great dental services
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                  href="/services"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  All Services
+                </Link>
+                <Link
+                  href="/services/teeth-whitening"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  Whitening
+                </Link>
+                <Link
+                  href="/services/invisalign"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  Invisalign
+                </Link>
+              </div>
+            </div>
           </div>
         </Container>
       </section>
