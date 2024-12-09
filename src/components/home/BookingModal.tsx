@@ -113,7 +113,6 @@ export default function BookingModal({
         appointmentTypeId: appointmentType.id,
       });
   
-      toast.success("Appointment booked successfully!");
       onClose();
     } catch (error) {
       console.error("Booking error:", error);

@@ -1,5 +1,15 @@
 // src/lib/emailService.ts
-import emailjs from "@emailjs/browser";
+import { EmailJSResponseStatus } from "@emailjs/browser";
+
+// Only import emailjs on the client side
+let emailjs: typeof import("@emailjs/browser") | null = null;
+
+if (typeof window !== "undefined") {
+  import("@emailjs/browser").then((module) => {
+    emailjs = module;
+    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
+  });
+}
 
 interface AppointmentEmailData {
   patientName: string;
@@ -21,10 +31,12 @@ interface ContactFormData {
   message: string;
 }
 
-emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
-
 export const emailService = {
-  async sendContactFormEmail(data: ContactFormData) {
+  async sendContactFormEmail(data: ContactFormData): Promise<EmailJSResponseStatus> {
+    if (!emailjs) {
+      throw new Error("EmailJS not initialized");
+    }
+
     try {
       return await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
@@ -36,8 +48,7 @@ export const emailService = {
           phone: data.phone || "Not provided",
           subject: data.subject,
           message: data.message,
-        },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+        }
       );
     } catch (error) {
       console.error("Failed to send contact form email:", error);
@@ -45,7 +56,11 @@ export const emailService = {
     }
   },
 
-  async sendAppointmentEmail(data: AppointmentEmailData) {
+  async sendAppointmentEmail(data: AppointmentEmailData): Promise<EmailJSResponseStatus> {
+    if (!emailjs) {
+      throw new Error("EmailJS not initialized");
+    }
+
     try {
       const formattedDate = new Date(data.startTime).toLocaleDateString();
       const formattedStartTime = new Date(data.startTime).toLocaleTimeString([], {
@@ -70,8 +85,7 @@ export const emailService = {
           appointment_date: formattedDate,
           appointment_time: `${formattedStartTime} - ${formattedEndTime}`,
           notes: data.notes || "No additional notes",
-        },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+        }
       );
     } catch (error) {
       console.error("Failed to send appointment email:", error);

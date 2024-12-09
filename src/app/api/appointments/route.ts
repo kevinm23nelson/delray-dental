@@ -36,23 +36,31 @@ export async function POST(request: Request) {
       },
     });
 
-    try {
-      await emailService.sendAppointmentEmail({
-        patientName: appointment.patientName,
-        patientEmail: appointment.patientEmail,
-        patientPhone: appointment.patientPhone,
-        appointmentType: appointment.appointmentType.name,
-        practitionerName: appointment.practitioner.name,
-        startTime: appointment.startTime,
-        endTime: appointment.endTime,
-        notes: appointment.notes || undefined,
-      });
-      console.log('Email notification sent successfully');
-    } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+    // Send email notification
+    if (typeof window !== 'undefined') {
+      try {
+        await emailService.sendAppointmentEmail({
+          patientName: appointment.patientName,
+          patientEmail: appointment.patientEmail,
+          patientPhone: appointment.patientPhone,
+          appointmentType: appointment.appointmentType.name,
+          practitionerName: appointment.practitioner.name,
+          startTime: appointment.startTime,
+          endTime: appointment.endTime,
+          notes: appointment.notes || undefined,
+        });
+        console.log('Email notification sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+        // Don't throw the error, just log it
+      }
     }
 
-    return NextResponse.json(appointment);
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Appointment booked successfully',
+      appointment 
+    });
   } catch (error) {
     console.error('Failed to create appointment:', error);
     return NextResponse.json(
