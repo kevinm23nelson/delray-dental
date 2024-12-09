@@ -102,7 +102,7 @@ export default function BookingModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSlot) return;
-
+  
     setIsSubmitting(true);
     try {
       await onBookAppointment({
@@ -112,14 +112,12 @@ export default function BookingModal({
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
       });
-
+  
       toast.success("Appointment booked successfully!");
       onClose();
     } catch (error) {
       console.error("Booking error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to book appointment"
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to book appointment");
     } finally {
       setIsSubmitting(false);
     }
