@@ -137,7 +137,6 @@ export default function AppointmentBooking() {
   }
   return (
     <div className="w-full bg-gray-50 p-4 sm:p-6 lg:p-8">
-          
       <div className="max-w-5xl mx-auto">
         <div className="lg:flex lg:gap-8 lg:items-start">
           {/* Left Column - Appointment Types */}
@@ -259,13 +258,19 @@ export default function AppointmentBooking() {
                 }),
               });
 
-              if (!response.ok) throw new Error("Failed to book appointment");
+              const result = await response.json();
 
+              if (!response.ok) {
+                throw new Error(result.error || "Failed to book appointment");
+              }
+
+              // Only show success if we get here
               toast.success("Appointment booked successfully!");
               setShowBookingModal(false);
             } catch (error) {
-              toast.error("Failed to book appointment");
-              console.error(error);
+              console.error("Failed to book appointment:", error);
+              // Remove the generic toast.error here since the API will return specific errors
+              throw error; // Re-throw to be handled by the form's error handler
             }
           }}
         />

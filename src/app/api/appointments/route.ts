@@ -36,19 +36,22 @@ export async function POST(request: Request) {
       },
     });
 
-    // Send email notification
-    await emailService.sendAppointmentEmail({
-      patientName: appointment.patientName,
-      patientEmail: appointment.patientEmail,
-      patientPhone: appointment.patientPhone,
-      appointmentType: appointment.appointmentType.name,
-      practitionerName: appointment.practitioner.name,
-      startTime: appointment.startTime,
-      endTime: appointment.endTime,
-      notes: appointment.notes || undefined,
-    });
+    try {
+      await emailService.sendAppointmentEmail({
+        patientName: appointment.patientName,
+        patientEmail: appointment.patientEmail,
+        patientPhone: appointment.patientPhone,
+        appointmentType: appointment.appointmentType.name,
+        practitionerName: appointment.practitioner.name,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        notes: appointment.notes || undefined,
+      });
+      console.log('Email notification sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send email notification:', emailError);
+    }
 
-    console.log('Created appointment and sent email notification');
     return NextResponse.json(appointment);
   } catch (error) {
     console.error('Failed to create appointment:', error);
