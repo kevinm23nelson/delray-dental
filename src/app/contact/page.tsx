@@ -115,7 +115,7 @@ const ContactUs = () => {
           subject: formData.subject,
           message: formData.message,
         },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY // Add this line
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
       toast.success("Message sent successfully!");
@@ -181,16 +181,16 @@ const ContactUs = () => {
       </div>
 
       {/* Main Content Sections */}
-      <section className="bg-sky-500 pt-12">
-        <Container className="px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto bg-sky-400 p-8 lg:p-10 rounded-t-xl">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+      <section className="bg-sky-500 pt-8">
+        <Container className="px-4 lg:px-6">
+          <div className="max-w-5xl mx-auto bg-sky-400 p-6 lg:p-8 rounded-t-xl">
+            <div className="grid md:grid-cols-2 gap-6 items-center">
               <AnimatedContent direction="left">
-                <div className="text-white space-y-6">
-                  <h2 className="text-3xl font-bold mb-4">
+                <div className="text-white space-y-4">
+                  <h2 className="text-3xl font-bold mb-3">
                     Contact Information
                   </h2>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex gap-4 items-start">
                       <div className="flex-shrink-0 pt-1">
                         <WhiteArrowCircleIcon />
@@ -250,13 +250,15 @@ const ContactUs = () => {
 
       <section className="bg-gray-100">
         <Container className="px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-b-xl">
-            <div className="grid md:grid-cols-1 gap-8">
+          <div className="max-w-5xl mx-auto bg-white p-6 lg:p-8 rounded-b-xl">
+            <div className="grid md:grid-cols-1 gap-6">
               <AnimatedContent direction="right">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {" "}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {" "}
                     <div>
-                      <label className="block text-gray-700 font-semibold mb-2">
+                      <label className="block text-gray-700 font-semibold mb-1">
                         First Name*
                       </label>
                       <input
@@ -270,7 +272,7 @@ const ContactUs = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 font-semibold mb-2">
+                      <label className="block text-gray-700 font-semibold mb-1">
                         Last Name*
                       </label>
                       <input
@@ -284,7 +286,7 @@ const ContactUs = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 font-semibold mb-2">
+                      <label className="block text-gray-700 font-semibold mb-1">
                         Email*
                       </label>
                       <input
@@ -298,7 +300,7 @@ const ContactUs = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 font-semibold mb-2">
+                      <label className="block text-gray-700 font-semibold mb-1">
                         Phone Number
                       </label>
                       <input
@@ -311,9 +313,8 @@ const ContactUs = () => {
                       />
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-2">
+                    <label className="block text-gray-700 font-semibold mb-1">
                       Subject*
                     </label>
                     <input
@@ -326,9 +327,8 @@ const ContactUs = () => {
                       disabled={isSubmitting}
                     />
                   </div>
-
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-2">
+                    <label className="block text-gray-700 font-semibold mb-1">
                       Message*
                     </label>
                     <textarea
@@ -341,7 +341,6 @@ const ContactUs = () => {
                       disabled={isSubmitting}
                     ></textarea>
                   </div>
-
                   <div className="flex justify-center">
                     <button
                       type="submit"

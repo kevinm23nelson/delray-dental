@@ -1,42 +1,12 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useRef, useEffect, ReactNode } from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
 import WhiteArrowCircleIcon from "@/components/shared/WhiteArrowCircleIcon";
 import { motion, useInView } from "framer-motion";
 
-interface AnimatedSubmenuProps {
-  isOpen: boolean;
-  children: ReactNode;
-}
-
-const AnimatedSubmenu: React.FC<AnimatedSubmenuProps> = ({
-  isOpen,
-  children,
-}) => {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>(0);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      const contentHeight = contentRef.current.scrollHeight;
-      setHeight(isOpen ? contentHeight : 0);
-    }
-  }, [isOpen, children]);
-
-  return (
-    <div
-      className="overflow-hidden transition-all duration-300 ease-in-out"
-      style={{ height }}
-    >
-      <div ref={contentRef}>{children}</div>
-    </div>
-  );
-};
-
-// Type for AnimatedContent props
 interface AnimatedContentProps {
   children: ReactNode;
   direction?: "left" | "right";
@@ -80,15 +50,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   );
 };
 
-type SectionName = "commonlyFound" | "prevention" | null;
-
 const DentalImplant = () => {
-  const [expandedSection, setExpandedSection] = useState<SectionName>(null);
-
-  const toggleSection = (sectionName: Exclude<SectionName, null>) => {
-    setExpandedSection(expandedSection === sectionName ? null : sectionName);
-  };
-
   const instructions = [
     {
       title: "Step 1:",
@@ -109,31 +71,31 @@ const DentalImplant = () => {
 
   return (
     <div className="min-h-screen">
-     {/* Hero Banner Section */}
-<div className="relative h-[400px] w-full"> {/* Reduced from 500px to 450px */}
-  <div className="absolute inset-0">
-    <Image
-      src="/images/backgrounds/patient-resources.jpg"
-      alt="Dental Office"
-      fill
-      className="object-cover"
-      priority
-    />
-    <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
-  </div>
-  <div className="relative h-full flex flex-col items-center justify-center space-y-6">
-    <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
-      {/* Reduced from text-5xl md:text-6xl to text-4xl md:text-5xl */}
-      Invisalign in Delray Beach, Florida
-    </h1>
-    <Link
-      href="/"
-      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
-    >
-      Appointments
-    </Link>
-  </div>
-</div>
+      {/* Hero Banner Section */}
+      <div className="relative h-[400px] w-full">
+        {" "}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/backgrounds/patient-resources.jpg"
+            alt="Dental Office"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
+        </div>
+        <div className="relative h-full flex flex-col items-center justify-center space-y-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4 drop-shadow-lg">
+            Invisalign in Delray Beach, Florida
+          </h1>
+          <Link
+            href="/"
+            className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
+          >
+            Appointments
+          </Link>
+        </div>
+      </div>
 
       {/* Main Content Sections */}
       <section className="bg-sky-500 pt-12">
@@ -148,12 +110,13 @@ const DentalImplant = () => {
                       <WhiteArrowCircleIcon />
                     </div>
                     <p className="text-lg leading-relaxed">
-                      We've partnered with Evenly Orthodontics to offer
+                      We&apos;ve partnered with Evenly Orthodontics to offer
                       Invisalign -{" "}
                       <span className="font-bold">
-                        the world's most advanced clear aligner system. With
-                        over twelve million successful cases, Invisalign is the
-                        world's leading provider of healthy, beautiful smiles.
+                        the world&apos;s most advanced clear aligner system.
+                        With over twelve million successful cases, Invisalign is
+                        the world&apos;s leading provider of healthy, beautiful
+                        smiles.
                       </span>{" "}
                       To discuss Invisalign in the Delray Beach, FL area please
                       feel free to schedule your{" "}
@@ -202,7 +165,6 @@ const DentalImplant = () => {
                         Why choose Evenly for Invisalign?
                       </h2>
 
-                      {/* Adjusted layout for each item */}
                       <div className="flex gap-4 items-start">
                         <div className="flex-shrink-0">
                           <ArrowCircleIcon />
@@ -227,7 +189,7 @@ const DentalImplant = () => {
                             <span className="font-bold">
                               Teeth straightening experts -
                             </span>{" "}
-                            Evenly's expert Orthodontists supervise every
+                            Evenly&apos;s expert Orthodontists supervise every
                             treatment.
                           </p>
                         </div>
@@ -337,12 +299,12 @@ const DentalImplant = () => {
                   </span>
                   <span> </span>
                   consultation and see just how quickly you can achieve the
-                  smile you've always wanted!
+                  smile you&apos;ve always wanted!
                 </p>
                 <Link
                   href="https://www.evenly.com//pages/evenly-orthodontics-delray-dental-ritota-ritota-p-a"
                   target="_blank"
-                  className="inline-flex items-center px-8 py-3 bg-white hover:bg-gray-200 text-sky-500 text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
+                  className="inline-flex items-center px-8 py-3 bg-white hover:bg-gray-100 text-sky-500 text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out"
                 >
                   Book Invisalign Appointment Here
                 </Link>

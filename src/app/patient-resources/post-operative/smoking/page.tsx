@@ -12,13 +12,16 @@ import BackToTop from "@/components/shared/BackToTop";
 interface AnimatedContentProps {
   children: ReactNode;
   direction?: "left" | "right";
-  isOpen?: boolean
+  isOpen?: boolean;
 }
 
-const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
-  const contentRef = useRef(null);
+const AnimatedContent: React.FC<AnimatedContentProps> = ({
+  children,
+  direction = "right",
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(contentRef, {
-    once: false,
+    once: true,
     margin: "-100px",
     amount: 0.3,
   });
@@ -120,16 +123,7 @@ const Smoking = () => {
         "Smoking turns your teeth yellow by leaving sticky tar deposits which can also cause brown stains.",
     },
     {
-      content: "Your fingernails turn yellow",
-    },
-    {
-      content: "Bad breath",
-    },
-    {
-      content: "Second hand smoke harms those around you",
-    },
-    {
-      content: "Smoker’s palate (red inflammation of roof of the your mouth).",
+      content: "Second hand smoke harms those around you.",
     },
     {
       content:
@@ -151,10 +145,7 @@ const Smoking = () => {
 
   const instructionTwo = [
     {
-      content: "Smoking can cause a black hairy tongue.",
-    },
-    {
-      content: "Frequent tobacco smoking leads to oral lesions.",
+      content: "Smoking can cause a black hairy tongue and loss of taste.",
     },
     {
       content:
@@ -169,14 +160,7 @@ const Smoking = () => {
         "Smokeless tobacco use leads to generalized early-onset periodontitis (gum disease) and an increased risk for oral cancer.",
     },
     {
-      content: "Loss of taste.",
-    },
-    {
       content: "Less success with periodontal treatment and dental implants.",
-    },
-    {
-      content:
-        "Tobacco use reduces the delivery of oxygen and nutrients to gingival tissue.",
     },
     {
       content:
@@ -313,7 +297,7 @@ const Smoking = () => {
                   </AnimatedSubmenu>
                 </div>
               </AnimatedContent>
-              <div className="w-full h-px bg-gray-200" /> {/* Divider */}
+
               {/* Second Consequences Section */}
               <AnimatedContent>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -351,7 +335,7 @@ const Smoking = () => {
                   </AnimatedSubmenu>
                 </div>
               </AnimatedContent>
-              <div className="w-full h-px bg-gray-200" /> {/* Divider */}
+
               {/* What Can You Do Section */}
               <AnimatedContent>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -393,7 +377,7 @@ const Smoking = () => {
                   </AnimatedSubmenu>
                 </div>
               </AnimatedContent>
-              <div className="w-full h-px bg-gray-200" /> {/* Divider */}
+
               {/* Oral Self Care Section */}
               <AnimatedContent>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -441,55 +425,53 @@ const Smoking = () => {
                 </div>
               </AnimatedContent>
             </div>
-            <div className="w-full h-px bg-gray-200 my-12" />{" "}
-            {/* Final Divider */}
             {/* Bottom Informational Section */}
             <AnimatedContent>
               <div className="text-left mt-6 mb-12">
-                {/* First section with links */}
+                {/* Resources section */}
                 <div className="bg-white rounded-lg p-6 mb-8">
-                  <p className="text-xl text-gray-600 mb-4">
-                    For more information on smoking and dental health visit the{" "}
-                    <Link
-                      href="https://www.ada.org/"
-                      target="_blank"
-                      className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                    >
-                      American Dental Association
-                    </Link>
-                    .
-                  </p>
-                  <p className="text-xl text-gray-600 mb-4">
-                    Also see:{" "}
-                    <Link
-                      href="https://www.perio.org/for-patients/gum-disease-information/gum-disease-risk-factors/"
-                      target="_blank"
-                      className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                    >
-                      Tobacco Use and Periodontal Disease
-                    </Link>
-                  </p>
-                  <div className="space-y-2">
-                    <p className="text-xl text-gray-600 font-semibold">
-                      Progression of periodontal disease Smoking can lead to
-                      periodontal disease!
-                    </p>
-                    <p className="text-xl text-gray-600 font-semibold">
-                      Smokers are at risk for periodontal disease FOUR TIMES
-                      more than nonsmokers!
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                      To learn more about the negative consequences of smoking
+                      and dental health, visit these resources:
+                    </h3>
+                    <ul className="space-y-3">
+                      <li>
+                        <Link
+                          href="https://www.ada.org/"
+                          target="_blank"
+                          className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                        >
+                          American Dental Association
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="https://www.perio.org/for-patients/gum-disease-information/gum-disease-risk-factors/"
+                          target="_blank"
+                          className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                        >
+                          Tobacco Use and Periodontal Disease
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="https://www.healthcentral.com/"
+                          target="_blank"
+                          className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
+                        >
+                          HealthCentral.com
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                    <p className="text-xl text-gray-800 font-semibold">
+                      Smokers are more than FOUR TIMES more likely to develop
+                      periodontal disease than nonsmokers!
                     </p>
                   </div>
-                  <p className="text-xl text-gray-600 mt-4">
-                    Visit{" "}
-                    <Link
-                      href="https://www.healthcentral.com/"
-                      target="_blank"
-                      className="text-sky-500 hover:text-sky-600 transition-colors font-semibold"
-                    >
-                      HealthCentral.com
-                    </Link>{" "}
-                    to learn more.
-                  </p>
                 </div>
 
                 {/* Existing content */}
@@ -520,11 +502,10 @@ const Smoking = () => {
                   specific questions are urged to contact your family
                   dental/health care provider for appropriate care. This site is
                   privately and personally sponsored, funded and supported by
-                  Drs. John P. & Theodore C. Ritota We have no outside funding.
-                  Confidentiality of data including your identity, is respected
-                  by this Web site. We undertake to honor or exceed the legal
-                  requirements of medical/health information privacy that apply
-                  in Florida.
+                  Dr. John Ritota. We have no outside funding. Confidentiality
+                  of data including your identity, is respected by this Web
+                  site. We undertake to honor or exceed the legal requirements
+                  of medical/health information privacy that apply in Florida.
                 </p>
               </div>
               <div className="flex justify-center gap-4 mt-8">

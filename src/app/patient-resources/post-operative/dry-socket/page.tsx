@@ -35,13 +35,13 @@ const AnimatedSubmenu = ({ isOpen, children }: AnimatedContentProps) => {
   );
 };
 
-const AnimatedContent = ({
+const AnimatedContent: React.FC<AnimatedContentProps> = ({
   children,
   direction = "right",
-}: AnimatedContentProps) => {
-  const contentRef = useRef(null);
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(contentRef, {
-    once: false,
+    once: true,  // Changed from false to true
     margin: "-100px",
     amount: 0.3,
   });

@@ -49,7 +49,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(contentRef, {
-    once: false,
+    once: true,  // Changed from false to true
     margin: "-100px",
     amount: 0.3,
   });
@@ -230,8 +230,8 @@ const DentalImplant = () => {
                 <Image
                   src="/images/services/implantImage.webp"
                   alt="Tooth Implant"
-                  width={500}
-                  height={600}
+                  width={400}
+                  height={500}
                   className="rounded-xl shadow-xl mx-auto"
                 />
               </AnimatedContent>
@@ -282,7 +282,7 @@ const DentalImplant = () => {
       </section>
 
       {/* Instructions Sections */}
-      <section className="bg-gray-100 py-12">
+      <section className="bg-gray-100 py-10">
         <Container>
           <div className="max-w-4xl mx-auto space-y-6">
             <AnimatedContent direction="right">
@@ -381,38 +381,38 @@ const DentalImplant = () => {
               </AnimatedContent>
             </div>
           </div>
-          {/* View All Services Button */}
-          <section className="bg-gray-100 py-16">
-            <Container className="px-6 lg:px-8">
-              <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-xl">
-                <div className="text-center space-y-8">
-                  <h2 className="text-3xl font-bold text-gray-900">
-                    Check out our other great dental services
-                  </h2>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <Link
-                      href="/services"
-                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
-                    >
-                      All Services
-                    </Link>
-                    <Link
-                      href="/services/teeth-whitening"
-                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
-                    >
-                      Whitening
-                    </Link>
-                    <Link
-                      href="/services/invisalign"
-                      className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
-                    >
-                      Invisalign
-                    </Link>
-                  </div>
-                </div>
+        </Container>
+      </section>
+      {/* View All Services Button */}
+      <section className="bg-gray-100 py-8 pb-16">
+        <Container className="px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white p-8 lg:p-10 rounded-xl">
+            <div className="text-center space-y-8">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Check out our other great dental services
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                  href="/services"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  All Services
+                </Link>
+                <Link
+                  href="/services/teeth-whitening"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  Whitening
+                </Link>
+                <Link
+                  href="/services/invisalign"
+                  className="inline-flex items-center px-8 py-3 bg-sky-500 hover:bg-sky-600 text-white text-lg font-semibold rounded-lg shadow-lg transition-colors duration-200 ease-in-out w-full sm:w-auto justify-center"
+                >
+                  Invisalign
+                </Link>
               </div>
-            </Container>
-          </section>
+            </div>
+          </div>
         </Container>
       </section>
     </div>
