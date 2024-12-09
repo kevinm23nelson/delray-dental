@@ -50,23 +50,6 @@ const AnimatedContent = ({
 };
 
 const TeethWhitening = () => {
-  const instructions = [
-    {
-      title: "Internet Special:",
-      content:
-        "New price, only $350.00 for bleaching/whitening tooth take-home kit.",
-    },
-  ];
-
-  const instructionsTwo = [
-    {
-      title: "In-Office Special:",
-      content: "`Brighten Up Your Smile` - Regularly $550",
-      detail:
-        "We charge $350 for one session or $500 for two or more in-office whitenings.",
-    },
-  ];
-
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
