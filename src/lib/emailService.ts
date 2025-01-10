@@ -1,15 +1,5 @@
 // src/lib/emailService.ts
-import { EmailJSResponseStatus } from "@emailjs/browser";
-
-// Only import emailjs on the client side
-let emailjs: typeof import("@emailjs/browser") | null = null;
-
-if (typeof window !== "undefined") {
-  import("@emailjs/browser").then((module) => {
-    emailjs = module;
-    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
-  });
-}
+import emailjs from "@emailjs/browser";
 
 interface AppointmentEmailData {
   patientName: string;
@@ -32,11 +22,7 @@ interface ContactFormData {
 }
 
 export const emailService = {
-  async sendContactFormEmail(data: ContactFormData): Promise<EmailJSResponseStatus> {
-    if (!emailjs) {
-      throw new Error("EmailJS not initialized");
-    }
-
+  async sendContactFormEmail(data: ContactFormData) {
     try {
       return await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
@@ -48,7 +34,8 @@ export const emailService = {
           phone: data.phone || "Not provided",
           subject: data.subject,
           message: data.message,
-        }
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
     } catch (error) {
       console.error("Failed to send contact form email:", error);
@@ -56,39 +43,76 @@ export const emailService = {
     }
   },
 
-  async sendAppointmentEmail(data: AppointmentEmailData): Promise<EmailJSResponseStatus> {
-    if (!emailjs) {
-      throw new Error("EmailJS not initialized");
-    }
-
+  async sendAppointmentEmail(data: AppointmentEmailData) {
     try {
-      const formattedDate = new Date(data.startTime).toLocaleDateString();
-      const formattedStartTime = new Date(data.startTime).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      const formattedEndTime = new Date(data.endTime).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-      return await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_APPOINTMENT_TEMPLATE_ID!,
+      // Format the appointment date
+      const formattedDate = new Date(data.startTime).toLocaleDateString(
+        "en-US",
         {
-          to_email: "delraydental.notifications@gmail.com",
-          patient_name: data.patientName,
-          patient_email: data.patientEmail,
-          patient_phone: data.patientPhone,
-          appointment_type: data.appointmentType,
-          practitioner_name: data.practitionerName,
-          appointment_date: formattedDate,
-          appointment_time: `${formattedStartTime} - ${formattedEndTime}`,
-          notes: data.notes || "No additional notes",
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         }
       );
+
+      // Format the appointment time
+      const formattedTime = new Date(data.startTime).toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }
+      );
+
+      // Create the email content exactly matching the template structure
+      const emailContent = `New Appointment Request
+
+Patient Details:
+Name: ${data.patientName}
+Email: ${data.patientEmail}
+Phone: ${data.patientPhone}
+
+Appointment Details:
+Type: ${data.appointmentType}
+Date: ${formattedDate}
+Time: ${formattedTime}
+Practitioner: ${data.practitionerName}
+
+Additional Notes:
+${data.notes || "No additional notes"}
+
+---
+This appointment was booked through the Delray Dental Arts website.`;
+
+      const templateParams = {
+        patient_name: data.patientName,
+        patient_email: data.patientEmail,
+        patient_phone: data.patientPhone,
+        appointment_type: data.appointmentType,
+        appointment_date: formattedDate,
+        appointment_time: formattedTime,
+        practitioner_name: data.practitionerName,
+        notes: data.notes || "No additional notes",
+        message: emailContent, // Add the full message content
+        subject: `New Appointment Request from ${data.patientName}`,
+      };
+
+      console.log("Sending appointment email with params:", templateParams);
+
+      const result = await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_APPOINTMENT_TEMPLATE_ID!,
+        templateParams,
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      );
+
+      console.log("Appointment email sent successfully:", result);
+      return result;
     } catch (error) {
       console.error("Failed to send appointment email:", error);
+      console.error("Error details:", error);
       throw error;
     }
   },
