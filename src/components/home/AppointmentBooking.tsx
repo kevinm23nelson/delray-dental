@@ -136,7 +136,7 @@ export default function AppointmentBooking() {
     );
   }
   return (
-    <div className="w-full bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="w-full p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="lg:flex lg:gap-8 lg:items-start">
           {/* Left Column - Appointment Types */}
@@ -197,7 +197,7 @@ export default function AppointmentBooking() {
           </div>
 
           {/* Right Column - Calendar */}
-          <div className="lg:flex-1">
+          <div className="lg:flex-1 pt-5">
             <AnimatedContent>
               <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4">
                 {" "}
