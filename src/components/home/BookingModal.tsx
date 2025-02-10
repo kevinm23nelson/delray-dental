@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
+import { emailService } from "@/lib/emailService";
 
 interface TimeSlot {
   startTime: string;
@@ -47,7 +48,6 @@ export default function BookingModal({
   onClose,
   selectedDate,
   appointmentType,
-  onBookAppointment,
 }: BookingModalProps) {
   const [step, setStep] = useState<"time-selection" | "details">(
     "time-selection"
@@ -102,21 +102,70 @@ export default function BookingModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSlot) return;
-  
+
     setIsSubmitting(true);
     try {
-      await onBookAppointment({
+      console.log("Starting appointment booking process...");
+
+      // First, create the appointment
+      console.log("Sending appointment data:", {
         ...formData,
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
       });
-  
-      onClose();
+
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          startTime: selectedSlot.startTime,
+          endTime: selectedSlot.endTime,
+          practitionerId: selectedSlot.practitionerId,
+          appointmentTypeId: appointmentType.id,
+        }),
+      });
+
+      const result = await response.json();
+      console.log("Appointment creation response:", result);
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to book appointment");
+      }
+
+      // Then, send the email notification
+      try {
+        console.log("Attempting to send email notification...");
+        await emailService.sendAppointmentEmail({
+          patientName: formData.name,
+          patientEmail: formData.email,
+          patientPhone: formData.phone,
+          appointmentType: appointmentType.name,
+          practitionerName: selectedSlot.practitionerName,
+          startTime: new Date(selectedSlot.startTime),
+          endTime: new Date(selectedSlot.endTime),
+          notes: formData.notes,
+        });
+        console.log("Email notification sent successfully");
+        toast.success("Appointment booked and confirmation email sent!");
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        // Still proceed since the appointment was created successfully
+        toast.success(
+          "Appointment booked successfully! (Email notification failed)"
+        );
+      } finally {
+        onClose();
+      }
     } catch (error) {
       console.error("Booking error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to book appointment");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to book appointment"
+      );
     } finally {
       setIsSubmitting(false);
     }
