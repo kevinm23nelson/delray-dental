@@ -48,7 +48,6 @@ export default function BookingModal({
   onClose,
   selectedDate,
   appointmentType,
-  onBookAppointment,
 }: BookingModalProps) {
   const [step, setStep] = useState<"time-selection" | "details">(
     "time-selection"
