@@ -14,7 +14,7 @@ interface AnimatedContentProps {
 const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
   const contentRef = useRef(null);
   const isInView = useInView(contentRef, {
-    once: false,
+    once: true, // Change this to true so it only animates once
     margin: "-100px",
     amount: 0.3,
   });
@@ -45,7 +45,6 @@ const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps
     </motion.div>
   );
 };
-
 interface VideoTestimonial {
   id: string;
   title: string;
