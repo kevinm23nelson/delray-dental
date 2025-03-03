@@ -124,113 +124,120 @@ const VideoTestimonials = () => {
       <section className="w-full bg-gray-100 py-8 sm:py-16">
         <Container>
           <div className="w-full max-w-6xl mx-auto px-4">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
-                Check Out What Our Patients Say
-              </h2>
-              <p className="text-base sm:text-xl text-gray-600">
-                Watch our patient testimonials
-              </p>
-            </div>
+            <AnimatedContent>
+              <div className="text-center mb-8 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
+                  Check Out What Our Patients Say
+                </h2>
+                <p className="text-base sm:text-xl text-gray-600">
+                  Watch our patient testimonials
+                </p>
+              </div>
+            </AnimatedContent>
 
             {/* Two-section layout */}
-            <div className="space-y-8">
-              {/* Featured Short Section */}
-              <div className="max-w-xs mx-auto">
-                {videoTestimonials
-                  .filter((video) => video.isShort)
-                  .map((video) => (
-                    <div key={video.id} className="group relative">
-                      <div className="relative aspect-[9/16] rounded-xl overflow-hidden shadow-lg bg-gray-200">
-                        <Image
-                          src={video.thumbnail}
-                          alt={video.title}
-                          fill
-                          sizes="(max-width: 640px) 80vw, 320px"
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40" />
-                        <button
-                          onClick={() => setActiveVideo(video.id)}
-                          className="absolute inset-0 flex items-center justify-center"
-                        >
-                          <div className="w-12 h-12 flex items-center justify-center rounded-full bg-sky-500 text-white">
-                            <Play size={24} fill="white" />
-                          </div>
-                        </button>
-                        <Link
-                          href={`https://www.youtube.com/watch?v=${video.id}`}
-                          target="_blank"
-                          className="absolute bottom-2 right-2 p-1.5 bg-white/90 rounded-lg shadow-md flex items-center gap-1 text-xs font-medium text-gray-700"
-                        >
-                          <ExternalLink size={14} />
-                          <span>Watch</span>
-                        </Link>
+            <AnimatedContent>
+              <div className="space-y-8">
+                {/* Featured Short Section */}
+                <div className="max-w-xs mx-auto">
+                  {videoTestimonials
+                    .filter((video) => video.isShort)
+                    .map((video) => (
+                      <div key={video.id} className="group relative">
+                        <div className="relative aspect-[9/16] rounded-xl overflow-hidden shadow-lg bg-gray-200">
+                          <Image
+                            src={video.thumbnail}
+                            alt={video.title}
+                            fill
+                            sizes="(max-width: 640px) 80vw, 320px"
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40" />
+                          <button
+                            onClick={() => setActiveVideo(video.id)}
+                            className="absolute inset-0 flex items-center justify-center"
+                          >
+                            <div className="w-12 h-12 flex items-center justify-center rounded-full bg-sky-500 text-white">
+                              <Play size={24} fill="white" />
+                            </div>
+                          </button>
+                          <Link
+                            href={`https://www.youtube.com/watch?v=${video.id}`}
+                            target="_blank"
+                            className="absolute bottom-2 right-2 p-1.5 bg-white/90 rounded-lg shadow-md flex items-center gap-1 text-xs font-medium text-gray-700"
+                          >
+                            <ExternalLink size={14} />
+                            <span>Watch</span>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-              </div>
+                    ))}
+                </div>
 
-              {/* Regular Videos Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {videoTestimonials
-                  .filter((video) => !video.isShort)
-                  .map((video) => (
-                    <div key={video.id} className="group relative">
-                      <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-200">
-                        <Image
-                          src={video.thumbnail}
-                          alt={video.title}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40" />
-                        <button
-                          onClick={() => setActiveVideo(video.id)}
-                          className="absolute inset-0 flex items-center justify-center"
-                        >
-                          <div className="w-12 h-12 flex items-center justify-center rounded-full bg-sky-500 text-white">
-                            <Play size={24} fill="white" />
-                          </div>
-                        </button>
-                        <Link
-                          href={`https://www.youtube.com/watch?v=${video.id}`}
-                          target="_blank"
-                          className="absolute bottom-2 right-2 p-1.5 bg-white/90 rounded-lg shadow-md flex items-center gap-1 text-xs font-medium text-gray-700"
-                        >
-                          <ExternalLink size={14} />
-                          <span>YouTube</span>
-                        </Link>
+                {/* Regular Videos Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {videoTestimonials
+                    .filter((video) => !video.isShort)
+                    .map((video) => (
+                      <div key={video.id} className="group relative">
+                        <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-200">
+                          <Image
+                            src={video.thumbnail}
+                            alt={video.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40" />
+                          <button
+                            onClick={() => setActiveVideo(video.id)}
+                            className="absolute inset-0 flex items-center justify-center"
+                          >
+                            <div className="w-12 h-12 flex items-center justify-center rounded-full bg-sky-500 text-white">
+                              <Play size={24} fill="white" />
+                            </div>
+                          </button>
+                          <Link
+                            href={`https://www.youtube.com/watch?v=${video.id}`}
+                            target="_blank"
+                            className="absolute bottom-2 right-2 p-1.5 bg-white/90 rounded-lg shadow-md flex items-center gap-1 text-xs font-medium text-gray-700"
+                          >
+                            <ExternalLink size={14} />
+                            <span>YouTube</span>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                </div>
               </div>
-            </div>
+            </AnimatedContent>
 
             {/* Bottom Section */}
-            <div className="mt-8 sm:mt-16 text-center">
-              <p className="text-base sm:text-lg text-gray-600">
-                Want to share your experience? We'd love to hear from you!
-              </p>
-              <Link
-                href="/contact"
-                className="mt-4 inline-flex items-center px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg shadow-sm"
-              >
-                Contact Us
-              </Link>
-            </div>
+            <AnimatedContent>
+              <div className="mt-8 sm:mt-16 text-center">
+                <p className="text-base sm:text-lg text-gray-600">
+                  Want to share your experience? We&apos;d love to hear from
+                  you!
+                </p>
+                <Link
+                  href="/contact"
+                  className="mt-4 inline-flex items-center px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg shadow-sm"
+                >
+                  Contact Us
+                </Link>
+              </div>
+            </AnimatedContent>
           </div>
         </Container>
       </section>
 
       {/* Video Modal */}
       {activeVideo && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 z-50 p-4 flex items-center justify-center"
           onClick={() => setActiveVideo(null)}
         >
-          <div 
+          <div
             className={`relative w-full ${
               videoTestimonials.find((v) => v.id === activeVideo)?.isShort
                 ? "max-w-[280px]"
