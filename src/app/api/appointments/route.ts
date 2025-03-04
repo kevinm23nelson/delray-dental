@@ -1,7 +1,7 @@
 // src/app/api/appointments/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { parseISO, subHours } from "date-fns";
+import { parseISO } from "date-fns";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
@@ -11,31 +11,25 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Parse the input times and adjust them back by 5 hours
-    // This is because the frontend artificially added 5 hours to make them display correctly
-    const startTimeDisplay = parseISO(body.startTime);
-    const endTimeDisplay = parseISO(body.endTime);
-    
-    // Subtract 5 hours to get the actual Eastern Time that was intended
-    const startTimeActual = subHours(startTimeDisplay, 5);
-    const endTimeActual = subHours(endTimeDisplay, 5);
+    // Parse the input times - these now come in already adjusted
+    // No need to subtract hours, as they're already in the correct display format for ET
+    const startTime = parseISO(body.startTime);
+    const endTime = parseISO(body.endTime);
     
     console.log("Booking appointment:", {
-      displayStartTime: startTimeDisplay.toISOString(),
-      displayEndTime: endTimeDisplay.toISOString(),
-      actualStartTime: startTimeActual.toISOString(),
-      actualEndTime: endTimeActual.toISOString()
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
     });
 
-    // Create the appointment with the actual times
+    // Create the appointment with the parsed times
     const appointment = await prisma.appointment.create({
       data: {
         patientName: body.name,
         patientEmail: body.email,
         patientPhone: body.phone,
         notes: body.notes,
-        startTime: startTimeActual,
-        endTime: endTimeActual,
+        startTime: startTime,
+        endTime: endTime,
         practitionerId: body.practitionerId,
         typeId: body.appointmentTypeId,
         status: "SCHEDULED",
