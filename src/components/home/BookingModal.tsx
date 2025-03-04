@@ -1,3 +1,4 @@
+// src/app/components/BookingModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -33,7 +34,7 @@ interface BookingModalProps {
     duration: number;
     description?: string;
   };
-  onBookAppointment: (
+  onBookAppointment?: (
     data: BookingFormData & {
       startTime: string;
       endTime: string;
@@ -48,6 +49,7 @@ export default function BookingModal({
   onClose,
   selectedDate,
   appointmentType,
+  onBookAppointment,
 }: BookingModalProps) {
   const [step, setStep] = useState<"time-selection" | "details">(
     "time-selection"
@@ -62,6 +64,9 @@ export default function BookingModal({
     phone: "",
     notes: "",
   });
+
+  // Get client timezone
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   useEffect(() => {
     async function fetchAvailableSlots() {
@@ -107,60 +112,60 @@ export default function BookingModal({
     try {
       console.log("Starting appointment booking process...");
 
-      // First, create the appointment
-      console.log("Sending appointment data:", {
+      // Create the appointment
+      const appointmentData = {
         ...formData,
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
-      });
+      };
 
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          startTime: selectedSlot.startTime,
-          endTime: selectedSlot.endTime,
-          practitionerId: selectedSlot.practitionerId,
-          appointmentTypeId: appointmentType.id,
-        }),
-      });
+      console.log("Sending appointment data:", appointmentData);
 
-      const result = await response.json();
-      console.log("Appointment creation response:", result);
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to book appointment");
-      }
-
-      // Then, send the email notification
-      try {
-        console.log("Attempting to send email notification...");
-        await emailService.sendAppointmentEmail({
-          patientName: formData.name,
-          patientEmail: formData.email,
-          patientPhone: formData.phone,
-          appointmentType: appointmentType.name,
-          practitionerName: selectedSlot.practitionerName,
-          startTime: new Date(selectedSlot.startTime),
-          endTime: new Date(selectedSlot.endTime),
-          notes: formData.notes,
+      if (onBookAppointment) {
+        await onBookAppointment(appointmentData);
+      } else {
+        const response = await fetch("/api/appointments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(appointmentData),
         });
-        console.log("Email notification sent successfully");
-        toast.success("Appointment booked and confirmation email sent!");
-      } catch (emailError) {
-        console.error("Failed to send email notification:", emailError);
-        // Still proceed since the appointment was created successfully
-        toast.success(
-          "Appointment booked successfully! (Email notification failed)"
-        );
-      } finally {
-        onClose();
+
+        const result = await response.json();
+        console.log("Appointment creation response:", result);
+
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to book appointment");
+        }
+
+        // Send email notification
+        try {
+          console.log("Attempting to send email notification...");
+          await emailService.sendAppointmentEmail({
+            patientName: formData.name,
+            patientEmail: formData.email,
+            patientPhone: formData.phone,
+            appointmentType: appointmentType.name,
+            practitionerName: selectedSlot.practitionerName,
+            startTime: new Date(selectedSlot.startTime),
+            endTime: new Date(selectedSlot.endTime),
+            notes: formData.notes,
+          });
+          console.log("Email notification sent successfully");
+          toast.success("Appointment booked and confirmation email sent!");
+        } catch (emailError) {
+          console.error("Failed to send email notification:", emailError);
+          // Still proceed since the appointment was created successfully
+          toast.success(
+            "Appointment booked successfully! (Email notification failed)"
+          );
+        }
       }
+
+      onClose();
     } catch (error) {
       console.error("Booking error:", error);
       toast.error(
@@ -173,9 +178,8 @@ export default function BookingModal({
 
   // Function to format a date using the client's timezone
   const formatLocalTime = (dateString: string) => {
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const date = new Date(dateString);
-    console.log(`Formatting time: ${dateString} -> ${date.toLocaleTimeString()}`);
+    // Use formatInTimeZone to ensure proper timezone display
     return formatInTimeZone(date, timeZone, "h:mm a");
   };
 
