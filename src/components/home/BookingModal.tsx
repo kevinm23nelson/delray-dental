@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,8 +64,8 @@ export default function BookingModal({
     notes: "",
   });
 
-  // Get client timezone
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // Define the business timezone
+  const TIMEZONE = "America/New_York"; // Eastern Time
 
   useEffect(() => {
     async function fetchAvailableSlots() {
@@ -83,7 +82,13 @@ export default function BookingModal({
         const data = await response.json();
 
         console.log("Response status:", response.status);
-        console.log("Response data:", data);
+        
+        // Log the time slots in Eastern Time for debugging
+        console.log("Available slots in ET:", data.map((slot: TimeSlot) => ({
+          start: formatInTimeZone(new Date(slot.startTime), TIMEZONE, "h:mm a"),
+          end: formatInTimeZone(new Date(slot.endTime), TIMEZONE, "h:mm a"),
+          practitioner: slot.practitionerName
+        })));
 
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch available slots");
@@ -176,11 +181,11 @@ export default function BookingModal({
     }
   };
 
-  // Function to format a date using the client's timezone
+  // Function to format a date using Eastern Time for display
   const formatLocalTime = (dateString: string) => {
     const date = new Date(dateString);
-    // Use formatInTimeZone to ensure proper timezone display
-    return formatInTimeZone(date, timeZone, "h:mm a");
+    // Always display in Eastern Time for business consistency
+    return formatInTimeZone(date, TIMEZONE, "h:mm a");
   };
 
   return (
@@ -193,7 +198,7 @@ export default function BookingModal({
             <div>
               <h2 className="text-xl font-bold">Book {appointmentType.name}</h2>
               <p className="text-gray-600">
-                {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                {formatInTimeZone(selectedDate, TIMEZONE, "EEEE, MMMM d, yyyy")} (ET)
               </p>
             </div>
             <button
@@ -206,7 +211,7 @@ export default function BookingModal({
 
           {step === "time-selection" ? (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4">Select a Time</h3>
+              <h3 className="text-lg font-semibold mb-4">Select a Time (Eastern Time)</h3>
               {isLoading ? (
                 <div className="text-center py-8">
                   Loading available times...
@@ -245,7 +250,7 @@ export default function BookingModal({
           ) : (
             <>
               <div className="mb-6 bg-sky-50 p-4 rounded-lg">
-                <div className="text-sm text-gray-600">Selected Time:</div>
+                <div className="text-sm text-gray-600">Selected Time (ET):</div>
                 <div className="font-semibold">
                   {formatLocalTime(selectedSlot!.startTime)}{" "}
                   with {selectedSlot!.practitionerName}
