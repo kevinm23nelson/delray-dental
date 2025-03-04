@@ -2,30 +2,12 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
 import { addMinutes, parseISO, format } from "date-fns";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
-const TIMEZONE = 'America/New_York'; // Set this to your business timezone
 
 interface ExistingAppointment {
   startTime: Date;
   endTime: Date;
-}
-
-// Helper function to convert a zoned time to UTC
-function zonedTimeToUtc(date: Date, timeZone: string): Date {
-  // Create a date string in the target timezone
-  const dateString = formatInTimeZone(date, timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSS");
-  
-  // Parse it as if it was UTC (no timezone shift)
-  const localDate = new Date(dateString + 'Z');
-  
-  // Calculate timezone offset in minutes
-  const targetTzDate = toZonedTime(new Date(), timeZone);
-  const tzOffsetInMs = targetTzDate.getTimezoneOffset() * 60 * 1000;
-  
-  // Adjust for timezone offset
-  return new Date(localDate.getTime() - tzOffsetInMs);
 }
 
 export async function GET(request: Request) {
@@ -44,13 +26,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Parse the date parameter - this will be in client's timezone/UTC
     const date = parseISO(dateStr);
-    console.log("Parsed date parameter:", date.toISOString());
-    
-    // Convert to business timezone for consistent handling
-    const zonedDate = toZonedTime(date, TIMEZONE);
-    console.log("Date in business timezone:", formatInTimeZone(zonedDate, TIMEZONE, "yyyy-MM-dd HH:mm:ss"));
+    console.log("Parsed date:", date);
 
     const appointmentType = await prisma.appointmentType.findUnique({
       where: { id: appointmentTypeId },
@@ -64,8 +41,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const dayOfWeek = format(zonedDate, "EEEE").toUpperCase() as DayOfWeek;
-    console.log("Day of week:", dayOfWeek);
+    const dayOfWeek = format(date, "EEEE").toUpperCase() as DayOfWeek;
 
     const practitioners = await prisma.practitioner.findMany({
       where: {
@@ -84,18 +60,14 @@ export async function GET(request: Request) {
 
     console.log(`Found ${practitioners.length} practitioners`);
 
-    // Set up day boundaries in business timezone
-    const businessDateStr = format(zonedDate, "yyyy-MM-dd");
-    const startOfDay = parseISO(`${businessDateStr}T00:00:00`);
-    const endOfDay = parseISO(`${businessDateStr}T23:59:59.999`);
-    
-    // Convert to UTC for database queries
-    const utcStartOfDay = zonedTimeToUtc(startOfDay, TIMEZONE);
-    const utcEndOfDay = zonedTimeToUtc(endOfDay, TIMEZONE);
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
     console.log("Searching for appointments between:", {
-      startOfDay: utcStartOfDay.toISOString(),
-      endOfDay: utcEndOfDay.toISOString()
+      startOfDay: startOfDay.toISOString(),
+      endOfDay: endOfDay.toISOString()
     });
     
     const practitionerAppointments = new Map<string, ExistingAppointment[]>();
@@ -105,8 +77,8 @@ export async function GET(request: Request) {
         where: {
           practitionerId: practitioner.id,
           startTime: {
-            gte: utcStartOfDay,
-            lt: utcEndOfDay,
+            gte: startOfDay,
+            lt: endOfDay,
           },
           status: {
             in: [AppointmentStatus.PENDING, AppointmentStatus.SCHEDULED],
@@ -134,26 +106,34 @@ export async function GET(request: Request) {
         continue;
       }
 
-      // Create time objects based on practitioner schedule in business timezone
-      const scheduleStartTime = parseISO(`${businessDateStr}T${schedule.startTime}`);
-      const scheduleEndTime = parseISO(`${businessDateStr}T${schedule.endTime}`);
+      // Create date objects for the schedule start and end times
+      // These will be in local time, not adjusted for timezone
+      const startTime = parseISO(
+        `${format(date, "yyyy-MM-dd")}T${schedule.startTime}`
+      );
+      const endTime = parseISO(
+        `${format(date, "yyyy-MM-dd")}T${schedule.endTime}`
+      );
       
-      console.log(`Schedule for ${practitioner.name}:`, {
-        rawStartTime: schedule.startTime,
-        rawEndTime: schedule.endTime,
-        scheduleStartTime: formatInTimeZone(scheduleStartTime, TIMEZONE, "yyyy-MM-dd HH:mm:ss"),
-        scheduleEndTime: formatInTimeZone(scheduleEndTime, TIMEZONE, "yyyy-MM-dd HH:mm:ss")
+      console.log(`Schedule times for ${practitioner.name}:`, {
+        startTimeStr: schedule.startTime,
+        endTimeStr: schedule.endTime,
+        parsedStartTime: startTime.toISOString(),
+        parsedEndTime: endTime.toISOString()
       });
       
-      let currentSlotTime = scheduleStartTime;
-      const practitionerExistingAppointments = practitionerAppointments.get(practitioner.id) || [];
+      console.log(`Schedule for ${practitioner.name}:`, {
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
+      });
+      
+      let currentTime = startTime;
 
-      while (currentSlotTime < scheduleEndTime) {
-        const slotEndTime = addMinutes(currentSlotTime, appointmentType.duration);
-        
-        // Convert current slot time to UTC for comparison with database appointments
-        const currentSlotTimeUTC = zonedTimeToUtc(currentSlotTime, TIMEZONE);
-        const slotEndTimeUTC = zonedTimeToUtc(slotEndTime, TIMEZONE);
+      const practitionerExistingAppointments =
+        practitionerAppointments.get(practitioner.id) || [];
+
+      while (currentTime < endTime) {
+        const slotEndTime = addMinutes(currentTime, appointmentType.duration);
 
         const hasConflict = practitionerExistingAppointments.some(
           (appt: ExistingAppointment) => {
@@ -161,45 +141,37 @@ export async function GET(request: Request) {
             const apptEnd = new Date(appt.endTime);
             
             const conflict = (
-              (currentSlotTimeUTC >= apptStart && currentSlotTimeUTC < apptEnd) ||
-              (slotEndTimeUTC > apptStart && slotEndTimeUTC <= apptEnd) ||
-              (currentSlotTimeUTC <= apptStart && slotEndTimeUTC >= apptEnd)
+              (currentTime >= apptStart && currentTime < apptEnd) ||
+              (slotEndTime > apptStart && slotEndTime <= apptEnd) ||
+              (currentTime <= apptStart && slotEndTime >= apptEnd)
             );
             
             if (conflict) {
-              console.log(`Conflict found for ${practitioner.name} at ${formatInTimeZone(currentSlotTime, TIMEZONE, "HH:mm")}`);
-              console.log(`  Slot: ${currentSlotTimeUTC.toISOString()} - ${slotEndTimeUTC.toISOString()}`);
-              console.log(`  Appt: ${apptStart.toISOString()} - ${apptEnd.toISOString()}`);
+              console.log(`Conflict found for ${practitioner.name} at ${currentTime.toISOString()}`);
             }
             
             return conflict;
           }
         );
 
-        // Check for lunch/break time
-        let isBreakTime = false;
-        if (schedule.breakStart && schedule.breakEnd) {
-          const breakStart = parseISO(`${businessDateStr}T${schedule.breakStart}`);
-          const breakEnd = parseISO(`${businessDateStr}T${schedule.breakEnd}`);
-          
-          isBreakTime = currentSlotTime >= breakStart && slotEndTime <= breakEnd;
-          
-          if (isBreakTime) {
-            console.log(`Break time for ${practitioner.name} at ${formatInTimeZone(currentSlotTime, TIMEZONE, "HH:mm")}`);
-          }
-        }
+        const isBreakTime =
+          schedule.breakStart &&
+          schedule.breakEnd &&
+          currentTime >=
+            parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.breakStart}`) &&
+          slotEndTime <=
+            parseISO(`${format(date, "yyyy-MM-dd")}T${schedule.breakEnd}`);
 
         if (!hasConflict && !isBreakTime) {
-          // Return times in UTC ISO format for the front-end
           availableSlots.push({
-            startTime: currentSlotTimeUTC.toISOString(),
-            endTime: slotEndTimeUTC.toISOString(),
+            startTime: currentTime.toISOString(),
+            endTime: slotEndTime.toISOString(),
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
           });
         }
 
-        currentSlotTime = addMinutes(currentSlotTime, appointmentType.duration);
+        currentTime = addMinutes(currentTime, appointmentType.duration);
       }
     }
 
