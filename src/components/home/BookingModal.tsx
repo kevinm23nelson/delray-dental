@@ -128,6 +128,38 @@ export default function BookingModal({
 
       console.log("Sending appointment data:", appointmentData);
 
+      // First, send the email notification to ensure it gets sent even if booking fails
+      try {
+        console.log("Attempting to send email notification...");
+        console.log("Email data:", {
+          patientName: formData.name,
+          patientEmail: formData.email,
+          patientPhone: formData.phone,
+          appointmentType: appointmentType.name,
+          practitionerName: selectedSlot.practitionerName,
+          startTime: new Date(selectedSlot.startTime).toISOString(),
+          endTime: new Date(selectedSlot.endTime).toISOString(),
+        });
+        
+        const emailResult = await emailService.sendAppointmentEmail({
+          patientName: formData.name,
+          patientEmail: formData.email,
+          patientPhone: formData.phone,
+          appointmentType: appointmentType.name,
+          practitionerName: selectedSlot.practitionerName,
+          startTime: new Date(selectedSlot.startTime),
+          endTime: new Date(selectedSlot.endTime),
+          notes: formData.notes,
+        });
+        
+        console.log("Email service response:", emailResult);
+        console.log("Email notification sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        console.error("Error details:", JSON.stringify(emailError));
+      }
+
+      // Now create the appointment in the database
       if (onBookAppointment) {
         await onBookAppointment(appointmentData);
       } else {
@@ -146,28 +178,7 @@ export default function BookingModal({
           throw new Error(result.error || "Failed to book appointment");
         }
 
-        // Send email notification
-        try {
-          console.log("Attempting to send email notification...");
-          await emailService.sendAppointmentEmail({
-            patientName: formData.name,
-            patientEmail: formData.email,
-            patientPhone: formData.phone,
-            appointmentType: appointmentType.name,
-            practitionerName: selectedSlot.practitionerName,
-            startTime: new Date(selectedSlot.startTime),
-            endTime: new Date(selectedSlot.endTime),
-            notes: formData.notes,
-          });
-          console.log("Email notification sent successfully");
-          toast.success("Appointment booked and confirmation email sent!");
-        } catch (emailError) {
-          console.error("Failed to send email notification:", emailError);
-          // Still proceed since the appointment was created successfully
-          toast.success(
-            "Appointment booked successfully! (Email notification failed)"
-          );
-        }
+        toast.success("Appointment booked successfully!");
       }
 
       onClose();
