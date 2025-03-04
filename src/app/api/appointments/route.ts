@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         endTime: endTime,
         practitionerId: body.practitionerId,
         typeId: body.appointmentTypeId,
-        status: "SCHEDULED",
+        status: "PENDING",
       },
       include: {
         appointmentType: true,
