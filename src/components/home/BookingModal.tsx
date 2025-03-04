@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, addHours } from "date-fns";
+import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,12 +42,6 @@ interface BookingModalProps {
       appointmentTypeId: string;
     }
   ) => Promise<void>;
-}
-
-// Helper function to adjust UTC times for display
-function adjustForTimezone(date: Date | string): Date {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return addHours(d, 5); // Add 5 hours to correct UTC offset
 }
 
 export default function BookingModal({
@@ -182,10 +176,11 @@ export default function BookingModal({
     }
   };
 
-  // Function to format a date using the client's timezone with adjustment
+  // Function to format a date using the client's timezone
   const formatLocalTime = (dateString: string) => {
-    const adjustedDate = adjustForTimezone(dateString);
-    return formatInTimeZone(adjustedDate, timeZone, "h:mm a");
+    const date = new Date(dateString);
+    // Use formatInTimeZone to ensure proper timezone display
+    return formatInTimeZone(date, timeZone, "h:mm a");
   };
 
   return (
