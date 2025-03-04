@@ -15,6 +15,7 @@ import {
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
 import { formatInTimeZone } from "date-fns-tz";
+import { addHours } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -26,6 +27,11 @@ interface AppointmentModalProps {
     notes?: string;
     status: AppointmentStatus;
   }) => Promise<void>;
+}
+
+function adjustForTimezone(date: Date | string): Date {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return addHours(d, 5); // Add 5 hours to correct UTC offset
 }
 
 export default function AppointmentModal({
@@ -52,25 +58,7 @@ export default function AppointmentModal({
     }
   }
 
-  // Get the user's timezone
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  // Format dates directly using formatInTimeZone without manual adjustments
-  const formatAppointmentDate = (date: Date | string) => {
-    return formatInTimeZone(
-      typeof date === "string" ? new Date(date) : date,
-      timeZone,
-      "EEEE, MMMM d, yyyy"
-    );
-  };
-
-  const formatAppointmentTime = (date: Date | string) => {
-    return formatInTimeZone(
-      typeof date === "string" ? new Date(date) : date,
-      timeZone,
-      "h:mm a"
-    );
-  };
 
   return (
     <div className="fixed inset-0 z-50">
@@ -82,9 +70,17 @@ export default function AppointmentModal({
             <div>
               <h2 className="text-xl font-bold">Appointment Details</h2>
               <p className="text-gray-600">
-                {formatAppointmentDate(appointment.startTime)}
+                {formatInTimeZone(
+                  adjustForTimezone(appointment.startTime),
+                  timeZone,
+                  "EEEE, MMMM d, yyyy"
+                )}
                 {" at "}
-                {formatAppointmentTime(appointment.startTime)}
+                {formatInTimeZone(
+                  adjustForTimezone(appointment.startTime),
+                  timeZone,
+                  "h:mm a"
+                )}
               </p>
             </div>
             <button
