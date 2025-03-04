@@ -1,6 +1,7 @@
+// src/app/api/available-slots/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
-import { addMinutes, parseISO, format, set } from "date-fns";
+import { addMinutes, parseISO, format } from "date-fns";
 
 const prisma = new PrismaClient();
 
@@ -9,21 +10,16 @@ interface ExistingAppointment {
   endTime: Date;
 }
 
-interface BusinessHoursValue {
-  [key: string]: {
-    isOpen: boolean;
-    startTime: string;
-    endTime: string;
-  };
-}
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get("date");
     const appointmentTypeId = searchParams.get("appointmentTypeId");
 
+    console.log("Query params:", { dateStr, appointmentTypeId });
+
     if (!dateStr || !appointmentTypeId) {
+      console.log("Missing required parameters");
       return NextResponse.json(
         { error: "Missing required parameters" },
         { status: 400 }
@@ -31,46 +27,22 @@ export async function GET(request: Request) {
     }
 
     const date = parseISO(dateStr);
-    const dayOfWeek = format(date, "EEEE").toUpperCase() as DayOfWeek;
+    console.log("Parsed date:", date);
 
-    // Get business hours
-    const businessHours = await prisma.officeSettings.findFirst({
-      where: {
-        name: "business_hours",
-        effectiveUntil: null,
-      },
-    });
-
-    if (!businessHours) {
-      return NextResponse.json(
-        { error: "Business hours not configured" },
-        { status: 400 }
-      );
-    }
-
-    const businessHoursData = businessHours.value as BusinessHoursValue;
-    const dayBusinessHours = businessHoursData[dayOfWeek];
-    console.log("=== Business Hours Debug ===");
-    console.log("Day of week:", dayOfWeek);
-    console.log("Business hours data:", businessHoursData);
-    console.log("Day business hours:", dayBusinessHours);
-    if (!dayBusinessHours?.isOpen) {
-      return NextResponse.json([]);
-    }
-
-    // Get appointment type
     const appointmentType = await prisma.appointmentType.findUnique({
       where: { id: appointmentTypeId },
     });
 
     if (!appointmentType) {
+      console.log("Appointment type not found:", appointmentTypeId);
       return NextResponse.json(
         { error: "Appointment type not found" },
         { status: 404 }
       );
     }
 
-    // Get practitioners and their schedules
+    const dayOfWeek = format(date, "EEEE").toUpperCase() as DayOfWeek;
+
     const practitioners = await prisma.practitioner.findMany({
       where: {
         isActive: true,
@@ -81,40 +53,23 @@ export async function GET(request: Request) {
           where: {
             dayOfWeek,
             isAvailable: true,
-            effectiveUntil: null,
           },
         },
       },
     });
 
-    // Set up the day boundaries based on business hours
-    const baseDate = new Date(date);
-    const [officeStartHour, officeStartMinute] = dayBusinessHours.startTime
-      .split(":")
-      .map(Number);
-    const [officeEndHour, officeEndMinute] = dayBusinessHours.endTime
-      .split(":")
-      .map(Number);
-    console.log("=== Office Hours Debug ===");
-    console.log("Office hours:", {
-      startTime: `${officeStartHour}:${officeStartMinute}`,
-      endTime: `${officeEndHour}:${officeEndMinute}`,
-    });
-    const officeStart = set(baseDate, {
-      hours: officeStartHour,
-      minutes: officeStartMinute,
-      seconds: 0,
-      milliseconds: 0,
-    });
+    console.log(`Found ${practitioners.length} practitioners`);
 
-    const officeEnd = set(baseDate, {
-      hours: officeEndHour,
-      minutes: officeEndMinute,
-      seconds: 0,
-      milliseconds: 0,
-    });
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
-    // Get existing appointments
+    console.log("Searching for appointments between:", {
+      startOfDay: startOfDay.toISOString(),
+      endOfDay: endOfDay.toISOString()
+    });
+    
     const practitionerAppointments = new Map<string, ExistingAppointment[]>();
 
     for (const practitioner of practitioners) {
@@ -122,8 +77,8 @@ export async function GET(request: Request) {
         where: {
           practitionerId: practitioner.id,
           startTime: {
-            gte: officeStart,
-            lt: officeEnd,
+            gte: startOfDay,
+            lt: endOfDay,
           },
           status: {
             in: [AppointmentStatus.PENDING, AppointmentStatus.SCHEDULED],
@@ -134,66 +89,59 @@ export async function GET(request: Request) {
           endTime: true,
         },
       });
+      
       practitionerAppointments.set(practitioner.id, appointments);
+      console.log(
+        `Found ${appointments.length} appointments for practitioner ${practitioner.name}:`,
+        appointments.map(a => ({startTime: a.startTime.toISOString(), endTime: a.endTime.toISOString()}))
+      );
     }
 
     const availableSlots = [];
 
     for (const practitioner of practitioners) {
       const schedule = practitioner.schedule[0];
-      if (!schedule) continue;
+      if (!schedule) {
+        console.log(`No schedule found for practitioner ${practitioner.name}`);
+        continue;
+      }
 
-      const [schedStartHour, schedStartMinute] = schedule.startTime
-        .split(":")
-        .map(Number);
-      const [schedEndHour, schedEndMinute] = schedule.endTime
-        .split(":")
-        .map(Number);
-
-      console.log("=== Practitioner Schedule Debug ===");
-      console.log("Practitioner:", {
-        name: practitioner.name,
-        scheduleStart: `${schedStartHour}:${schedStartMinute}`,
-        scheduleEnd: `${schedEndHour}:${schedEndMinute}`,
-        rawSchedule: schedule,
+      const startTime = parseISO(
+        `${format(date, "yyyy-MM-dd")}T${schedule.startTime}`
+      );
+      const endTime = parseISO(
+        `${format(date, "yyyy-MM-dd")}T${schedule.endTime}`
+      );
+      
+      console.log(`Schedule for ${practitioner.name}:`, {
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
       });
-      // Use the later start time between office hours and practitioner schedule
-      const startTime = set(baseDate, {
-        hours: Math.max(officeStartHour, schedStartHour),
-        minutes:
-          schedStartHour > officeStartHour
-            ? schedStartMinute
-            : officeStartMinute,
-        seconds: 0,
-        milliseconds: 0,
-      });
-
-      // Use the earlier end time between office hours and practitioner schedule
-      const endTime = set(baseDate, {
-        hours: Math.min(officeEndHour, schedEndHour),
-        minutes:
-          schedEndHour < officeEndHour ? schedEndMinute : officeEndMinute,
-        seconds: 0,
-        milliseconds: 0,
-      });
-
+      
       let currentTime = startTime;
+
       const practitionerExistingAppointments =
         practitionerAppointments.get(practitioner.id) || [];
 
       while (currentTime < endTime) {
         const slotEndTime = addMinutes(currentTime, appointmentType.duration);
-        if (slotEndTime > endTime) break;
 
         const hasConflict = practitionerExistingAppointments.some(
           (appt: ExistingAppointment) => {
             const apptStart = new Date(appt.startTime);
             const apptEnd = new Date(appt.endTime);
-            return (
+            
+            const conflict = (
               (currentTime >= apptStart && currentTime < apptEnd) ||
               (slotEndTime > apptStart && slotEndTime <= apptEnd) ||
               (currentTime <= apptStart && slotEndTime >= apptEnd)
             );
+            
+            if (conflict) {
+              console.log(`Conflict found for ${practitioner.name} at ${currentTime.toISOString()}`);
+            }
+            
+            return conflict;
           }
         );
 
@@ -207,8 +155,8 @@ export async function GET(request: Request) {
 
         if (!hasConflict && !isBreakTime) {
           availableSlots.push({
-            startTime: currentTime.toLocaleString(), 
-            endTime: slotEndTime.toLocaleString(),
+            startTime: currentTime.toISOString(),
+            endTime: slotEndTime.toISOString(),
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
           });
@@ -227,6 +175,7 @@ export async function GET(request: Request) {
       return timeComparison;
     });
 
+    console.log(`Returning ${availableSlots.length} available slots`);
     return NextResponse.json(availableSlots);
   } catch (error) {
     console.error("Failed to get available slots:", error);

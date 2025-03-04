@@ -1,11 +1,8 @@
 // src/app/api/appointments/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
-import { addHours } from 'date-fns';
 
 const prisma = new PrismaClient();
-const TIMEZONE = 'America/New_York';
 
 export async function POST(request: Request) {
   try {
@@ -20,9 +17,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse the dates and add 5 hours to compensate for UTC conversion
-    const startTime = addHours(new Date(data.startTime), 5);
-    const endTime = addHours(new Date(data.endTime), 5);
+    // Store dates in their original format without timezone adjustment
+    const startTime = new Date(data.startTime);
+    const endTime = new Date(data.endTime);
+
+    console.log('Storing appointment with times:', {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString()
+    });
 
     const appointment = await prisma.appointment.create({
       data: {
@@ -42,25 +44,14 @@ export async function POST(request: Request) {
       },
     });
 
-    // Convert the times back to Eastern for the response
-    const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
-    const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
-
     return NextResponse.json({ 
       success: true, 
       message: 'Appointment booked successfully',
       appointment: {
         ...appointment,
-        startTime: formatInTimeZone(
-          startTimeET,
-          TIMEZONE,
-          "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-        ),
-        endTime: formatInTimeZone(
-          endTimeET,
-          TIMEZONE,
-          "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-        ),
+        // Return the dates in ISO format, which will be properly interpreted by the client
+        startTime: appointment.startTime.toISOString(),
+        endTime: appointment.endTime.toISOString(),
       }
     });
   } catch (error) {
