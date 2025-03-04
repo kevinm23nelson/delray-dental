@@ -1,11 +1,53 @@
-// src/app/patient-resources/pre-operative/page.tsx
+// src/app/patient-resources/fee-schedule/page.tsx
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useRef, ReactNode } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import ArrowCircleIcon from "@/components/shared/ArrowCircleIcon";
+import { motion, useInView } from "framer-motion";
 
-const PreOperative = () => {
+interface AnimatedContentProps {
+  children: ReactNode;
+  direction?: "left" | "right";
+}
+
+const AnimatedContent = ({ children, direction = "right" }: AnimatedContentProps) => {
+  const contentRef = useRef(null);
+  const isInView = useInView(contentRef, {
+    once: true,
+    margin: "-100px",
+    amount: 0.3,
+  });
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      x: direction === "right" ? 30 : -30,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      ref={contentRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const FeeSchedule = () => {
   const instructions = [
     <div key="notice" className="space-y-4">
       <p className="font-bold">Effective May 11, 2017</p>
@@ -55,52 +97,57 @@ const PreOperative = () => {
       <section className="py-16 bg-gray-100">
         <Container>
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Fee Schedule as of November 2024{" "}
-              </h2>
-            </div>
+            <AnimatedContent>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Fee Schedule as of November 2024{" "}
+                </h2>
+              </div>
+            </AnimatedContent>
 
             <div className="space-y-8">
               {instructions.map((instruction, index) => (
-                <div
-                  key={index}
-                  className="flex gap-6 items-start bg-white p-6 rounded-lg shadow-sm"
-                >
-                  <div className="pt-1">
-                    <ArrowCircleIcon />
+                <AnimatedContent key={index} direction={index % 2 === 0 ? "right" : "left"}>
+                  <div
+                    className="flex gap-6 items-start bg-white p-6 rounded-lg shadow-sm"
+                  >
+                    <div className="pt-1">
+                      <ArrowCircleIcon />
+                    </div>
+                    <div className="text-gray-700 leading-relaxed">
+                      {instruction}
+                    </div>
                   </div>
-                  <div className="text-gray-700 leading-relaxed">
-                    {instruction}
-                  </div>
-                </div>
+                </AnimatedContent>
               ))}
             </div>
 
             {/* Bottom Informational Section */}
-            <div className="text-left mt-12 mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Implants:
-              </h2>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Base Implant Fee:{" "}
-                <p className="text-sky-500 hover:text-sky-600 transition-colors font-semibold">
-                  $1,500.00 - $2,000.00
-                </p>
-              </h2>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Abutments (the part that connects the implant to the crown/cap):{" "}
-                <p className="text-sky-500 hover:text-sky-600 transition-colors font-semibold">
-                  $350.00 - $600
-                </p>
-              </h2>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Implant Crown Fee (this is in addition to the Abutment Fee):{" "}
-                <p className="text-sky-500 hover:text-sky-600 transition-colors font-semibold">
-                  $1,500.00 - $2,000.00
-                </p>
-              </h2>
-            </div>
+            <AnimatedContent>
+              <div className="text-left mt-12 mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Implants:
+                </h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Base Implant Fee:{" "}
+                  <p className="text-sky-500 hover:text-sky-600 transition-colors font-semibold">
+                    $1,500.00 - $2,000.00
+                  </p>
+                </h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Abutments (the part that connects the implant to the crown/cap):{" "}
+                  <p className="text-sky-500 hover:text-sky-600 transition-colors font-semibold">
+                    $350.00 - $600
+                  </p>
+                </h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Implant Crown Fee (this is in addition to the Abutment Fee):{" "}
+                  <p className="text-sky-500 hover:text-sky-600 transition-colors font-semibold">
+                    $1,500.00 - $2,000.00
+                  </p>
+                </h2>
+              </div>
+            </AnimatedContent>
           </div>
         </Container>
       </section>
@@ -108,4 +155,4 @@ const PreOperative = () => {
   );
 };
 
-export default PreOperative;
+export default FeeSchedule;

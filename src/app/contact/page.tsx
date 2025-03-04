@@ -45,7 +45,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(contentRef, {
-    once: false,
+    once: true,
     margin: "-100px",
     amount: 0.3,
   });
