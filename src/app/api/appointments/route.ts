@@ -1,7 +1,7 @@
 // src/app/api/appointments/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { parseISO } from "date-fns";
+import { parseISO, subHours } from "date-fns";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
@@ -11,21 +11,31 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Parse the input times
-    const startTimeISO = parseISO(body.startTime);
-    const endTimeISO = parseISO(body.endTime);
+    // Parse the input times and adjust them back by 5 hours
+    // This is because the frontend artificially added 5 hours to make them display correctly
+    const startTimeDisplay = parseISO(body.startTime);
+    const endTimeDisplay = parseISO(body.endTime);
+    
+    // Subtract 5 hours to get the actual Eastern Time that was intended
+    const startTimeActual = subHours(startTimeDisplay, 5);
+    const endTimeActual = subHours(endTimeDisplay, 5);
+    
+    console.log("Booking appointment:", {
+      displayStartTime: startTimeDisplay.toISOString(),
+      displayEndTime: endTimeDisplay.toISOString(),
+      actualStartTime: startTimeActual.toISOString(),
+      actualEndTime: endTimeActual.toISOString()
+    });
 
-    // Create the appointment with the parsed times
-    // Note: We don't need to convert to Eastern Time here as the times
-    // will be stored in UTC in the database
+    // Create the appointment with the actual times
     const appointment = await prisma.appointment.create({
       data: {
         patientName: body.name,
         patientEmail: body.email,
         patientPhone: body.phone,
         notes: body.notes,
-        startTime: startTimeISO,
-        endTime: endTimeISO,
+        startTime: startTimeActual,
+        endTime: endTimeActual,
         practitionerId: body.practitionerId,
         typeId: body.appointmentTypeId,
         status: "SCHEDULED",

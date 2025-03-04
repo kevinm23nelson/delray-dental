@@ -1,7 +1,7 @@
 // src/app/api/available-slots/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
-import { addMinutes, parseISO, format } from "date-fns";
+import { addMinutes, parseISO, format, addHours } from "date-fns";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     const endOfDayET = new Date(dateET);
     endOfDayET.setHours(23, 59, 59, 999);
     
-    // Convert to UTC for database query by using formatInTimeZone
+    // Convert to UTC for database query
     const startOfDayUTC = new Date(
       formatInTimeZone(startOfDayET, TIMEZONE, "yyyy-MM-dd'T'00:00:00.000'Z'")
     );
@@ -183,19 +183,16 @@ export async function GET(request: Request) {
         }
 
         if (!hasConflict && !isBreakTime) {
-          // Convert Eastern Time slots to UTC for database storage compatibility
-          // We use formatInTimeZone to get the UTC representation of the Eastern Time
-          const startTimeUTC = new Date(
-            formatInTimeZone(currentTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-          );
-          
-          const endTimeUTC = new Date(
-            formatInTimeZone(slotEndTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-          );
+          // Instead of converting ET to UTC, artificially shift time ahead by 5 hours (ET to UTC conversion)
+          // to display correct times in the booking modal
+          // This is because the client will display the time according to the local timezone,
+          // but we want to force it to display the ET time
+          const adjustedStartTime = addHours(currentTimeET, 5);
+          const adjustedEndTime = addHours(slotEndTimeET, 5);
           
           availableSlots.push({
-            startTime: startTimeUTC.toISOString(),
-            endTime: endTimeUTC.toISOString(),
+            startTime: adjustedStartTime.toISOString(),
+            endTime: adjustedEndTime.toISOString(),
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
           });
@@ -216,7 +213,8 @@ export async function GET(request: Request) {
 
     console.log(`Returning ${availableSlots.length} available slots`, 
       availableSlots.map(slot => ({
-        time: `${format(toZonedTime(new Date(slot.startTime), TIMEZONE), "HH:mm")} - ${format(toZonedTime(new Date(slot.endTime), TIMEZONE), "HH:mm")}`,
+        actualET: `${format(toZonedTime(new Date(slot.startTime), TIMEZONE), "HH:mm")} - ${format(toZonedTime(new Date(slot.endTime), TIMEZONE), "HH:mm")}`,
+        displayTime: `${format(new Date(slot.startTime), "HH:mm")} - ${format(new Date(slot.endTime), "HH:mm")}`,
         practitioner: slot.practitionerName
       }))
     );
