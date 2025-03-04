@@ -174,7 +174,9 @@ export default function BookingModal({
   // Function to format a date using the client's timezone
   const formatLocalTime = (dateString: string) => {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return formatInTimeZone(new Date(dateString), timeZone, "h:mm a");
+    const date = new Date(dateString);
+    console.log(`Formatting time: ${dateString} -> ${date.toLocaleTimeString()}`);
+    return formatInTimeZone(date, timeZone, "h:mm a");
   };
 
   return (
