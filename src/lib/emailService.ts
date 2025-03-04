@@ -1,5 +1,6 @@
 // src/lib/emailService.ts
 import emailjs from "@emailjs/browser";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface AppointmentEmailData {
   patientName: string;
@@ -20,6 +21,8 @@ interface ContactFormData {
   subject: string;
   message: string;
 }
+
+const TIMEZONE = 'America/New_York'; // Eastern Time
 
 export const emailService = {
   async sendContactFormEmail(data: ContactFormData) {
@@ -45,25 +48,17 @@ export const emailService = {
 
   async sendAppointmentEmail(data: AppointmentEmailData) {
     try {
-      // Format the appointment date
-      const formattedDate = new Date(data.startTime).toLocaleDateString(
-        "en-US",
-        {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }
+      // Format the appointment date and time in Eastern Time
+      const formattedDate = formatInTimeZone(
+        data.startTime,
+        TIMEZONE,
+        "EEEE, MMMM d, yyyy"
       );
 
-      // Format the appointment time
-      const formattedTime = new Date(data.startTime).toLocaleTimeString(
-        "en-US",
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }
+      const formattedTime = formatInTimeZone(
+        data.startTime,
+        TIMEZONE,
+        "h:mm a"
       );
 
       // Create the email content exactly matching the template structure
@@ -77,7 +72,7 @@ Phone: ${data.patientPhone}
 Appointment Details:
 Type: ${data.appointmentType}
 Date: ${formattedDate}
-Time: ${formattedTime}
+Time: ${formattedTime} ET
 Practitioner: ${data.practitionerName}
 
 Additional Notes:
@@ -87,12 +82,13 @@ ${data.notes || "No additional notes"}
 This appointment was booked through the Delray Dental Arts website.`;
 
       const templateParams = {
+        to_email: "delraydental.notifications@gmail.com", // Explicitly set recipient email
         patient_name: data.patientName,
         patient_email: data.patientEmail,
         patient_phone: data.patientPhone,
         appointment_type: data.appointmentType,
         appointment_date: formattedDate,
-        appointment_time: formattedTime,
+        appointment_time: formattedTime + " ET",
         practitioner_name: data.practitionerName,
         notes: data.notes || "No additional notes",
         message: emailContent, // Add the full message content
