@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useRef, ReactNode } from "react";
+import React, { useState, useRef, ReactNode, useEffect } from "react";
 import Container from "@/components/shared/Container";
 import Link from "next/link";
 import { ExternalLink, Play } from "lucide-react";
@@ -21,6 +21,19 @@ const AnimatedContent = ({
     margin: "-100px",
     amount: 0.3,
   });
+  
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check if on mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const variants = {
     hidden: {
@@ -37,6 +50,12 @@ const AnimatedContent = ({
     },
   };
 
+  // If mobile, render without animation effects
+  if (isMobile) {
+    return <div>{children}</div>;
+  }
+
+  // Desktop version with animation
   return (
     <motion.div
       ref={contentRef}
