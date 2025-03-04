@@ -101,9 +101,9 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
   }, []);
 
   const isInView = useInView(sectionRef, {
-    once: true, // Always true now
-    margin: isMobile ? "0px" : "-50px", // Reduced margin
-    amount: isMobile ? 0.1 : 0.2, // Reduced amount needed to trigger
+    once: true, 
+    margin: isMobile ? "0px" : "-50px", 
+    amount: isMobile ? 0.1 : 0.2, 
   });
 
   const bgColor = isBlue ? "bg-sky-500" : "bg-gray-100";
@@ -117,7 +117,7 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
 
   const containerVariants = {
     hidden: {
-      opacity: isMobile ? 0 : 0, // Changed initial opacity for mobile
+      opacity: isMobile ? 0 : 0, 
       y: isMobile ? 10 : 30,
     },
     visible: {
@@ -165,9 +165,9 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
                   <Image
                     src={imageSrc || "/api/placeholder/600/800"}
                     alt="Services"
-                    width={350} // Changed from 600
-                    height={400} // Changed from 800
-                    className="rounded-xl shadow-lg mx-auto" // Changed from shadow-xl
+                    width={350} 
+                    height={400} 
+                    className="rounded-xl shadow-lg mx-auto" 
                   />
                 </motion.div>
                 <motion.div
@@ -227,7 +227,7 @@ const serviceScrollMapping: ServiceScrollMap = {
   "cosmetic-bonding": "oral-cancer-screening",
   "teeth-cleanings": "veneers",
   invisalign: "invisalign",
-  clearcorrect: "invisalign", // Add this line to map ClearCorrect to Invisalign section
+  clearcorrect: "invisalign", 
   "oral-surgery": "full-and-partial-dentures",
   "non-surgical-gum-treatment": "dental-diet-system",
   "root-canal-therapy": "dental-fillings",
@@ -433,7 +433,6 @@ const DentalServicesPage = () => {
               {[
                 ...featuredServices,
                 ...regularServices,
-                // Add ClearCorrect separately
                 ...featuredServices
                   .filter((service) => service.title2)
                   .map((service) => ({
@@ -443,7 +442,6 @@ const DentalServicesPage = () => {
                   })),
               ].map((service, index) => {
                 const serviceId = getServiceId(service.title);
-                // For ClearCorrect, point to Invisalign section
                 const targetId =
                   service.title === "ClearCorrect™"
                     ? getServiceId("Invisalign®")
