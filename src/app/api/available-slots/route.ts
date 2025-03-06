@@ -1,7 +1,7 @@
 // src/app/api/available-slots/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
-import { addMinutes, parseISO, format, addHours } from "date-fns";
+import { addMinutes, parseISO, format } from "date-fns";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
@@ -193,22 +193,20 @@ export async function GET(request: Request) {
         }
 
         if (!hasConflict && !isBreakTime) {
-          // Instead of converting ET to UTC, artificially shift time ahead by 5 hours (ET to UTC conversion)
-          // to display correct times in the booking modal
-          // This is because the client will display the time according to the local timezone,
-          // but we want to force it to display the ET time
-          const date = new Date(currentTimeET);
-          // getTimezoneOffset returns minutes, and is negative for timezones ahead of UTC
-          const offsetInHours = Math.abs(date.getTimezoneOffset()) / 60;
-
-          const adjustedStartTime = addHours(currentTimeET, offsetInHours);
-          const adjustedEndTime = addHours(slotEndTimeET, offsetInHours);
-
+          const utcStartTime = parseISO(
+            formatInTimeZone(currentTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+          );
+          const utcEndTime = parseISO(
+            formatInTimeZone(slotEndTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+          );
+          
           availableSlots.push({
-            startTime: adjustedStartTime.toISOString(),
-            endTime: adjustedEndTime.toISOString(),
+            startTime: utcStartTime.toISOString(),
+            endTime: utcEndTime.toISOString(),
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
+            // Add a timezone indicator to help the frontend
+            timezone: TIMEZONE
           });
         }
 
