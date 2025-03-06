@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
     // Parse the requested date
     const utcDate = parseISO(dateStr);
-    
+
     // Convert to Eastern Time for business logic
     const dateET = toZonedTime(utcDate, TIMEZONE);
     console.log("Date in ET:", format(dateET, "yyyy-MM-dd"));
@@ -129,9 +129,11 @@ export async function GET(request: Request) {
 
       // Create date objects for the schedule in Eastern Time
       const scheduleDateStr = format(dateET, "yyyy-MM-dd");
-      
+
       // Parse the strings to create proper date objects in Eastern Time
-      const scheduleStartET = parseISO(`${scheduleDateStr}T${schedule.startTime}`);
+      const scheduleStartET = parseISO(
+        `${scheduleDateStr}T${schedule.startTime}`
+      );
       const scheduleEndET = parseISO(`${scheduleDateStr}T${schedule.endTime}`);
 
       console.log(`Schedule for ${practitioner.name}:`, {
@@ -152,8 +154,10 @@ export async function GET(request: Request) {
         const hasConflict = practitionerExistingAppointments.some(
           (appt: ExistingAppointment) => {
             return (
-              (currentTimeET >= appt.startTime && currentTimeET < appt.endTime) ||
-              (slotEndTimeET > appt.startTime && slotEndTimeET <= appt.endTime) ||
+              (currentTimeET >= appt.startTime &&
+                currentTimeET < appt.endTime) ||
+              (slotEndTimeET > appt.startTime &&
+                slotEndTimeET <= appt.endTime) ||
               (currentTimeET <= appt.startTime && slotEndTimeET >= appt.endTime)
             );
           }
@@ -161,9 +165,13 @@ export async function GET(request: Request) {
 
         let isBreakTime = false;
         if (schedule.breakStart && schedule.breakEnd) {
-          const breakStartET = parseISO(`${scheduleDateStr}T${schedule.breakStart}`);
-          const breakEndET = parseISO(`${scheduleDateStr}T${schedule.breakEnd}`);
-          
+          const breakStartET = parseISO(
+            `${scheduleDateStr}T${schedule.breakStart}`
+          );
+          const breakEndET = parseISO(
+            `${scheduleDateStr}T${schedule.breakEnd}`
+          );
+
           isBreakTime =
             currentTimeET >= breakStartET && slotEndTimeET <= breakEndET;
         }
@@ -171,24 +179,35 @@ export async function GET(request: Request) {
         if (!hasConflict && !isBreakTime) {
           // IMPORTANT: Here we create a *metadata representation* for display purposes
           // We don't try to convert between timezones for display
-          const slotTime = format(currentTimeET, "HH:mm");
-          const slotEndTime = format(slotEndTimeET, "HH:mm");
-          
+          const slotTime = format(currentTimeET, "h:mm a");
+          const slotEndTime = format(slotEndTimeET, "h:mm a");
+
           // We also need to store the actual UTC time for database storage
           const utcStartTime = parseISO(
-            formatInTimeZone(currentTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            formatInTimeZone(
+              currentTimeET,
+              TIMEZONE,
+              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            )
           );
           const utcEndTime = parseISO(
-            formatInTimeZone(slotEndTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            formatInTimeZone(
+              slotEndTimeET,
+              TIMEZONE,
+              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            )
           );
-          
+
           availableSlots.push({
-            displayTime: slotTime, // NEW: This is for display only
-            displayEndTime: slotEndTime, // NEW: For display only
-            startTime: utcStartTime.toISOString(), // This is for database storage
-            endTime: utcEndTime.toISOString(), // This is for database storage
+            displayTime: slotTime,
+            displayEndTime: slotEndTime,
+            startTime: utcStartTime.toISOString(),
+            endTime: utcEndTime.toISOString(),
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
+            // Add these for sorting
+            hour: currentTimeET.getHours(),
+            minute: currentTimeET.getMinutes(),
           });
         }
 
@@ -197,8 +216,18 @@ export async function GET(request: Request) {
     }
 
     availableSlots.sort((a, b) => {
-      return a.displayTime.localeCompare(b.displayTime) || 
-             a.practitionerName.localeCompare(b.practitionerName);
+      // Sort by hour first
+      if (a.hour !== b.hour) {
+        return a.hour - b.hour;
+      }
+
+      // If hours match, sort by minute
+      if (a.minute !== b.minute) {
+        return a.minute - b.minute;
+      }
+
+      // If times match exactly, sort by practitioner name
+      return a.practitionerName.localeCompare(b.practitionerName);
     });
 
     return NextResponse.json(availableSlots);
