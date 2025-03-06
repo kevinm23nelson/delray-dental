@@ -1,8 +1,10 @@
 // src/app/api/admin/appointments/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 const prisma = new PrismaClient();
+const TIMEZONE = 'America/New_York'; // Eastern Time
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
@@ -41,7 +43,23 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       },
     });
 
-    return NextResponse.json(appointment);
+    // Convert times to Eastern Time
+    const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
+    const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+
+    return NextResponse.json({
+      ...appointment,
+      startTime: formatInTimeZone(
+        startTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      ),
+      endTime: formatInTimeZone(
+        endTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      ),
+    });
   } catch (error) {
     console.error('Failed to update appointment:', error);
     return NextResponse.json(
@@ -77,7 +95,23 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    return NextResponse.json(appointment);
+    // Convert times to Eastern Time
+    const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
+    const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+
+    return NextResponse.json({
+      ...appointment,
+      startTime: formatInTimeZone(
+        startTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      ),
+      endTime: formatInTimeZone(
+        endTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      ),
+    });
   } catch (error) {
     console.error('Failed to fetch appointment:', error);
     return NextResponse.json(
