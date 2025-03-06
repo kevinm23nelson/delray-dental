@@ -12,6 +12,8 @@ import { emailService } from "@/lib/emailService";
 interface TimeSlot {
   startTime: string;
   endTime: string;
+  displayTime: string;
+  displayEndTime: string;
   practitionerId: string;
   practitionerName: string;
 }
@@ -82,13 +84,20 @@ export default function BookingModal({
         const data = await response.json();
 
         console.log("Response status:", response.status);
-        
+
         // Log the time slots in Eastern Time for debugging
-        console.log("Available slots in ET:", data.map((slot: TimeSlot) => ({
-          start: formatInTimeZone(new Date(slot.startTime), TIMEZONE, "h:mm a"),
-          end: formatInTimeZone(new Date(slot.endTime), TIMEZONE, "h:mm a"),
-          practitioner: slot.practitionerName
-        })));
+        console.log(
+          "Available slots in ET:",
+          data.map((slot: TimeSlot) => ({
+            start: formatInTimeZone(
+              new Date(slot.startTime),
+              TIMEZONE,
+              "h:mm a"
+            ),
+            end: formatInTimeZone(new Date(slot.endTime), TIMEZONE, "h:mm a"),
+            practitioner: slot.practitionerName,
+          }))
+        );
 
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch available slots");
@@ -140,7 +149,7 @@ export default function BookingModal({
           startTime: new Date(selectedSlot.startTime).toISOString(),
           endTime: new Date(selectedSlot.endTime).toISOString(),
         });
-        
+
         const emailResult = await emailService.sendAppointmentEmail({
           patientName: formData.name,
           patientEmail: formData.email,
@@ -151,7 +160,7 @@ export default function BookingModal({
           endTime: new Date(selectedSlot.endTime),
           notes: formData.notes,
         });
-        
+
         console.log("Email service response:", emailResult);
         console.log("Email notification sent successfully");
       } catch (emailError) {
@@ -192,13 +201,6 @@ export default function BookingModal({
     }
   };
 
-  // Function to format a date using Eastern Time for display
-  const formatLocalTime = (dateString: string) => {
-    const date = new Date(dateString);
-    // Always display in Eastern Time for business consistency
-    return formatInTimeZone(date, TIMEZONE, "h:mm a");
-  };
-
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
@@ -209,7 +211,8 @@ export default function BookingModal({
             <div>
               <h2 className="text-xl font-bold">Book {appointmentType.name}</h2>
               <p className="text-gray-600">
-                {formatInTimeZone(selectedDate, TIMEZONE, "EEEE, MMMM d, yyyy")} (ET)
+                {formatInTimeZone(selectedDate, TIMEZONE, "EEEE, MMMM d, yyyy")}{" "}
+                (ET)
               </p>
             </div>
             <button
@@ -222,7 +225,9 @@ export default function BookingModal({
 
           {step === "time-selection" ? (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4">Select a Time (Eastern Time)</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Select a Time (Eastern Time)
+              </h3>
               {isLoading ? (
                 <div className="text-center py-8">
                   Loading available times...
@@ -248,7 +253,8 @@ export default function BookingModal({
                       }`}
                     >
                       <div className="font-semibold">
-                        {formatLocalTime(slot.startTime)}
+                        {slot.displayTime}{" "}
+                        {/* Changed from formatLocalTime(slot.startTime) */}
                       </div>
                       <div className="text-sm text-gray-500">
                         {slot.practitionerName}
@@ -261,12 +267,12 @@ export default function BookingModal({
           ) : (
             <>
               <div className="mb-6 bg-sky-50 p-4 rounded-lg">
-                <div className="text-sm text-gray-600">Selected Time (ET):</div>
-                <div className="font-semibold">
-                  {formatLocalTime(selectedSlot!.startTime)}{" "}
-                  with {selectedSlot!.practitionerName}
-                </div>
-              </div>
+  <div className="text-sm text-gray-600">Selected Time (ET):</div>
+  <div className="font-semibold">
+    {selectedSlot!.displayTime} {/* Changed from formatLocalTime(selectedSlot!.startTime) */}
+    with {selectedSlot!.practitionerName}
+  </div>
+</div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
