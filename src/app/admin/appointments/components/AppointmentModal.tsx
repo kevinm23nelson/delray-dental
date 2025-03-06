@@ -55,9 +55,23 @@ export default function AppointmentModal({
     }
   }
 
-  // Parse the appointment times
-  const startTime = new Date(appointment.startTime);
-  const endTime = new Date(appointment.endTime);
+  const formattedDate = formatInTimeZone(
+    new Date(appointment.startTime),
+    TIMEZONE,
+    "EEEE, MMMM d, yyyy"
+  );
+  
+  const formattedStartTime = formatInTimeZone(
+    new Date(appointment.startTime),
+    TIMEZONE,
+    "h:mm a"
+  );
+  
+  const formattedEndTime = formatInTimeZone(
+    new Date(appointment.endTime),
+    TIMEZONE,
+    "h:mm a"
+  );
 
   return (
     <div className="fixed inset-0 z-50">
@@ -69,13 +83,13 @@ export default function AppointmentModal({
             <div>
               <h2 className="text-xl font-bold">Appointment Details</h2>
               <p className="text-gray-600">
-                {formatInTimeZone(startTime, TIMEZONE, "EEEE, MMMM d, yyyy")}
-                {" at "}
-                {formatInTimeZone(startTime, TIMEZONE, "h:mm a")}
-                {" - "}
-                {formatInTimeZone(endTime, TIMEZONE, "h:mm a")}
-                {" ET"}
-              </p>
+  {formattedDate}
+  {" at "}
+  {formattedStartTime}
+  {" - "}
+  {formattedEndTime}
+  {" ET"}
+</p>
             </div>
             <button
               onClick={onClose}

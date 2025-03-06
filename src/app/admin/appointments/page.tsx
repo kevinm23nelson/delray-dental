@@ -70,11 +70,21 @@ export default function AppointmentsPage() {
     }
   }
 
-  function handleEventClick(info: EventClickArg) {
-    const appointment = appointments.find((a) => a.id === info.event.id);
-    if (appointment) {
+  async function handleEventClick(info: EventClickArg) {
+    try {
+      // Fetch the appointment directly from the API instead of using the cached data
+      const response = await fetch(`/api/admin/appointments/${info.event.id}`);
+      if (!response.ok) throw new Error("Failed to load appointment details");
+      
+      const appointment = await response.json();
+      console.log("Fetched appointment:", appointment);
+      
+      // Now set this fetched appointment as the selected one
       setSelectedAppointment(appointment);
       setShowModal(true);
+    } catch (error) {
+      console.error("Failed to load appointment details:", error);
+      toast.error("Failed to load appointment details");
     }
   }
 
