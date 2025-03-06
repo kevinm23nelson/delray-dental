@@ -28,9 +28,9 @@ export async function GET(request: Request) {
       );
     }
 
-    // Parse the requested date (it comes in as UTC from client)
+    // Parse the requested date
     const utcDate = parseISO(dateStr);
-
+    
     // Convert to Eastern Time for business logic
     const dateET = toZonedTime(utcDate, TIMEZONE);
     console.log("Date in ET:", format(dateET, "yyyy-MM-dd"));
@@ -76,17 +76,15 @@ export async function GET(request: Request) {
     endOfDayET.setHours(23, 59, 59, 999);
 
     // Convert to UTC for database query
-    const startOfDayUTC = new Date(
+    const startOfDayUTC = parseISO(
       formatInTimeZone(startOfDayET, TIMEZONE, "yyyy-MM-dd'T'00:00:00.000'Z'")
     );
 
-    const endOfDayUTC = new Date(
+    const endOfDayUTC = parseISO(
       formatInTimeZone(endOfDayET, TIMEZONE, "yyyy-MM-dd'T'23:59:59.999'Z'")
     );
 
     console.log("Searching for appointments between:", {
-      startOfDayET: format(startOfDayET, "yyyy-MM-dd'T'HH:mm:ss"),
-      endOfDayET: format(endOfDayET, "yyyy-MM-dd'T'HH:mm:ss"),
       startOfDayUTC: startOfDayUTC.toISOString(),
       endOfDayUTC: endOfDayUTC.toISOString(),
     });
@@ -118,15 +116,6 @@ export async function GET(request: Request) {
       }));
 
       practitionerAppointments.set(practitioner.id, appointmentsET);
-      console.log(
-        `Found ${appointments.length} appointments for practitioner ${practitioner.name}`,
-        appointments.map((a) => ({
-          startTime: a.startTime.toISOString(),
-          endTime: a.endTime.toISOString(),
-          startTimeET: format(toZonedTime(a.startTime, TIMEZONE), "HH:mm"),
-          endTimeET: format(toZonedTime(a.endTime, TIMEZONE), "HH:mm"),
-        }))
-      );
     }
 
     const availableSlots = [];
@@ -138,21 +127,15 @@ export async function GET(request: Request) {
         continue;
       }
 
-      // Create complete date objects for the schedule in Eastern Time
-      // This combines the date (from dateET) with the time strings from the schedule
+      // Create date objects for the schedule in Eastern Time
       const scheduleDateStr = format(dateET, "yyyy-MM-dd");
-
+      
       // Parse the strings to create proper date objects in Eastern Time
-      const scheduleStartET = parseISO(
-        `${scheduleDateStr}T${schedule.startTime}`
-      );
+      const scheduleStartET = parseISO(`${scheduleDateStr}T${schedule.startTime}`);
       const scheduleEndET = parseISO(`${scheduleDateStr}T${schedule.endTime}`);
 
       console.log(`Schedule for ${practitioner.name}:`, {
-        dayOfWeek: schedule.dayOfWeek,
         timeRange: `${schedule.startTime} - ${schedule.endTime}`,
-        scheduleStartET: format(scheduleStartET, "HH:mm"),
-        scheduleEndET: format(scheduleEndET, "HH:mm"),
       });
 
       let currentTimeET = scheduleStartET;
@@ -168,12 +151,9 @@ export async function GET(request: Request) {
 
         const hasConflict = practitionerExistingAppointments.some(
           (appt: ExistingAppointment) => {
-            // All times are in ET for this comparison
             return (
-              (currentTimeET >= appt.startTime &&
-                currentTimeET < appt.endTime) ||
-              (slotEndTimeET > appt.startTime &&
-                slotEndTimeET <= appt.endTime) ||
+              (currentTimeET >= appt.startTime && currentTimeET < appt.endTime) ||
+              (slotEndTimeET > appt.startTime && slotEndTimeET <= appt.endTime) ||
               (currentTimeET <= appt.startTime && slotEndTimeET >= appt.endTime)
             );
           }
@@ -181,18 +161,20 @@ export async function GET(request: Request) {
 
         let isBreakTime = false;
         if (schedule.breakStart && schedule.breakEnd) {
-          const breakStartET = parseISO(
-            `${scheduleDateStr}T${schedule.breakStart}`
-          );
-          const breakEndET = parseISO(
-            `${scheduleDateStr}T${schedule.breakEnd}`
-          );
-
+          const breakStartET = parseISO(`${scheduleDateStr}T${schedule.breakStart}`);
+          const breakEndET = parseISO(`${scheduleDateStr}T${schedule.breakEnd}`);
+          
           isBreakTime =
             currentTimeET >= breakStartET && slotEndTimeET <= breakEndET;
         }
 
         if (!hasConflict && !isBreakTime) {
+          // IMPORTANT: Here we create a *metadata representation* for display purposes
+          // We don't try to convert between timezones for display
+          const slotTime = format(currentTimeET, "HH:mm");
+          const slotEndTime = format(slotEndTimeET, "HH:mm");
+          
+          // We also need to store the actual UTC time for database storage
           const utcStartTime = parseISO(
             formatInTimeZone(currentTimeET, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
           );
@@ -201,12 +183,12 @@ export async function GET(request: Request) {
           );
           
           availableSlots.push({
-            startTime: utcStartTime.toISOString(),
-            endTime: utcEndTime.toISOString(),
+            displayTime: slotTime, // NEW: This is for display only
+            displayEndTime: slotEndTime, // NEW: For display only
+            startTime: utcStartTime.toISOString(), // This is for database storage
+            endTime: utcEndTime.toISOString(), // This is for database storage
             practitionerId: practitioner.id,
             practitionerName: practitioner.name,
-            // Add a timezone indicator to help the frontend
-            timezone: TIMEZONE
           });
         }
 
@@ -215,28 +197,9 @@ export async function GET(request: Request) {
     }
 
     availableSlots.sort((a, b) => {
-      const timeComparison =
-        new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
-      if (timeComparison === 0) {
-        return a.practitionerName.localeCompare(b.practitionerName);
-      }
-      return timeComparison;
+      return a.displayTime.localeCompare(b.displayTime) || 
+             a.practitionerName.localeCompare(b.practitionerName);
     });
-
-    console.log(
-      `Returning ${availableSlots.length} available slots`,
-      availableSlots.map((slot) => ({
-        actualET: `${format(
-          toZonedTime(new Date(slot.startTime), TIMEZONE),
-          "HH:mm"
-        )} - ${format(toZonedTime(new Date(slot.endTime), TIMEZONE), "HH:mm")}`,
-        displayTime: `${format(new Date(slot.startTime), "HH:mm")} - ${format(
-          new Date(slot.endTime),
-          "HH:mm"
-        )}`,
-        practitioner: slot.practitionerName,
-      }))
-    );
 
     return NextResponse.json(availableSlots);
   } catch (error) {
