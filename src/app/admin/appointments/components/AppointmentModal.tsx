@@ -15,7 +15,6 @@ import {
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
 import { formatInTimeZone } from "date-fns-tz";
-import { addHours } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -29,10 +28,8 @@ interface AppointmentModalProps {
   }) => Promise<void>;
 }
 
-function adjustForTimezone(date: Date | string): Date {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return addHours(d, 5); // Add 5 hours to correct UTC offset
-}
+// Define the Eastern timezone constant
+const TIMEZONE = "America/New_York";
 
 export default function AppointmentModal({
   appointment,
@@ -58,7 +55,9 @@ export default function AppointmentModal({
     }
   }
 
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // Parse the appointment times
+  const startTime = new Date(appointment.startTime);
+  const endTime = new Date(appointment.endTime);
 
   return (
     <div className="fixed inset-0 z-50">
@@ -70,17 +69,12 @@ export default function AppointmentModal({
             <div>
               <h2 className="text-xl font-bold">Appointment Details</h2>
               <p className="text-gray-600">
-                {formatInTimeZone(
-                  adjustForTimezone(appointment.startTime),
-                  timeZone,
-                  "EEEE, MMMM d, yyyy"
-                )}
+                {formatInTimeZone(startTime, TIMEZONE, "EEEE, MMMM d, yyyy")}
                 {" at "}
-                {formatInTimeZone(
-                  adjustForTimezone(appointment.startTime),
-                  timeZone,
-                  "h:mm a"
-                )}
+                {formatInTimeZone(startTime, TIMEZONE, "h:mm a")}
+                {" - "}
+                {formatInTimeZone(endTime, TIMEZONE, "h:mm a")}
+                {" ET"}
               </p>
             </div>
             <button
