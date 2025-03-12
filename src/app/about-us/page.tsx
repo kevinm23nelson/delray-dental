@@ -117,7 +117,7 @@ function Page() {
                         Dr. John has additional training in IMZ, Stryker, ITI
                         Dental Implant System and completion of the Alabama
                         Implant Congress. His abstract{" "}
-                        {`"Observation of thee
+                        {`"Observation of the
                         Auriculotemporal Nerve in Human Specimens"`}{" "}
                         was presented to the American Academy of Oralfacial pain
                         Scientific Congress on temporal mandibular disorders.
