@@ -60,13 +60,13 @@ export default function AppointmentModal({
     TIMEZONE,
     "EEEE, MMMM d, yyyy"
   );
-  
+
   const formattedStartTime = formatInTimeZone(
     new Date(appointment.startTime),
     TIMEZONE,
     "h:mm a"
   );
-  
+
   const formattedEndTime = formatInTimeZone(
     new Date(appointment.endTime),
     TIMEZONE,
@@ -83,13 +83,13 @@ export default function AppointmentModal({
             <div>
               <h2 className="text-xl font-bold">Appointment Details</h2>
               <p className="text-gray-600">
-  {formattedDate}
-  {" at "}
-  {formattedStartTime}
-  {" - "}
-  {formattedEndTime}
-  {" ET"}
-</p>
+                {formattedDate}
+                {" at "}
+                {formattedStartTime}
+                {" - "}
+                {formattedEndTime}
+                {" ET"}
+              </p>
             </div>
             <button
               onClick={onClose}
