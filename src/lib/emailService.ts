@@ -22,7 +22,7 @@ interface ContactFormData {
   message: string;
 }
 
-const TIMEZONE = 'America/New_York'; // Eastern Time
+const TIMEZONE = "America/New_York"; // Eastern Time
 
 export const emailService = {
   async sendContactFormEmail(data: ContactFormData) {
@@ -48,6 +48,11 @@ export const emailService = {
 
   async sendAppointmentEmail(data: AppointmentEmailData) {
     try {
+      console.log("Email service received appointment times:", {
+        startTimeISO: data.startTime.toISOString(),
+        endTimeISO: data.endTime.toISOString(),
+      });
+
       // Format the appointment date and time in Eastern Time
       const formattedDate = formatInTimeZone(
         data.startTime,
@@ -60,6 +65,11 @@ export const emailService = {
         TIMEZONE,
         "h:mm a"
       );
+
+      console.log("Email formatted times (ET):", {
+        formattedDate,
+        formattedTime,
+      });
 
       // Create the email content exactly matching the template structure
       const emailContent = `New Appointment Request

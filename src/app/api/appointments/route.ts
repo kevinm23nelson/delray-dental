@@ -5,23 +5,23 @@ import { parseISO } from "date-fns";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
-const TIMEZONE = 'America/New_York'; // Eastern Time
+const TIMEZONE = "America/New_York"; // Eastern Time
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Parse the input times - these now come in already adjusted
-    // No need to subtract hours, as they're already in the correct display format for ET
+    // Parse the UTC times from the available-slots API
+    // These are already in UTC from the available-slots API's zonedTimeToUtc conversion
     const startTime = parseISO(body.startTime);
     const endTime = parseISO(body.endTime);
-    
-    console.log("Booking appointment:", {
+
+    console.log("Booking appointment in UTC (for database storage):", {
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
     });
 
-    // Create the appointment with the parsed times
+    // Create the appointment with the UTC times
     const appointment = await prisma.appointment.create({
       data: {
         patientName: body.name,
@@ -44,15 +44,28 @@ export async function POST(request: Request) {
     const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
     const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
 
-    return NextResponse.json({
-      ...appointment,
+    console.log("Appointment created with times (ET):", {
       startTime: formatInTimeZone(
-        startTimeET, 
-        TIMEZONE, 
+        startTimeET,
+        TIMEZONE,
         "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
       ),
       endTime: formatInTimeZone(
-        endTimeET, 
+        endTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      ),
+    });
+
+    return NextResponse.json({
+      ...appointment,
+      startTime: formatInTimeZone(
+        startTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      ),
+      endTime: formatInTimeZone(
+        endTimeET,
         TIMEZONE,
         "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
       ),
@@ -60,9 +73,9 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Failed to create appointment:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to create appointment",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );
@@ -82,7 +95,7 @@ export async function GET() {
     });
 
     // Convert the UTC times to Eastern Time for the response
-    const formattedAppointments = appointments.map(appointment => {
+    const formattedAppointments = appointments.map((appointment) => {
       const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
       const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
 

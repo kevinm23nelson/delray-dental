@@ -12,6 +12,17 @@ interface ExistingAppointment {
   endTime: Date;
 }
 
+// Helper function to convert a date in Eastern Time to UTC
+function convertETtoUTC(dateET: Date): Date {
+  // Get the timezone offset in milliseconds
+  const tzOffset = new Date(dateET).getTimezoneOffset() * 60000;
+  // Get the Eastern Time offset in milliseconds using formatInTimeZone
+  const etOffset = parseInt(formatInTimeZone(dateET, TIMEZONE, "x"));
+
+  // Calculate the UTC time by adjusting the ET time with the difference between local and ET offsets
+  return new Date(dateET.getTime() - etOffset);
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -30,10 +41,16 @@ export async function GET(request: Request) {
 
     // Parse the requested date
     const utcDate = parseISO(dateStr);
+    console.log("Parsed UTC date:", utcDate.toISOString());
 
     // Convert to Eastern Time for business logic
     const dateET = toZonedTime(utcDate, TIMEZONE);
-    console.log("Date in ET:", format(dateET, "yyyy-MM-dd"));
+    console.log(
+      "Date in ET:",
+      format(dateET, "yyyy-MM-dd"),
+      "Original UTC date:",
+      utcDate.toISOString()
+    );
 
     const appointmentType = await prisma.appointmentType.findUnique({
       where: { id: appointmentTypeId },
@@ -75,14 +92,9 @@ export async function GET(request: Request) {
     const endOfDayET = new Date(dateET);
     endOfDayET.setHours(23, 59, 59, 999);
 
-    // Convert to UTC for database query
-    const startOfDayUTC = parseISO(
-      formatInTimeZone(startOfDayET, TIMEZONE, "yyyy-MM-dd'T'00:00:00.000'Z'")
-    );
-
-    const endOfDayUTC = parseISO(
-      formatInTimeZone(endOfDayET, TIMEZONE, "yyyy-MM-dd'T'23:59:59.999'Z'")
-    );
+    // Convert Eastern Time day boundaries to UTC for database query
+    const startOfDayUTC = convertETtoUTC(startOfDayET);
+    const endOfDayUTC = convertETtoUTC(endOfDayET);
 
     console.log("Searching for appointments between:", {
       startOfDayUTC: startOfDayUTC.toISOString(),
@@ -177,26 +189,22 @@ export async function GET(request: Request) {
         }
 
         if (!hasConflict && !isBreakTime) {
-          // IMPORTANT: Here we create a *metadata representation* for display purposes
-          // We don't try to convert between timezones for display
+          // For display time, we use the Eastern Time hours directly
           const slotTime = format(currentTimeET, "h:mm a");
           const slotEndTime = format(slotEndTimeET, "h:mm a");
 
-          // We also need to store the actual UTC time for database storage
-          const utcStartTime = parseISO(
-            formatInTimeZone(
-              currentTimeET,
-              TIMEZONE,
-              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-            )
-          );
-          const utcEndTime = parseISO(
-            formatInTimeZone(
-              slotEndTimeET,
-              TIMEZONE,
-              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-            )
-          );
+          // Convert Eastern Time to UTC correctly for database storage
+          const utcStartTime = convertETtoUTC(currentTimeET);
+          const utcEndTime = convertETtoUTC(slotEndTimeET);
+
+          console.log("Creating slot:", {
+            displayTime: slotTime,
+            displayEndTime: slotEndTime,
+            currentTimeET: format(currentTimeET, "yyyy-MM-dd'T'HH:mm:ss.SSS"),
+            slotEndTimeET: format(slotEndTimeET, "yyyy-MM-dd'T'HH:mm:ss.SSS"),
+            utcStartTime: utcStartTime.toISOString(),
+            utcEndTime: utcEndTime.toISOString(),
+          });
 
           availableSlots.push({
             displayTime: slotTime,

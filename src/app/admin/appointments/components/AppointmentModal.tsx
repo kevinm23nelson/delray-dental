@@ -1,7 +1,7 @@
 // src/app/admin/appointments/components/AppointmentModal.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { parseISO } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -45,6 +46,56 @@ export default function AppointmentModal({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Log the received appointment times for debugging
+  console.log("AppointmentModal received appointment times:", {
+    rawStartTime: appointment.startTime,
+    rawEndTime: appointment.endTime,
+  });
+
+  // Parse the appointment times correctly
+  // If they're already strings with timezone info, use parseISO
+  // Otherwise, create Date objects directly
+  let startTime, endTime;
+
+  if (
+    typeof appointment.startTime === "string" &&
+    typeof appointment.endTime === "string"
+  ) {
+    // Strings are already in Eastern Time with timezone offset from the API
+    startTime = parseISO(appointment.startTime);
+    endTime = parseISO(appointment.endTime);
+
+    console.log("Parsed appointment times from ISO strings:", {
+      startTimeISO: startTime.toISOString(),
+      endTimeISO: endTime.toISOString(),
+    });
+  } else {
+    // Otherwise, use the Date objects directly and convert to Eastern Time
+    startTime = toZonedTime(appointment.startTime, TIMEZONE);
+    endTime = toZonedTime(appointment.endTime, TIMEZONE);
+
+    console.log("Converted Date objects to Eastern Time:", {
+      startTimeISO: startTime.toISOString(),
+      endTimeISO: endTime.toISOString(),
+    });
+  }
+
+  const formattedDate = formatInTimeZone(
+    startTime,
+    TIMEZONE,
+    "EEEE, MMMM d, yyyy"
+  );
+
+  const formattedStartTime = formatInTimeZone(startTime, TIMEZONE, "h:mm a");
+
+  const formattedEndTime = formatInTimeZone(endTime, TIMEZONE, "h:mm a");
+
+  console.log("Formatted appointment times (ET):", {
+    formattedDate,
+    formattedStartTime,
+    formattedEndTime,
+  });
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
@@ -54,24 +105,6 @@ export default function AppointmentModal({
       setIsSubmitting(false);
     }
   }
-
-  const formattedDate = formatInTimeZone(
-    new Date(appointment.startTime),
-    TIMEZONE,
-    "EEEE, MMMM d, yyyy"
-  );
-
-  const formattedStartTime = formatInTimeZone(
-    new Date(appointment.startTime),
-    TIMEZONE,
-    "h:mm a"
-  );
-
-  const formattedEndTime = formatInTimeZone(
-    new Date(appointment.endTime),
-    TIMEZONE,
-    "h:mm a"
-  );
 
   return (
     <div className="fixed inset-0 z-50">
