@@ -125,23 +125,22 @@ export default function BookingModal({
 
       // Log the times directly from the selected slot
       console.log("Selected slot times:", {
-        startTime: selectedSlot.startTime, // UTC from available-slots API
-        endTime: selectedSlot.endTime, // UTC from available-slots API
-        displayTime: selectedSlot.displayTime, // Eastern Time display format
-        displayEndTime: selectedSlot.displayEndTime, // Eastern Time display format
+        startTime: selectedSlot.startTime, // Eastern Time with offset
+        endTime: selectedSlot.endTime, // Eastern Time with offset
+        displayTime: selectedSlot.displayTime, // Human-readable time
+        displayEndTime: selectedSlot.displayEndTime, // Human-readable time
       });
 
-      // Create the appointment data with UTC timestamps from the available-slots API
-      // These timestamps should already be properly converted to UTC by the convertETtoUTC function
+      // Create the appointment data with the Eastern Time timestamps
       const appointmentData = {
         ...formData,
-        startTime: selectedSlot.startTime, // UTC ISO string from available-slots API
-        endTime: selectedSlot.endTime, // UTC ISO string from available-slots API
+        startTime: selectedSlot.startTime, // This now includes ET offset from available-slots API
+        endTime: selectedSlot.endTime, // This now includes ET offset from available-slots API
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
       };
 
-      console.log("Sending appointment data:", appointmentData);
+      console.log("Sending appointment data (Eastern Time):", appointmentData);
 
       // First, send the email notification to ensure it gets sent even if booking fails
       try {

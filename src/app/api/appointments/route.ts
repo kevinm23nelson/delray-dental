@@ -1,46 +1,30 @@
 // src/app/api/appointments/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { parseISO } from "date-fns";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { parseISO, format } from "date-fns";
 
 const prisma = new PrismaClient();
-const TIMEZONE = "America/New_York"; // Eastern Time
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Parse the times from the request
-    // These should be UTC ISO strings from the available-slots API's convertETtoUTC function
+    // Parse the times from the request - these now have explicit ET timezone info
+    // Format: 2023-05-15T14:30:00.000-04:00
     const startTime = parseISO(body.startTime);
     const endTime = parseISO(body.endTime);
 
     // Log the received timestamps for debugging
-    console.log("Booking appointment with supplied times:", {
+    console.log("Booking appointment with Eastern Time:", {
       receivedStartTime: body.startTime,
       receivedEndTime: body.endTime,
-      parsedStartTime: startTime.toISOString(),
-      parsedEndTime: endTime.toISOString(),
+      parsedStartTime: format(startTime, "yyyy-MM-dd'T'HH:mm:ss.SSS"),
+      parsedEndTime: format(endTime, "yyyy-MM-dd'T'HH:mm:ss.SSS"),
+      hours: startTime.getHours(),
+      minutes: startTime.getMinutes(),
     });
 
-    // Verify these are properly formatted Eastern Time for display
-    const startTimeET = toZonedTime(startTime, TIMEZONE);
-    const endTimeET = toZonedTime(endTime, TIMEZONE);
-    console.log("Appointment times in Eastern Time:", {
-      startTimeET: formatInTimeZone(
-        startTimeET,
-        TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-      ),
-      endTimeET: formatInTimeZone(
-        endTimeET,
-        TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-      ),
-    });
-
-    // Create the appointment with the UTC times
+    // Create the appointment with the provided Eastern Time
     const appointment = await prisma.appointment.create({
       data: {
         patientName: body.name,
@@ -59,35 +43,34 @@ export async function POST(request: Request) {
       },
     });
 
-    // Convert the UTC times to Eastern Time for the response
-    const responseStartTimeET = toZonedTime(appointment.startTime, TIMEZONE);
-    const responseEndTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+    // Format the response with Eastern Time
+    const formattedStartTime = format(
+      appointment.startTime,
+      "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
+    );
+    const formattedEndTime = format(
+      appointment.endTime,
+      "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
+    );
+
+    // Also create display-friendly formats
+    const displayStartTime = format(appointment.startTime, "h:mm a");
+    const displayEndTime = format(appointment.endTime, "h:mm a");
+    const displayDate = format(appointment.startTime, "EEEE, MMMM d, yyyy");
 
     console.log("Appointment created with times (ET):", {
-      startTime: formatInTimeZone(
-        responseStartTimeET,
-        TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-      ),
-      endTime: formatInTimeZone(
-        responseEndTimeET,
-        TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-      ),
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      displayTime: `${displayStartTime} - ${displayEndTime}`,
+      displayDate,
     });
 
     return NextResponse.json({
       ...appointment,
-      startTime: formatInTimeZone(
-        responseStartTimeET,
-        TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-      ),
-      endTime: formatInTimeZone(
-        responseEndTimeET,
-        TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-      ),
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      displayTime: `${displayStartTime} - ${displayEndTime}`,
+      displayDate,
     });
   } catch (error) {
     console.error("Failed to create appointment:", error);
@@ -113,23 +96,28 @@ export async function GET() {
       },
     });
 
-    // Convert the UTC times to Eastern Time for the response
+    // Format appointments for response with Eastern Time
     const formattedAppointments = appointments.map((appointment) => {
-      const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
-      const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+      const formattedStartTime = format(
+        appointment.startTime,
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
+      );
+
+      const formattedEndTime = format(
+        appointment.endTime,
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
+      );
+
+      const displayStartTime = format(appointment.startTime, "h:mm a");
+      const displayEndTime = format(appointment.endTime, "h:mm a");
+      const displayDate = format(appointment.startTime, "EEEE, MMMM d, yyyy");
 
       return {
         ...appointment,
-        startTime: formatInTimeZone(
-          startTimeET,
-          TIMEZONE,
-          "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-        ),
-        endTime: formatInTimeZone(
-          endTimeET,
-          TIMEZONE,
-          "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
-        ),
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
+        displayTime: `${displayStartTime} - ${displayEndTime}`,
+        displayDate,
       };
     });
 

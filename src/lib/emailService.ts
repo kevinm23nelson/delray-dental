@@ -1,6 +1,6 @@
 // src/lib/emailService.ts
 import emailjs from "@emailjs/browser";
-import { formatInTimeZone } from "date-fns-tz";
+import { format } from "date-fns";
 
 interface AppointmentEmailData {
   patientName: string;
@@ -21,8 +21,6 @@ interface ContactFormData {
   subject: string;
   message: string;
 }
-
-const TIMEZONE = "America/New_York"; // Eastern Time
 
 export const emailService = {
   async sendContactFormEmail(data: ContactFormData) {
@@ -49,22 +47,13 @@ export const emailService = {
   async sendAppointmentEmail(data: AppointmentEmailData) {
     try {
       console.log("Email service received appointment times:", {
-        startTimeISO: data.startTime.toISOString(),
-        endTimeISO: data.endTime.toISOString(),
+        startTimeHours: data.startTime.getHours(),
+        startTimeMinutes: data.startTime.getMinutes(),
       });
 
       // Format the appointment date and time in Eastern Time
-      const formattedDate = formatInTimeZone(
-        data.startTime,
-        TIMEZONE,
-        "EEEE, MMMM d, yyyy"
-      );
-
-      const formattedTime = formatInTimeZone(
-        data.startTime,
-        TIMEZONE,
-        "h:mm a"
-      );
+      const formattedDate = format(data.startTime, "EEEE, MMMM d, yyyy");
+      const formattedTime = format(data.startTime, "h:mm a");
 
       console.log("Email formatted times (ET):", {
         formattedDate,
