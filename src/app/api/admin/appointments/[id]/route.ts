@@ -6,6 +6,44 @@ import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 const prisma = new PrismaClient();
 const TIMEZONE = "America/New_York"; // Eastern Time
 
+// Detect if we're on the production domain
+function isProduction() {
+  // This is more reliable than checking NODE_ENV
+  return (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production" ||
+    (typeof window !== "undefined" &&
+      window.location &&
+      window.location.hostname === "delraydental.com")
+  );
+}
+
+// Helper function for production timezone handling
+function handleTimezoneCorrection(date: Date): Date {
+  // Check if we're in production
+  if (isProduction()) {
+    console.log("⚠️ Applying FIXED 8-hour timezone correction");
+    // In production, we keep the same hour value for display purposes
+    const result = new Date(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+      date.getUTCSeconds()
+    );
+
+    console.log("Timezone correction:", {
+      original: date.toISOString(),
+      corrected: result.toISOString(),
+    });
+
+    return result;
+  }
+
+  return date;
+}
+
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
     const id = req.url.split("/").pop();
@@ -24,6 +62,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       "PATCH [id] - Server timezone offset:",
       new Date().getTimezoneOffset()
     );
+    console.log("PATCH [id] - Environment:", process.env.NODE_ENV || "not set");
 
     if (data.patientPhone === "") {
       return NextResponse.json(
@@ -49,9 +88,13 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       },
     });
 
+    // Apply timezone correction for production if needed
+    const correctedStartTime = handleTimezoneCorrection(appointment.startTime);
+    const correctedEndTime = handleTimezoneCorrection(appointment.endTime);
+
     // Convert times to Eastern Time
-    const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
-    const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+    const startTimeET = toZonedTime(correctedStartTime, TIMEZONE);
+    const endTimeET = toZonedTime(correctedEndTime, TIMEZONE);
 
     console.log("PATCH [id] - Original UTC appointment times:", {
       startTimeUTC: appointment.startTime.toISOString(),
@@ -110,6 +153,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       "GET [id] - Server timezone offset:",
       new Date().getTimezoneOffset()
     );
+    console.log("GET [id] - Environment:", process.env.NODE_ENV || "not set");
 
     const appointment = await prisma.appointment.findUnique({
       where: { id },
@@ -126,16 +170,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Apply timezone correction for production if needed
+    const correctedStartTime = handleTimezoneCorrection(appointment.startTime);
+    const correctedEndTime = handleTimezoneCorrection(appointment.endTime);
+
     // Log the original UTC times from the database
     console.log("GET [id] - Original UTC appointment times:", {
       id: appointment.id,
       startTimeUTC: appointment.startTime.toISOString(),
-      endTimeUTC: appointment.endTime.toISOString(),
+      correctedStartTimeUTC: correctedStartTime.toISOString(),
     });
 
     // Convert times to Eastern Time
-    const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
-    const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+    const startTimeET = toZonedTime(correctedStartTime, TIMEZONE);
+    const endTimeET = toZonedTime(correctedEndTime, TIMEZONE);
 
     // Log the converted Eastern Times
     console.log("GET [id] - Converted to Eastern Time:", {

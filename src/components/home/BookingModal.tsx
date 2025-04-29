@@ -115,6 +115,15 @@ export default function BookingModal({
     }
   }, [isOpen, selectedDate, appointmentType.id]);
 
+  // Debug helper to check environment
+  const isProduction = () => {
+    return (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "delraydental.com" ||
+        window.location.hostname.includes("vercel.app"))
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSlot) return;
@@ -122,10 +131,13 @@ export default function BookingModal({
     setIsSubmitting(true);
     try {
       console.log("Starting appointment booking process...");
-      console.log(
-        "Client environment:",
-        typeof window !== "undefined" ? window.location.hostname : "SSR"
-      );
+      console.log("Client environment:", {
+        hostname:
+          typeof window !== "undefined" ? window.location.hostname : "SSR",
+        isProduction: isProduction(),
+        userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezoneOffset: new Date().getTimezoneOffset(),
+      });
       console.log("Client time:", new Date().toString());
       console.log("Client timezone offset:", new Date().getTimezoneOffset());
 
@@ -157,6 +169,8 @@ export default function BookingModal({
         endTime: selectedSlot.endTime, // UTC from available-slots API
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
+        // Add a flag to indicate this is coming from the live site
+        isFromProductionSite: isProduction(),
       };
 
       console.log("Sending appointment data:", appointmentData);

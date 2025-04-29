@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
 import { addMinutes, parseISO, format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
 const TIMEZONE = "America/New_York"; // Eastern Time
@@ -12,25 +12,63 @@ interface ExistingAppointment {
   endTime: Date;
 }
 
-// Helper function to convert a date in Eastern Time to UTC
+// Detect if we're on the production domain
+function isProduction() {
+  // This is more reliable than checking NODE_ENV
+  return (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production" ||
+    (typeof window !== "undefined" &&
+      window.location &&
+      window.location.hostname === "delraydental.com")
+  );
+}
+
+// Helper function to convert a date in Eastern Time to UTC for production
 function convertETtoUTC(dateET: Date): Date {
-  // Extract ET time components
-  const year = dateET.getFullYear();
-  const month = dateET.getMonth();
-  const day = dateET.getDate();
-  const hours = dateET.getHours();
-  const minutes = dateET.getMinutes();
-  const seconds = dateET.getSeconds();
+  // For production, we manually apply a fixed 8-hour offset
+  // This ensures consistent behavior across all environments
+  if (isProduction()) {
+    console.log("⚠️ Using FIXED 8-hour timezone conversion for production");
+    // Get the date components in Eastern Time
+    const year = dateET.getFullYear();
+    const month = dateET.getMonth();
+    const day = dateET.getDate();
+    const hours = dateET.getHours();
+    const minutes = dateET.getMinutes();
+    const seconds = dateET.getSeconds();
+    const ms = dateET.getMilliseconds();
 
-  // Create a date string in ISO format with explicit timezone
-  const etDateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-    day
-  ).padStart(2, "0")}T${String(hours).padStart(2, "0")}:${String(
-    minutes
-  ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.000-04:00`;
+    // Create a new UTC date with the Eastern Time values
+    // For an 8-hour offset: If it's 10:00 ET, we create 10:00 UTC
+    // This effectively shifts the time by the exact needed amount
+    const result = new Date(
+      Date.UTC(year, month, day, hours, minutes, seconds, ms)
+    );
 
-  // Parse this as a UTC date
-  return new Date(etDateString);
+    console.log("ET to UTC conversion (production):", {
+      original: dateET.toString(),
+      result: result.toISOString(),
+    });
+
+    return result;
+  } else {
+    console.log("Using standard timezone conversion for development");
+    // For development, we use the dynamic timezone offset
+    // Get ET timezone information with proper DST handling
+    const etTime = formatInTimeZone(
+      dateET,
+      TIMEZONE,
+      "yyyy-MM-dd'T'HH:mm:ss.SSS"
+    );
+    const etOffset = formatInTimeZone(dateET, TIMEZONE, "xxx"); // Gets +/-xx:xx format
+
+    // Create ISO string with explicit timezone
+    const etISOString = `${etTime}${etOffset}`;
+
+    // Parse as UTC date
+    return new Date(etISOString);
+  }
 }
 
 export async function GET(request: Request) {
@@ -42,6 +80,7 @@ export async function GET(request: Request) {
     console.log("Query params:", { dateStr, appointmentTypeId });
     console.log("Server time:", new Date().toString());
     console.log("Server timezone offset:", new Date().getTimezoneOffset());
+    console.log("Environment:", process.env.NODE_ENV || "not set");
 
     if (!dateStr || !appointmentTypeId) {
       console.log("Missing required parameters");
