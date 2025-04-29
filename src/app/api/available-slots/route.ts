@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, AppointmentStatus, DayOfWeek } from "@prisma/client";
 import { addMinutes, parseISO, format } from "date-fns";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
 const TIMEZONE = "America/New_York"; // Eastern Time
@@ -14,11 +14,23 @@ interface ExistingAppointment {
 
 // Helper function to convert a date in Eastern Time to UTC
 function convertETtoUTC(dateET: Date): Date {
-  // Get the Eastern Time offset in milliseconds using formatInTimeZone
-  const etOffset = parseInt(formatInTimeZone(dateET, TIMEZONE, "x"));
+  // Extract ET time components
+  const year = dateET.getFullYear();
+  const month = dateET.getMonth();
+  const day = dateET.getDate();
+  const hours = dateET.getHours();
+  const minutes = dateET.getMinutes();
+  const seconds = dateET.getSeconds();
 
-  // Calculate the UTC time by adjusting the ET time with the difference between local and ET offsets
-  return new Date(dateET.getTime() - etOffset);
+  // Create a date string in ISO format with explicit timezone
+  const etDateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+    day
+  ).padStart(2, "0")}T${String(hours).padStart(2, "0")}:${String(
+    minutes
+  ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.000-04:00`;
+
+  // Parse this as a UTC date
+  return new Date(etDateString);
 }
 
 export async function GET(request: Request) {
@@ -28,6 +40,8 @@ export async function GET(request: Request) {
     const appointmentTypeId = searchParams.get("appointmentTypeId");
 
     console.log("Query params:", { dateStr, appointmentTypeId });
+    console.log("Server time:", new Date().toString());
+    console.log("Server timezone offset:", new Date().getTimezoneOffset());
 
     if (!dateStr || !appointmentTypeId) {
       console.log("Missing required parameters");

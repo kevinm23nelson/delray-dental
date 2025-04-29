@@ -18,6 +18,12 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     }
 
     const data = await req.json();
+    console.log("PATCH [id] - Request body:", data);
+    console.log("PATCH [id] - Server time:", new Date().toString());
+    console.log(
+      "PATCH [id] - Server timezone offset:",
+      new Date().getTimezoneOffset()
+    );
 
     if (data.patientPhone === "") {
       return NextResponse.json(
@@ -97,6 +103,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
+
+    console.log("GET [id] - Request for appointment ID:", id);
+    console.log("GET [id] - Server time:", new Date().toString());
+    console.log(
+      "GET [id] - Server timezone offset:",
+      new Date().getTimezoneOffset()
+    );
 
     const appointment = await prisma.appointment.findUnique({
       where: { id },

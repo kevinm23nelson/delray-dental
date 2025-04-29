@@ -1,20 +1,29 @@
 // src/app/api/appointments/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { parseISO } from "date-fns";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
 const TIMEZONE = "America/New_York"; // Eastern Time
 
+// Helper function to ensure correct timezone handling in production
+function parseUTCDate(isoString: string): Date {
+  return new Date(isoString);
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    console.log("Appointment request body:", body);
+    console.log("Server environment:", process.env.NODE_ENV);
+    console.log("Server time:", new Date().toString());
+    console.log("Server timezone offset:", new Date().getTimezoneOffset());
+
     // Parse the UTC times from the available-slots API
-    // These are already in UTC from the available-slots API's zonedTimeToUtc conversion
-    const startTime = parseISO(body.startTime);
-    const endTime = parseISO(body.endTime);
+    // These should already be in UTC format from the available-slots API
+    const startTime = parseUTCDate(body.startTime);
+    const endTime = parseUTCDate(body.endTime);
 
     console.log("Booking appointment in UTC (for database storage):", {
       startTime: startTime.toISOString(),

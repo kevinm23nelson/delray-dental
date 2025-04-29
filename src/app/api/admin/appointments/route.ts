@@ -7,8 +7,37 @@ import { parseISO } from "date-fns";
 const prisma = new PrismaClient();
 const TIMEZONE = "America/New_York"; // Eastern Time
 
+// Helper function to ensure correct timezone handling in production
+function createUTCFromET(etDateString: string): Date {
+  const etDate = parseISO(etDateString);
+
+  // Extract ET time components
+  const year = etDate.getFullYear();
+  const month = etDate.getMonth();
+  const day = etDate.getDate();
+  const hours = etDate.getHours();
+  const minutes = etDate.getMinutes();
+  const seconds = etDate.getSeconds();
+
+  // Create a date string in ISO format with explicit timezone
+  const etISOString = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+    day
+  ).padStart(2, "0")}T${String(hours).padStart(2, "0")}:${String(
+    minutes
+  ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.000-04:00`;
+
+  // Parse this as a UTC date
+  return new Date(etISOString);
+}
+
 export async function GET() {
   try {
+    console.log("Admin API - Server time:", new Date().toString());
+    console.log(
+      "Admin API - Server timezone offset:",
+      new Date().getTimezoneOffset()
+    );
+
     const appointments = await prisma.appointment.findMany({
       include: {
         appointmentType: true,
@@ -50,21 +79,16 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("Admin API POST - Request body:", body);
+    console.log("Admin API POST - Server time:", new Date().toString());
 
     // Check if startTime and endTime are provided in Eastern Time
     let startTime, endTime;
 
     if (body.startTimeET && body.endTimeET) {
       // If Eastern Time values are provided, convert to UTC for storage
-      const startTimeET = parseISO(body.startTimeET);
-      const endTimeET = parseISO(body.endTimeET);
-
-      // Manually convert ET to UTC by adjusting for timezone offset
-      const startTimeOffset = formatInTimeZone(startTimeET, TIMEZONE, "x");
-      const endTimeOffset = formatInTimeZone(endTimeET, TIMEZONE, "x");
-
-      startTime = new Date(startTimeET.getTime() - parseInt(startTimeOffset));
-      endTime = new Date(endTimeET.getTime() - parseInt(endTimeOffset));
+      startTime = createUTCFromET(body.startTimeET);
+      endTime = createUTCFromET(body.endTimeET);
 
       console.log("Converting admin-provided ET times to UTC:", {
         startTimeET: body.startTimeET,
