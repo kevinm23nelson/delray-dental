@@ -12,63 +12,13 @@ interface ExistingAppointment {
   endTime: Date;
 }
 
-// Detect if we're on the production domain
-function isProduction() {
-  // This is more reliable than checking NODE_ENV
-  return (
-    process.env.VERCEL_ENV === "production" ||
-    process.env.NODE_ENV === "production" ||
-    (typeof window !== "undefined" &&
-      window.location &&
-      window.location.hostname === "delraydental.com")
-  );
-}
-
-// Helper function to convert a date in Eastern Time to UTC for production
+// Helper function to convert a date in Eastern Time to UTC
 function convertETtoUTC(dateET: Date): Date {
-  // For production, we manually apply a fixed 8-hour offset
-  // This ensures consistent behavior across all environments
-  if (isProduction()) {
-    console.log("⚠️ Using FIXED 8-hour timezone conversion for production");
-    // Get the date components in Eastern Time
-    const year = dateET.getFullYear();
-    const month = dateET.getMonth();
-    const day = dateET.getDate();
-    const hours = dateET.getHours();
-    const minutes = dateET.getMinutes();
-    const seconds = dateET.getSeconds();
-    const ms = dateET.getMilliseconds();
+  // Get the timezone offset in milliseconds
+  const etOffset = parseInt(formatInTimeZone(dateET, TIMEZONE, "x"));
 
-    // Create a new UTC date with the Eastern Time values
-    // For an 8-hour offset: If it's 10:00 ET, we create 10:00 UTC
-    // This effectively shifts the time by the exact needed amount
-    const result = new Date(
-      Date.UTC(year, month, day, hours, minutes, seconds, ms)
-    );
-
-    console.log("ET to UTC conversion (production):", {
-      original: dateET.toString(),
-      result: result.toISOString(),
-    });
-
-    return result;
-  } else {
-    console.log("Using standard timezone conversion for development");
-    // For development, we use the dynamic timezone offset
-    // Get ET timezone information with proper DST handling
-    const etTime = formatInTimeZone(
-      dateET,
-      TIMEZONE,
-      "yyyy-MM-dd'T'HH:mm:ss.SSS"
-    );
-    const etOffset = formatInTimeZone(dateET, TIMEZONE, "xxx"); // Gets +/-xx:xx format
-
-    // Create ISO string with explicit timezone
-    const etISOString = `${etTime}${etOffset}`;
-
-    // Parse as UTC date
-    return new Date(etISOString);
-  }
+  // Calculate the UTC time by adjusting the ET time with the difference between local and ET offsets
+  return new Date(dateET.getTime() - etOffset);
 }
 
 export async function GET(request: Request) {
@@ -78,9 +28,6 @@ export async function GET(request: Request) {
     const appointmentTypeId = searchParams.get("appointmentTypeId");
 
     console.log("Query params:", { dateStr, appointmentTypeId });
-    console.log("Server time:", new Date().toString());
-    console.log("Server timezone offset:", new Date().getTimezoneOffset());
-    console.log("Environment:", process.env.NODE_ENV || "not set");
 
     if (!dateStr || !appointmentTypeId) {
       console.log("Missing required parameters");

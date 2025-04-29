@@ -29,7 +29,6 @@ export default function AppointmentsPage() {
       const response = await fetch("/api/admin/appointments");
       if (!response.ok) throw new Error("Failed to load appointments");
       const data = await response.json();
-      console.log("Loaded appointments:", data.slice(0, 2)); // Log first two for debugging
       setAppointments(data);
     } catch (error) {
       console.error("Failed to load appointments:", error);
@@ -39,29 +38,22 @@ export default function AppointmentsPage() {
     }
   }
 
-  const events = appointments.map((appointment) => {
-    // Parse the times to ensure they're handled correctly
-    const start =
+  const events = appointments.map((appointment) => ({
+    id: appointment.id,
+    title: `${appointment.patientName} (${appointment.practitioner.name})`,
+    start:
       typeof appointment.startTime === "string"
         ? new Date(appointment.startTime)
-        : appointment.startTime;
-
-    const end =
+        : appointment.startTime,
+    end:
       typeof appointment.endTime === "string"
         ? new Date(appointment.endTime)
-        : appointment.endTime;
-
-    return {
-      id: appointment.id,
-      title: `${appointment.patientName} (${appointment.practitioner.name})`,
-      start,
-      end,
-      backgroundColor: getStatusColor(appointment.status),
-      extendedProps: {
-        ...appointment,
-      },
-    };
-  });
+        : appointment.endTime,
+    backgroundColor: getStatusColor(appointment.status),
+    extendedProps: {
+      ...appointment,
+    },
+  }));
 
   function getStatusColor(status: AppointmentStatus) {
     switch (status) {
@@ -83,18 +75,10 @@ export default function AppointmentsPage() {
       // Fetch the appointment directly from the API instead of using the cached data
       const response = await fetch(`/api/admin/appointments/${info.event.id}`);
       if (!response.ok) throw new Error("Failed to load appointment details");
-
+      
       const appointment = await response.json();
-      console.log("Fetched individual appointment:", appointment);
-      console.log("Appointment times:", {
-        startTime: appointment.startTime,
-        endTime: appointment.endTime,
-        // Check if they contain timezone info
-        hasTimezoneInfo:
-          appointment.startTime?.includes("+") ||
-          appointment.startTime?.includes("-"),
-      });
-
+      console.log("Fetched appointment:", appointment);
+      
       // Now set this fetched appointment as the selected one
       setSelectedAppointment(appointment);
       setShowModal(true);
@@ -123,7 +107,7 @@ export default function AppointmentsPage() {
               center: "title",
               right: "dayGridMonth,timeGridWeek,timeGridDay",
             }}
-            timeZone="America/New_York" // Use Eastern Time for calendar display
+            timeZone="America/New_York" // Change this line to use Eastern Time consistently
             slotMinTime="09:00:00"
             slotMaxTime="17:00:00"
             allDaySlot={false}
