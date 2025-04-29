@@ -14,11 +14,17 @@ interface ExistingAppointment {
 
 // Helper function to convert a date in Eastern Time to UTC
 function convertETtoUTC(dateET: Date): Date {
-  // Get the timezone offset in milliseconds
-  const etOffset = parseInt(formatInTimeZone(dateET, TIMEZONE, "x"));
+  // Format the date in ET with timezone indicator, then parse it as a new Date
+  // This ensures the timezone offset is properly applied regardless of the server's timezone
+  const etFormattedWithOffset = formatInTimeZone(
+    dateET,
+    TIMEZONE,
+    "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+  );
 
-  // Calculate the UTC time by adjusting the ET time with the difference between local and ET offsets
-  return new Date(dateET.getTime() - etOffset);
+  // Parse this string (which has the timezone offset included) back to a Date object
+  // which will automatically be in UTC internally
+  return new Date(etFormattedWithOffset);
 }
 
 export async function GET(request: Request) {

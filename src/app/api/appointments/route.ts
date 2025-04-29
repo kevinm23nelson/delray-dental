@@ -11,14 +11,33 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Parse the UTC times from the available-slots API
-    // These are already in UTC from the available-slots API's zonedTimeToUtc conversion
+    // Parse the times from the request
+    // These should be UTC ISO strings from the available-slots API's convertETtoUTC function
     const startTime = parseISO(body.startTime);
     const endTime = parseISO(body.endTime);
 
-    console.log("Booking appointment in UTC (for database storage):", {
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
+    // Log the received timestamps for debugging
+    console.log("Booking appointment with supplied times:", {
+      receivedStartTime: body.startTime,
+      receivedEndTime: body.endTime,
+      parsedStartTime: startTime.toISOString(),
+      parsedEndTime: endTime.toISOString(),
+    });
+
+    // Verify these are properly formatted Eastern Time for display
+    const startTimeET = toZonedTime(startTime, TIMEZONE);
+    const endTimeET = toZonedTime(endTime, TIMEZONE);
+    console.log("Appointment times in Eastern Time:", {
+      startTimeET: formatInTimeZone(
+        startTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+      ),
+      endTimeET: formatInTimeZone(
+        endTimeET,
+        TIMEZONE,
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+      ),
     });
 
     // Create the appointment with the UTC times
@@ -41,33 +60,33 @@ export async function POST(request: Request) {
     });
 
     // Convert the UTC times to Eastern Time for the response
-    const startTimeET = toZonedTime(appointment.startTime, TIMEZONE);
-    const endTimeET = toZonedTime(appointment.endTime, TIMEZONE);
+    const responseStartTimeET = toZonedTime(appointment.startTime, TIMEZONE);
+    const responseEndTimeET = toZonedTime(appointment.endTime, TIMEZONE);
 
     console.log("Appointment created with times (ET):", {
       startTime: formatInTimeZone(
-        startTimeET,
+        responseStartTimeET,
         TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
       ),
       endTime: formatInTimeZone(
-        endTimeET,
+        responseEndTimeET,
         TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
       ),
     });
 
     return NextResponse.json({
       ...appointment,
       startTime: formatInTimeZone(
-        startTimeET,
+        responseStartTimeET,
         TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
       ),
       endTime: formatInTimeZone(
-        endTimeET,
+        responseEndTimeET,
         TIMEZONE,
-        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
       ),
     });
   } catch (error) {

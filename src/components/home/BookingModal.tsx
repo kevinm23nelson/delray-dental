@@ -132,10 +132,11 @@ export default function BookingModal({
       });
 
       // Create the appointment data with UTC timestamps from the available-slots API
+      // These timestamps should already be properly converted to UTC by the convertETtoUTC function
       const appointmentData = {
         ...formData,
-        startTime: selectedSlot.startTime, // UTC from available-slots API
-        endTime: selectedSlot.endTime, // UTC from available-slots API
+        startTime: selectedSlot.startTime, // UTC ISO string from available-slots API
+        endTime: selectedSlot.endTime, // UTC ISO string from available-slots API
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
       };
