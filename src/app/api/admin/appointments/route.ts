@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
-import { parseISO, format } from "date-fns";
+import { parseISO } from "date-fns";
 
 const prisma = new PrismaClient();
 const TIMEZONE = "America/New_York"; // Eastern Time

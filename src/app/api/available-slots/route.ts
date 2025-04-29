@@ -15,8 +15,6 @@ interface ExistingAppointment {
 // Helper function to convert a date in Eastern Time to UTC
 function convertETtoUTC(dateET: Date): Date {
   // Get the timezone offset in milliseconds
-  const tzOffset = new Date(dateET).getTimezoneOffset() * 60000;
-  // Get the Eastern Time offset in milliseconds using formatInTimeZone
   const etOffset = parseInt(formatInTimeZone(dateET, TIMEZONE, "x"));
 
   // Calculate the UTC time by adjusting the ET time with the difference between local and ET offsets
