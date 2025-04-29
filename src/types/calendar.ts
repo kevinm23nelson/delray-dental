@@ -68,8 +68,8 @@ export interface Appointment {
   id: string;
   appointmentType: AppointmentType;
   typeId: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: Date | string;
+  endTime: Date | string;
   patientName: string;
   patientEmail: string;
   patientPhone: string;
@@ -79,6 +79,8 @@ export interface Appointment {
   status: AppointmentStatus;
   createdAt: Date;
   updatedAt: Date;
+  displayTime?: string;
+  displayDate?: string;
 }
 
 export interface TimeSlot {
