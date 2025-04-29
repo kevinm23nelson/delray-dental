@@ -1,4 +1,0 @@
-// src/app/api/admin/appointments/[id]/route.ts
-
-// This file intentionally left empty - functionality split into separate files
-// get.ts, patch.ts, and delete.ts in the same directory
