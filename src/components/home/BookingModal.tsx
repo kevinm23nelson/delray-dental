@@ -89,13 +89,10 @@ export default function BookingModal({
         console.log(
           "Available slots in ET:",
           data.map((slot: TimeSlot) => ({
-            start: formatInTimeZone(
-              new Date(slot.startTime),
-              TIMEZONE,
-              "h:mm a"
-            ),
-            end: formatInTimeZone(new Date(slot.endTime), TIMEZONE, "h:mm a"),
+            start: slot.displayTime, // Using the pre-formatted displayTime
+            end: slot.displayEndTime, // Using the pre-formatted displayEndTime
             practitioner: slot.practitionerName,
+            utcStart: new Date(slot.startTime).toISOString(), // Log the UTC time for verification
           }))
         );
 
@@ -118,6 +115,15 @@ export default function BookingModal({
     }
   }, [isOpen, selectedDate, appointmentType.id]);
 
+  // Debug helper to check environment
+  const isProduction = () => {
+    return (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "delraydental.com" ||
+        window.location.hostname.includes("vercel.app"))
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSlot) return;
@@ -125,14 +131,46 @@ export default function BookingModal({
     setIsSubmitting(true);
     try {
       console.log("Starting appointment booking process...");
+      console.log("Client environment:", {
+        hostname:
+          typeof window !== "undefined" ? window.location.hostname : "SSR",
+        isProduction: isProduction(),
+        userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezoneOffset: new Date().getTimezoneOffset(),
+      });
+      console.log("Client time:", new Date().toString());
+      console.log("Client timezone offset:", new Date().getTimezoneOffset());
 
-      // Create the appointment
+      // Log the times directly from the selected slot
+      console.log("Selected slot times:", {
+        startTime: selectedSlot.startTime, // UTC from available-slots API
+        endTime: selectedSlot.endTime, // UTC from available-slots API
+        displayTime: selectedSlot.displayTime, // Eastern Time display format
+        displayEndTime: selectedSlot.displayEndTime, // Eastern Time display format
+      });
+
+      // Add additional logging to help diagnose the issue
+      const startDate = new Date(selectedSlot.startTime);
+      const endDate = new Date(selectedSlot.endTime);
+
+      console.log("Parsed dates:", {
+        startDate: startDate.toString(),
+        startUTC: startDate.toUTCString(),
+        startISO: startDate.toISOString(),
+        endDate: endDate.toString(),
+        endUTC: endDate.toUTCString(),
+        endISO: endDate.toISOString(),
+      });
+
+      // Create the appointment data with UTC timestamps from the available-slots API
       const appointmentData = {
         ...formData,
-        startTime: selectedSlot.startTime,
-        endTime: selectedSlot.endTime,
+        startTime: selectedSlot.startTime, // UTC from available-slots API
+        endTime: selectedSlot.endTime, // UTC from available-slots API
         practitionerId: selectedSlot.practitionerId,
         appointmentTypeId: appointmentType.id,
+        // Add a flag to indicate this is coming from the live site
+        isFromProductionSite: isProduction(),
       };
 
       console.log("Sending appointment data:", appointmentData);
@@ -140,14 +178,14 @@ export default function BookingModal({
       // First, send the email notification to ensure it gets sent even if booking fails
       try {
         console.log("Attempting to send email notification...");
-        console.log("Email data:", {
-          patientName: formData.name,
-          patientEmail: formData.email,
-          patientPhone: formData.phone,
-          appointmentType: appointmentType.name,
-          practitionerName: selectedSlot.practitionerName,
-          startTime: new Date(selectedSlot.startTime).toISOString(),
-          endTime: new Date(selectedSlot.endTime).toISOString(),
+
+        // Parse the dates to ensure proper Date objects
+        const startTimeDate = new Date(selectedSlot.startTime);
+        const endTimeDate = new Date(selectedSlot.endTime);
+
+        console.log("Email notification timestamps:", {
+          startTimeISO: startTimeDate.toISOString(),
+          endTimeISO: endTimeDate.toISOString(),
         });
 
         const emailResult = await emailService.sendAppointmentEmail({
@@ -156,8 +194,8 @@ export default function BookingModal({
           patientPhone: formData.phone,
           appointmentType: appointmentType.name,
           practitionerName: selectedSlot.practitionerName,
-          startTime: new Date(selectedSlot.startTime),
-          endTime: new Date(selectedSlot.endTime),
+          startTime: startTimeDate,
+          endTime: endTimeDate,
           notes: formData.notes,
         });
 
@@ -252,10 +290,7 @@ export default function BookingModal({
                           : "border-gray-200 hover:border-sky-200 hover:bg-sky-50"
                       }`}
                     >
-                      <div className="font-semibold">
-                        {slot.displayTime}{" "}
-                        {/* Changed from formatLocalTime(slot.startTime) */}
-                      </div>
+                      <div className="font-semibold">{slot.displayTime}</div>
                       <div className="text-sm text-gray-500">
                         {slot.practitionerName}
                       </div>
@@ -267,12 +302,12 @@ export default function BookingModal({
           ) : (
             <>
               <div className="mb-6 bg-sky-50 p-4 rounded-lg">
-  <div className="text-sm text-gray-600">Selected Time (ET):</div>
-  <div className="font-semibold">
-    {selectedSlot!.displayTime} {/* Changed from formatLocalTime(selectedSlot!.startTime) */}
-    with {selectedSlot!.practitionerName}
-  </div>
-</div>
+                <div className="text-sm text-gray-600">Selected Time (ET):</div>
+                <div className="font-semibold">
+                  {selectedSlot!.displayTime} with{" "}
+                  {selectedSlot!.practitionerName}
+                </div>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
