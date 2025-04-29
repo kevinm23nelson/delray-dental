@@ -19,7 +19,7 @@ const HeroSection = () => {
       <div className="relative h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-4xl mx-auto space-y-4">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-montserrat tracking-tight">
-            Implant & Cosmetic Dentistry in Delray Beach, FL
+            Implant & Cosmetic Dentistry in Delray Beach, FL!
           </h1>         
         </div>
       </div>
