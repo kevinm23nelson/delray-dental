@@ -1,7 +1,7 @@
 // src/app/admin/appointments/components/AppointmentModal.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
-import { parseISO } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -52,33 +51,13 @@ export default function AppointmentModal({
     rawEndTime: appointment.endTime,
   });
 
-  // Parse the appointment times correctly
-  // If they're already strings with timezone info, use parseISO
-  // Otherwise, create Date objects directly
-  let startTime, endTime;
+  const startTime = new Date(appointment.startTime);
+  const endTime = new Date(appointment.endTime);
 
-  if (
-    typeof appointment.startTime === "string" &&
-    typeof appointment.endTime === "string"
-  ) {
-    // Strings are already in Eastern Time with timezone offset from the API
-    startTime = parseISO(appointment.startTime);
-    endTime = parseISO(appointment.endTime);
-
-    console.log("Parsed appointment times from ISO strings:", {
-      startTimeISO: startTime.toISOString(),
-      endTimeISO: endTime.toISOString(),
-    });
-  } else {
-    // Otherwise, use the Date objects directly and convert to Eastern Time
-    startTime = toZonedTime(appointment.startTime, TIMEZONE);
-    endTime = toZonedTime(appointment.endTime, TIMEZONE);
-
-    console.log("Converted Date objects to Eastern Time:", {
-      startTimeISO: startTime.toISOString(),
-      endTimeISO: endTime.toISOString(),
-    });
-  }
+  console.log("Parsed appointment times:", {
+    startTimeISO: startTime.toISOString(),
+    endTimeISO: endTime.toISOString(),
+  });
 
   const formattedDate = formatInTimeZone(
     startTime,
