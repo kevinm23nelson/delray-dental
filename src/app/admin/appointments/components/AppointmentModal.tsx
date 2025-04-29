@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
-import { formatInTimeZone } from "date-fns-tz";
+import { format } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -27,9 +27,6 @@ interface AppointmentModalProps {
     status: AppointmentStatus;
   }) => Promise<void>;
 }
-
-// Define the Eastern timezone constant
-const TIMEZONE = "America/New_York";
 
 export default function AppointmentModal({
   appointment,
@@ -51,23 +48,19 @@ export default function AppointmentModal({
     rawEndTime: appointment.endTime,
   });
 
+  // Parse dates - these should now be in Eastern Time format
   const startTime = new Date(appointment.startTime);
   const endTime = new Date(appointment.endTime);
 
   console.log("Parsed appointment times:", {
-    startTimeISO: startTime.toISOString(),
-    endTimeISO: endTime.toISOString(),
+    hours: startTime.getHours(),
+    minutes: startTime.getMinutes(),
   });
 
-  const formattedDate = formatInTimeZone(
-    startTime,
-    TIMEZONE,
-    "EEEE, MMMM d, yyyy"
-  );
-
-  const formattedStartTime = formatInTimeZone(startTime, TIMEZONE, "h:mm a");
-
-  const formattedEndTime = formatInTimeZone(endTime, TIMEZONE, "h:mm a");
+  // Format for display - should already be in Eastern Time
+  const formattedDate = format(startTime, "EEEE, MMMM d, yyyy");
+  const formattedStartTime = format(startTime, "h:mm a");
+  const formattedEndTime = format(endTime, "h:mm a");
 
   console.log("Formatted appointment times (ET):", {
     formattedDate,
