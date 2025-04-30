@@ -32,33 +32,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Format response with Eastern Time
-    const formattedStartTime = format(
-      appointment.startTime,
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
-    );
-
-    const formattedEndTime = format(
-      appointment.endTime,
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
-    );
-
+    // Preserve the original timestamps by passing them directly
+    // Since the stored time in the database is already in Eastern Time
     const displayStartTime = format(appointment.startTime, "h:mm a");
     const displayEndTime = format(appointment.endTime, "h:mm a");
     const displayDate = format(appointment.startTime, "EEEE, MMMM d, yyyy");
 
-    console.log("Fetched appointment with times (ET):", {
+    console.log("Fetched appointment with times:", {
       id: appointment.id,
-      startTime: formattedStartTime,
-      endTime: formattedEndTime,
+      startTimeRaw: appointment.startTime.toISOString(),
+      endTimeRaw: appointment.endTime.toISOString(),
       displayTime: `${displayStartTime} - ${displayEndTime}`,
       displayDate,
     });
 
     return NextResponse.json({
       ...appointment,
-      startTime: formattedStartTime,
-      endTime: formattedEndTime,
+      startTime: appointment.startTime.toISOString(),
+      endTime: appointment.endTime.toISOString(),
       displayTime: `${displayStartTime} - ${displayEndTime}`,
       displayDate,
     });
@@ -100,25 +91,15 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    // Format response with Eastern Time
-    const formattedStartTime = format(
-      appointment.startTime,
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
-    );
-
-    const formattedEndTime = format(
-      appointment.endTime,
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
-    );
-
+    // Preserve the original timestamps by passing them directly
     const displayStartTime = format(appointment.startTime, "h:mm a");
     const displayEndTime = format(appointment.endTime, "h:mm a");
     const displayDate = format(appointment.startTime, "EEEE, MMMM d, yyyy");
 
     return NextResponse.json({
       ...appointment,
-      startTime: formattedStartTime,
-      endTime: formattedEndTime,
+      startTime: appointment.startTime.toISOString(),
+      endTime: appointment.endTime.toISOString(),
       displayTime: `${displayStartTime} - ${displayEndTime}`,
       displayDate,
     });

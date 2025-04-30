@@ -16,24 +16,15 @@ export async function GET() {
     });
 
     const formattedAppointments = appointments.map((appointment) => {
-      const formattedStartTime = format(
-        appointment.startTime,
-        "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
-      );
-
-      const formattedEndTime = format(
-        appointment.endTime,
-        "yyyy-MM-dd'T'HH:mm:ss.SSS'-04:00'"
-      );
-
+      // Preserve original timestamps
       const displayStartTime = format(appointment.startTime, "h:mm a");
       const displayEndTime = format(appointment.endTime, "h:mm a");
       const displayDate = format(appointment.startTime, "EEEE, MMMM d, yyyy");
 
       return {
         ...appointment,
-        startTime: formattedStartTime,
-        endTime: formattedEndTime,
+        startTime: appointment.startTime.toISOString(),
+        endTime: appointment.endTime.toISOString(),
         displayTime: `${displayStartTime} - ${displayEndTime}`,
         displayDate,
       };
