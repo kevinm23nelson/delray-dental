@@ -29,6 +29,7 @@ export default function AppointmentsPage() {
       const response = await fetch("/api/admin/appointments");
       if (!response.ok) throw new Error("Failed to load appointments");
       const data = await response.json();
+      console.log("Loaded appointments:", data[0]);
       setAppointments(data);
     } catch (error) {
       console.error("Failed to load appointments:", error);
@@ -39,7 +40,7 @@ export default function AppointmentsPage() {
   }
 
   const events = appointments.map((appointment) => {
-    // Parse dates that now include the timezone offset
+    // Parse dates from ISO strings
     const start = new Date(appointment.startTime);
     const end = new Date(appointment.endTime);
 

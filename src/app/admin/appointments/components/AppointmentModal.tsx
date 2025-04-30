@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@prisma/client";
 import type { Appointment } from "@/types/calendar";
-import { format } from "date-fns";
 
 interface AppointmentModalProps {
   appointment: Appointment;
@@ -43,30 +42,16 @@ export default function AppointmentModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Log the received appointment times for debugging
-  console.log("AppointmentModal received appointment times:", {
-    rawStartTime: appointment.startTime,
-    rawEndTime: appointment.endTime,
+  console.log("AppointmentModal received appointment:", {
+    startTime: appointment.startTime,
+    endTime: appointment.endTime,
+    displayTime: appointment.displayTime,
+    displayDate: appointment.displayDate,
   });
 
-  // Parse dates - these should now be in Eastern Time format
-  const startTime = new Date(appointment.startTime);
-  const endTime = new Date(appointment.endTime);
-
-  console.log("Parsed appointment times:", {
-    hours: startTime.getHours(),
-    minutes: startTime.getMinutes(),
-  });
-
-  // Format for display - should already be in Eastern Time
-  const formattedDate = format(startTime, "EEEE, MMMM d, yyyy");
-  const formattedStartTime = format(startTime, "h:mm a");
-  const formattedEndTime = format(endTime, "h:mm a");
-
-  console.log("Formatted appointment times (ET):", {
-    formattedDate,
-    formattedStartTime,
-    formattedEndTime,
-  });
+  // Use the pre-formatted display values from the server
+  const formattedDate = appointment.displayDate;
+  const formattedTime = appointment.displayTime;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,12 +73,7 @@ export default function AppointmentModal({
             <div>
               <h2 className="text-xl font-bold">Appointment Details</h2>
               <p className="text-gray-600">
-                {formattedDate}
-                {" at "}
-                {formattedStartTime}
-                {" - "}
-                {formattedEndTime}
-                {" ET"}
+                {formattedDate} at {formattedTime} ET
               </p>
             </div>
             <button
